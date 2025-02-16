@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_unavailable">Network unavailable. Please check your internet connection</string>
+    <string name="poor_network_connection">Poor network connection</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="base">Base</string>
+    <string name="quote">Quote</string>
+    <string name="convert">Convert</string>
+    <string name="converting">Converting</string>
+    <string name="retry">Retry</string>
+    <string name="search">Search</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="amount_cannot_be_empty">Amount cannot be empty</string>
+    <string name="logo">Logo</string>
+    <string name="currency_converter">Currency Converter</string>
+    <string name="favourites">Favourites</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
+    <string name="select_currency">Select Currency</string>
+    <string name="select_currency_empty">Seems like we found nothing!</string>
+    <string name="select_currency_loading">Hold on while we fetch all the latest currency data…</string>
+    <string name="select_currency_button_loading">Loading</string>
+    <string name="select_currency_button_retry">Retry</string>
+    <string name="select_currency_button_cancel">Cancel</string>
+    <string name="select_currency_button_save">Save</string>
+    <string name="add_to_favourites">Would you like to add this to your favourites?</string>
+    <string name="vs">VS</string>
+    <string name="period">.</string>
+    <string name="zero">0</string>
+    <string name="one">1</string>
+    <string name="two">2</string>
+    <string name="three">3</string>
+    <string name="four">4</string>
+    <string name="five">5</string>
+    <string name="six">6</string>
+    <string name="seven">7</string>
+    <string name="eight">8</string>
+    <string name="nine">9</string>
+    <string name="ten">0</string>
+    <string name="del">DEL</string>
+    <string name="ac">AC</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+</resources>
