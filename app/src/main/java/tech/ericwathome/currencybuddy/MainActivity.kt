@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
+import tech.ericwathome.currencybuddy.navigation.RootNav
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModel<MainViewModel>()
@@ -30,29 +31,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CurrencybuddyTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                RootNav()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CurrencybuddyTheme {
-        Greeting("Android")
     }
 }

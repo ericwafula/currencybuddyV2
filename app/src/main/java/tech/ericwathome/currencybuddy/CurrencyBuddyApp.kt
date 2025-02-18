@@ -9,6 +9,7 @@ import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import tech.ericwathome.core.data.di.coreDataModule
 import tech.ericwathome.core.database.di.databaseModule
+import tech.ericwathome.core.network.converter.di.networkModule
 import tech.ericwathome.currencybuddy.di.appModule
 import tech.ericwathome.currencybuddy.error.CrashHandler
 import tech.ericwathome.currencybuddy.error.CrashlyticsTree
@@ -38,7 +39,8 @@ class CurrencyBuddyApp : Application() {
             modules(
                 appModule,
                 coreDataModule,
-                databaseModule
+                databaseModule,
+                networkModule
             )
         }
     }

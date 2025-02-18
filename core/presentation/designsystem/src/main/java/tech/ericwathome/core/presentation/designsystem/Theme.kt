@@ -3,6 +3,7 @@ package tech.ericwathome.core.presentation.designsystem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
@@ -30,9 +31,16 @@ private val LightColorScheme = lightColorScheme(
 fun CurrencybuddyTheme(
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        colorScheme = LightColorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(
+        values = arrayOf(
+            LocalTextUtils provides TextUtils()
+        )
+    ) {
+        MaterialTheme(
+            colorScheme = LightColorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
+
 }

@@ -90,6 +90,7 @@ suspend inline fun <reified T> responseToResult(response: HttpResponse): Result<
 fun constructRoute(route: String): String {
     return when {
         route.contains(BuildConfig.CONVERTER_BASE_URL) -> route
+        route.contains(BuildConfig.CURRENCY_DETAILS_URL) -> route
         route.startsWith("/") -> BuildConfig.CONVERTER_BASE_URL + route
         else -> BuildConfig.CONVERTER_BASE_URL + "/$route"
     }

@@ -1,10 +1,8 @@
 package tech.ericwathome.core.domain.converter
 
-import kotlinx.coroutines.flow.Flow
 import tech.ericwathome.core.domain.converter.model.CurrencyPair
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
-import tech.ericwathome.core.domain.util.Result
 
 typealias CurrencyCode = String
 

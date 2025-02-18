@@ -1,12 +1,7 @@
 package tech.ericwathome.currencybuddy.error
 
-import android.content.Context
 import android.os.Build
 import android.os.Process
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
-import tech.ericwathome.currencybuddy.BuildConfig
 import timber.log.Timber
 import java.io.PrintWriter
 import java.io.StringWriter
