@@ -13,7 +13,10 @@ class LocalDateSerializer : KSerializer<LocalDateTime?> {
     override val descriptor =
         PrimitiveSerialDescriptor(this::class.java.simpleName, PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: LocalDateTime?) {
+    override fun serialize(
+        encoder: Encoder,
+        value: LocalDateTime?,
+    ) {
         encoder.encodeString(with(DateUtils) { value?.formated() ?: "" })
     }
 

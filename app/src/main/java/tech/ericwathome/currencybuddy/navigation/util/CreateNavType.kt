@@ -7,13 +7,17 @@ import androidx.navigation.NavType
 import kotlinx.serialization.json.Json
 
 inline fun <reified T : Parcelable> createNavType(isNullableAllowed: Boolean = false): NavType<T> {
-    val json = Json {
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
+    val json =
+        Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
 
     return object : NavType<T>(isNullableAllowed) {
-        override fun get(bundle: Bundle, key: String): T? {
+        override fun get(
+            bundle: Bundle,
+            key: String,
+        ): T? {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 bundle.getParcelable(key, T::class.java)
             } else {
@@ -29,7 +33,11 @@ inline fun <reified T : Parcelable> createNavType(isNullableAllowed: Boolean = f
             return json.decodeFromString(value)
         }
 
-        override fun put(bundle: Bundle, key: String, value: T) {
+        override fun put(
+            bundle: Bundle,
+            key: String,
+            value: T,
+        ) {
             bundle.putParcelable(key, value)
         }
     }

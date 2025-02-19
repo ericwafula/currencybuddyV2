@@ -5,10 +5,10 @@ data class CurrencyDetails(
     val name: String,
     val symbol: String,
     val flag: Flag,
-    val isToggled: Boolean = false
+    val isToggled: Boolean = false,
 )
 
 data class Flag(
     val png: String,
-    val svg: String
+    val svg: String,
 )

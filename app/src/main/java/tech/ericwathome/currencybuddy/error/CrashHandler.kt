@@ -14,32 +14,39 @@ class CrashHandler : Thread.UncaughtExceptionHandler {
     private var softwareInfo: String? = null
     private var dateInfo: String? = null
 
-    override fun uncaughtException(t: Thread, e: Throwable) {
+    override fun uncaughtException(
+        t: Thread,
+        e: Throwable,
+    ) {
         val stackTrace = StringWriter()
         e.printStackTrace(PrintWriter(stackTrace))
 
-        errorMessage = buildString {
-            append(stackTrace.toString())
-        }
+        errorMessage =
+            buildString {
+                append(stackTrace.toString())
+            }
 
-        softwareInfo = buildString {
-            append("SDK: ")
-            append(Build.VERSION.SDK_INT)
-            append(newLine)
-            append("Release: ")
-            append(Build.VERSION.RELEASE)
-            append(newLine)
-            append("incremental: ")
-            append(Build.VERSION.INCREMENTAL)
-            append(newLine)
-        }
+        softwareInfo =
+            buildString {
+                append("SDK: ")
+                append(Build.VERSION.SDK_INT)
+                append(newLine)
+                append("Release: ")
+                append(Build.VERSION.RELEASE)
+                append(newLine)
+                append("incremental: ")
+                append(Build.VERSION.INCREMENTAL)
+                append(newLine)
+            }
 
-        dateInfo = buildString {
-            append(Calendar.getInstance().time)
-            append(newLine)
-        }
+        dateInfo =
+            buildString {
+                append(Calendar.getInstance().time)
+                append(newLine)
+            }
 
-        val message = "Error:\n" +
+        val message =
+            "Error:\n" +
                 "$errorMessage\n\n" +
                 "Software:\n" +
                 "$softwareInfo\n\n" +

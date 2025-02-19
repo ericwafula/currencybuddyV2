@@ -16,9 +16,9 @@ import tech.ericwathome.core.data.BuildConfig
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.Result
 
-suspend inline fun <reified Response: Any> HttpClient.get(
+suspend inline fun <reified Response : Any> HttpClient.get(
     route: String,
-    queryParameters: Map<String, Any?> = mapOf()
+    queryParameters: Map<String, Any?> = mapOf(),
 ): Result<Response, DataError.Network> {
     return safeCall {
         get {
@@ -30,9 +30,9 @@ suspend inline fun <reified Response: Any> HttpClient.get(
     }
 }
 
-suspend inline fun <reified Request, reified Response: Any> HttpClient.post(
+suspend inline fun <reified Request, reified Response : Any> HttpClient.post(
     route: String,
-    body: Request
+    body: Request,
 ): Result<Response, DataError.Network> {
     return safeCall {
         post {
@@ -42,9 +42,9 @@ suspend inline fun <reified Request, reified Response: Any> HttpClient.post(
     }
 }
 
-suspend inline fun <reified Response: Any> HttpClient.delete(
+suspend inline fun <reified Response : Any> HttpClient.delete(
     route: String,
-    queryParameters: Map<String, Any?> = mapOf()
+    queryParameters: Map<String, Any?> = mapOf(),
 ): Result<Response, DataError.Network> {
     return safeCall {
         delete {
@@ -57,25 +57,26 @@ suspend inline fun <reified Response: Any> HttpClient.delete(
 }
 
 suspend inline fun <reified T> safeCall(execute: () -> HttpResponse): Result<T, DataError.Network> {
-    val response = try {
-        execute()
-    } catch(e: UnresolvedAddressException) {
-        e.printStackTrace()
-        return Result.Error(DataError.Network.NO_INTERNET)
-    } catch (e: SerializationException) {
-        e.printStackTrace()
-        return Result.Error(DataError.Network.SERIALIZATION)
-    } catch(e: Exception) {
-        if(e is CancellationException) throw e
-        e.printStackTrace()
-        return Result.Error(DataError.Network.UNKNOWN)
-    }
+    val response =
+        try {
+            execute()
+        } catch (e: UnresolvedAddressException) {
+            e.printStackTrace()
+            return Result.Error(DataError.Network.NO_INTERNET)
+        } catch (e: SerializationException) {
+            e.printStackTrace()
+            return Result.Error(DataError.Network.SERIALIZATION)
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            e.printStackTrace()
+            return Result.Error(DataError.Network.UNKNOWN)
+        }
 
     return responseToResult(response)
 }
 
 suspend inline fun <reified T> responseToResult(response: HttpResponse): Result<T, DataError.Network> {
-    return when(response.status.value) {
+    return when (response.status.value) {
         in 200..299 -> Result.Success(response.body<T>())
         401 -> Result.Error(DataError.Network.UNAUTHORIZED)
         408 -> Result.Error(DataError.Network.REQUEST_TIMEOUT)

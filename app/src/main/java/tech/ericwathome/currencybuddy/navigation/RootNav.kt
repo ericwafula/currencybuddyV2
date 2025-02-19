@@ -20,7 +20,7 @@ fun RootNav() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.Onboarding.OnboardingGraph
+        startDestination = Routes.Onboarding.OnboardingGraph,
     ) {
         onboardingGraph(navController)
         homeGraph(navController)
@@ -29,7 +29,7 @@ fun RootNav() {
 
 fun NavGraphBuilder.onboardingGraph(navController: NavController) {
     navigation<Routes.Onboarding.OnboardingGraph>(
-        startDestination = Routes.Onboarding.GetStartedScreen
+        startDestination = Routes.Onboarding.GetStartedScreen,
     ) {
         composable<Routes.Onboarding.GetStartedScreen> {
             val lifecycleOwner = LocalLifecycleOwner.current
@@ -38,7 +38,7 @@ fun NavGraphBuilder.onboardingGraph(navController: NavController) {
 
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text("Get Started Screen")
             }
@@ -48,7 +48,7 @@ fun NavGraphBuilder.onboardingGraph(navController: NavController) {
 
 fun NavGraphBuilder.homeGraph(navController: NavController) {
     navigation<Routes.Home.HomeGraph>(
-        startDestination = Routes.Home.HomeScreen
+        startDestination = Routes.Home.HomeScreen,
     ) {
         composable<Routes.Home.HomeScreen> {
             // todo add home screen

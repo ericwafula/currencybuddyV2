@@ -1,4 +1,3 @@
 package tech.ericwathome.converter.domain
 
-class MyClass {
-}
+class MyClass

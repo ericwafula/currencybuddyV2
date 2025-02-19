@@ -6,13 +6,12 @@ import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
 import tech.ericwathome.core.domain.util.Result
-import javax.xml.crypto.Data
 
 interface ConverterRepository {
     suspend fun getConversionRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
-        amount: Double
+        amount: Double,
     ): Result<ExchangeRate, DataError.Network>
 
     suspend fun getCurrencyDetails(): Result<List<CurrencyDetails>, DataError.Network>

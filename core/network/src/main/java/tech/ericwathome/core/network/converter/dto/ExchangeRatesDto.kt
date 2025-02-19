@@ -8,5 +8,5 @@ import java.time.LocalDateTime
 data class ExchangeRatesDto(
     @Serializable(with = LocalDateSerializer::class)
     val date: LocalDateTime?,
-    val rates: Map<String, Map<String, Double>>
+    val rates: Map<String, Map<String, Double>>,
 )

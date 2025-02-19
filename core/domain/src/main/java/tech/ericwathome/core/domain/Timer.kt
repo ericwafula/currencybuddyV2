@@ -10,7 +10,7 @@ object Timer {
     fun timeAndEmit(delayTime: Long = 200L): Flow<Duration> {
         return flow {
             var lastEmitTime = System.currentTimeMillis()
-            while(true) {
+            while (true) {
                 delay(delayTime)
                 val currentTime = System.currentTimeMillis()
                 val elapsedTime = currentTime - lastEmitTime

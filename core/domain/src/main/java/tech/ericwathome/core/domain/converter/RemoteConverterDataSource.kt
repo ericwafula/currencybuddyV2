@@ -9,7 +9,7 @@ interface RemoteConverterDataSource {
     suspend fun getExchangeRate(
         base: String,
         quote: String,
-        amount: Double
+        amount: Double,
     ): Result<ExchangeRate, DataError.Network>
 
     suspend fun getCurrencyDetails(): Result<List<CurrencyDetails>, DataError.Network>

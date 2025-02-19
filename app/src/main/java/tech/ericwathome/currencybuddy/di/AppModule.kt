@@ -10,19 +10,20 @@ import org.koin.dsl.module
 import tech.ericwathome.currencybuddy.CurrencyBuddyApp
 import tech.ericwathome.currencybuddy.MainViewModel
 
-val appModule = module {
-    single<SharedPreferences> {
-        EncryptedSharedPreferences(
-            androidApplication(),
-            "auth_pref",
-            MasterKey(androidApplication()),
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-    }
-    single<CoroutineScope> {
-        (androidApplication() as CurrencyBuddyApp).applicationScope
-    }
+val appModule =
+    module {
+        single<SharedPreferences> {
+            EncryptedSharedPreferences(
+                androidApplication(),
+                "auth_pref",
+                MasterKey(androidApplication()),
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        }
+        single<CoroutineScope> {
+            (androidApplication() as CurrencyBuddyApp).applicationScope
+        }
 
-    viewModelOf(::MainViewModel)
-}
+        viewModelOf(::MainViewModel)
+    }

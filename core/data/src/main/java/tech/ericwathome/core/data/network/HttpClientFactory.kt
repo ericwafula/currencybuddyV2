@@ -18,17 +18,19 @@ class HttpClientFactory {
         return HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(
-                    json = Json {
-                        ignoreUnknownKeys = true
-                    }
+                    json =
+                        Json {
+                            ignoreUnknownKeys = true
+                        },
                 )
             }
             install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        Timber.d(message)
+                logger =
+                    object : Logger {
+                        override fun log(message: String) {
+                            Timber.d(message)
+                        }
                     }
-                }
                 level = LogLevel.ALL
             }
             defaultRequest {

@@ -9,11 +9,12 @@ import tech.ericwathome.core.data.network.HttpClientFactory
 import tech.ericwathome.core.domain.SessionStorage
 import tech.ericwathome.core.domain.converter.ConverterRepository
 
-val coreDataModule = module {
-    single {
-        HttpClientFactory().build()
-    }
-    singleOf(::EncryptedSessionStorage).bind<SessionStorage>()
+val coreDataModule =
+    module {
+        single {
+            HttpClientFactory().build()
+        }
+        singleOf(::EncryptedSessionStorage).bind<SessionStorage>()
 
-    singleOf(::DefaultConverterRepository).bind<ConverterRepository>()
-}
+        singleOf(::DefaultConverterRepository).bind<ConverterRepository>()
+    }

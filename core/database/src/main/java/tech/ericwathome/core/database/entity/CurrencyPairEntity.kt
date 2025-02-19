@@ -19,6 +19,5 @@ data class CurrencyDetailsDbModel(
     val name: String,
     val symbol: String,
     val flagPng: String,
-    val flagSvg: String
+    val flagSvg: String,
 )
-

@@ -6,6 +6,7 @@ import org.koin.dsl.module
 import tech.ericwathome.core.domain.converter.RemoteConverterDataSource
 import tech.ericwathome.core.network.converter.KtorRemoteConverterDataSource
 
-val networkModule = module {
-    singleOf(::KtorRemoteConverterDataSource).bind<RemoteConverterDataSource>()
-}
+val networkModule =
+    module {
+        singleOf(::KtorRemoteConverterDataSource).bind<RemoteConverterDataSource>()
+    }

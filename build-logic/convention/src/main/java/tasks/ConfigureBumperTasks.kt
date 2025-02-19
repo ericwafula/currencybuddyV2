@@ -30,5 +30,9 @@ fun configureBumperTasks(
             group = "bumper"
             description = "Bumps the version code and version name for a major release"
         }
+
+        named("preBuild").configure {
+            dependsOn("ktlintFormat")
+        }
     }
 }

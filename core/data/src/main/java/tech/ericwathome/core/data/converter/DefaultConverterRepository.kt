@@ -15,12 +15,12 @@ import tech.ericwathome.core.domain.util.Result
 
 class DefaultConverterRepository(
     private val remoteConverterDataSource: RemoteConverterDataSource,
-    private val localConverterDataSource: LocalConverterDataSource
+    private val localConverterDataSource: LocalConverterDataSource,
 ) : ConverterRepository {
     override suspend fun getConversionRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
-        amount: Double
+        amount: Double,
     ): Result<ExchangeRate, DataError.Network> {
         return remoteConverterDataSource.getExchangeRate(fromCurrencyCode, toCurrencyCode, amount)
     }
@@ -33,15 +33,16 @@ class DefaultConverterRepository(
         return coroutineScope {
             val favouriteCurrencies = localConverterDataSource.getFavouriteCurrencies()
 
-            val deferredResults = favouriteCurrencies.map { currencyPair ->
-                async {
-                    remoteConverterDataSource.getExchangeRate(
-                        currencyPair.baseCurrency.code,
-                        currencyPair.quoteCurrency.code,
-                        1.0
-                    )
+            val deferredResults =
+                favouriteCurrencies.map { currencyPair ->
+                    async {
+                        remoteConverterDataSource.getExchangeRate(
+                            currencyPair.baseCurrency.code,
+                            currencyPair.quoteCurrency.code,
+                            1.0,
+                        )
+                    }
                 }
-            }
 
             val results = deferredResults.awaitAll()
 

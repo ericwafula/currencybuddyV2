@@ -8,8 +8,8 @@ import tech.ericwathome.core.database.entity.CurrencyPairEntity
 @Database(
     version = 1,
     entities = [
-        CurrencyPairEntity::class
-    ]
+        CurrencyPairEntity::class,
+    ],
 )
 abstract class ConverterDatabase : RoomDatabase() {
     abstract val converterDao: ConverterDao

@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 import tech.ericwathome.core.domain.SessionStorage
 
 class EncryptedSessionStorage(
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
 ) : SessionStorage {
     override suspend fun isOnboardingComplete(): Boolean? {
         return withContext(Dispatchers.IO) {
