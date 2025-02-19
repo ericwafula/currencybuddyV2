@@ -23,9 +23,6 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Create hidden.properties file
-        run: touch hidden.properties
-
       - name: Extract secrets
         run: |
           gpg --quiet --batch --yes --decrypt --passphrase ${{ secrets.PASSPHRASE }} \
