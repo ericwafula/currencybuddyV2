@@ -1,5 +1,6 @@
 package tech.ericwathome.core.database.di
 
+import androidx.annotation.Keep
 import androidx.room.Room
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
@@ -9,6 +10,7 @@ import tech.ericwathome.core.database.ConverterDatabase
 import tech.ericwathome.core.database.RoomLocalConverterDataSource
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 
+@Keep
 val databaseModule =
     module {
         single {
