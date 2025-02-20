@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class tech.ericwathome.core.data.di.CoreDataModuleKt { *; }
+-keep class tech.ericwathome.core.database.di.DatabaseModuleKt { *; }
+-keep class tech.ericwathome.core.network.converter.di.NetworkModuleKt { *; }
+-keep class tech.ericwathome.core.presentation.designsystem.ThemeKt { *; }
