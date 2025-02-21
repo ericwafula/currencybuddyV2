@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.navigation.NavType
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 inline fun <reified T : Parcelable> createNavType(isNullableAllowed: Boolean = false): NavType<T> {

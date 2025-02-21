@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.currencybuddy.android.application.compose)
     alias(libs.plugins.currencybuddy.jvm.ktor)
@@ -23,7 +24,6 @@ android {
 }
 
 dependencies {
-
     // Coil
     implementation(libs.coil.compose)
 
@@ -37,6 +37,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.bundles.koin.compose)
+    implementation(libs.bundles.compose)
 
     // Core
     implementation(libs.androidx.core.ktx)
@@ -67,7 +69,7 @@ dependencies {
     implementation(libs.timber)
 
     // firebase
-    implementation(libs.firebase.bom)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
 

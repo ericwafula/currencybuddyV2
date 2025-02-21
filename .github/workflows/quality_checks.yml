@@ -1,12 +1,13 @@
-name: Build Project
+name: Run quality checks
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [ dev ]
+  push:
+    branches: [ dev ]
 
 jobs:
-  build:
+  quality_checks:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +24,12 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+
+      - name: Inject API secrets
+        run: |
+          echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
+          echo "CONVERTER_BASE_URL=${{ secrets.CONVERTER_BASE_URL }}" >> local.properties
+          echo "CURRENCY_DETAILS_URL=${{ secrets.CURRENCY_DETAILS_URL }}" >> local.properties
 
       - name: Build with Gradle
         run: ./gradlew build

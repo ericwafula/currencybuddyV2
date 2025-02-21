@@ -19,10 +19,14 @@ internal fun Project.configureBuildTypes(
         }
 
         val apiKey = gradleLocalProperties(rootDir, rootProject.providers).getProperty("API_KEY")
-        val baseUrl = gradleLocalProperties(rootDir, rootProject.providers).getProperty("CONVERTER_BASE_URL")
-        val currencyDetailsUrl = gradleLocalProperties(rootDir, rootProject.providers).getProperty("CURRENCY_DETAILS_URL")
+        val baseUrl =
+            gradleLocalProperties(rootDir, rootProject.providers).getProperty("CONVERTER_BASE_URL")
+        val currencyDetailsUrl = gradleLocalProperties(
+            rootDir,
+            rootProject.providers
+        ).getProperty("CURRENCY_DETAILS_URL")
 
-        when(extensionType) {
+        when (extensionType) {
             ExtensionType.APPLICATION -> {
                 extensions.configure<ApplicationExtension> {
                     buildTypes {
@@ -30,11 +34,18 @@ internal fun Project.configureBuildTypes(
                             configureDebugBuildType(apiKey, baseUrl, currencyDetailsUrl)
                         }
                         release {
-                            configureReleaseBuildType(commonExtension, apiKey, baseUrl, currencyDetailsUrl)
+                            configureReleaseBuildType(
+                                commonExtension,
+                                apiKey,
+                                baseUrl,
+                                currencyDetailsUrl
+                            )
+                            isShrinkResources = true
                         }
                     }
                 }
             }
+
             ExtensionType.LIBRARY -> {
                 extensions.configure<LibraryExtension> {
                     buildTypes {
@@ -42,11 +53,17 @@ internal fun Project.configureBuildTypes(
                             configureDebugBuildType(apiKey, baseUrl, currencyDetailsUrl)
                         }
                         release {
-                            configureReleaseBuildType(commonExtension, apiKey, baseUrl, currencyDetailsUrl)
+                            configureReleaseBuildType(
+                                commonExtension,
+                                apiKey,
+                                baseUrl,
+                                currencyDetailsUrl
+                            )
                         }
                     }
                 }
             }
+
             ExtensionType.DYNAMIC_FEATURE -> {
                 extensions.configure<DynamicFeatureExtension> {
                     buildTypes {
@@ -54,8 +71,12 @@ internal fun Project.configureBuildTypes(
                             configureDebugBuildType(apiKey, baseUrl, currencyDetailsUrl)
                         }
                         release {
-                            configureReleaseBuildType(commonExtension, apiKey, baseUrl, currencyDetailsUrl)
-                            isMinifyEnabled = false
+                            configureReleaseBuildType(
+                                commonExtension,
+                                apiKey,
+                                baseUrl,
+                                currencyDetailsUrl
+                            )
                         }
                     }
                 }
@@ -64,7 +85,11 @@ internal fun Project.configureBuildTypes(
     }
 }
 
-private fun BuildType.configureDebugBuildType(apiKey: String, baseUrl: String, currencyDetailsUrl: String) {
+private fun BuildType.configureDebugBuildType(
+    apiKey: String,
+    baseUrl: String,
+    currencyDetailsUrl: String
+) {
     buildConfigField("String", "API_KEY", "\"$apiKey\"")
     buildConfigField("String", "CONVERTER_BASE_URL", "\"$baseUrl\"")
     buildConfigField("String", "CURRENCY_DETAILS_URL", "\"$currencyDetailsUrl\"")
@@ -81,6 +106,7 @@ private fun BuildType.configureReleaseBuildType(
     buildConfigField("String", "CURRENCY_DETAILS_URL", "\"$currencyDetailsUrl\"")
 
     isMinifyEnabled = true
+
     proguardFiles(
         commonExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
