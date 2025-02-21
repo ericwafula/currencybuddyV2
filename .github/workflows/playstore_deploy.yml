@@ -2,8 +2,7 @@ name: Deploy to Playstore
 
 on:
   workflow_dispatch:
-    branches:
-      - main
+    branches: [ main ]
     inputs:
       release-notes:
         description: 'Release notes for this version'
@@ -35,6 +34,12 @@ jobs:
           else
             echo "- ${{ github.event.inputs.release-notes }}" >> whatsnew/whatsnew-en-US.txt
           fi
+
+      - name: Inject API secrets
+        run: |
+          echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
+          echo "CONVERTER_BASE_URL=${{ secrets.CONVERTER_BASE_URL }}" >> local.properties
+          echo "CURRENCY_DETAILS_URL=${{ secrets.CURRENCY_DETAILS_URL }}" >> local.properties
 
       - name: Build Release AAB
         run: ./gradlew bundleRelease
