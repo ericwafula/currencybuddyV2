@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import tech.ericwathome.core.data.di.coreDataModule
 import tech.ericwathome.core.database.di.databaseModule
@@ -37,6 +38,7 @@ class CurrencyBuddyApp : Application() {
         startKoin {
             androidLogger()
             androidContext(this@CurrencyBuddyApp)
+            workManagerFactory()
             modules(
                 appModule,
                 coreDataModule,

@@ -3,6 +3,7 @@ package tech.ericwathome.core.data.converter
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import tech.ericwathome.core.domain.converter.RemoteConverterDataSource
@@ -10,12 +11,14 @@ import tech.ericwathome.core.domain.converter.model.CurrencyDetails
 import tech.ericwathome.core.domain.converter.model.CurrencyPair
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
+import tech.ericwathome.core.domain.util.DispatcherProvider
 import tech.ericwathome.core.domain.util.EmptyResult
 import tech.ericwathome.core.domain.util.Result
 
 class DefaultConverterRepository(
     private val remoteConverterDataSource: RemoteConverterDataSource,
     private val localConverterDataSource: LocalConverterDataSource,
+    private val dispatchers: DispatcherProvider
 ) : ConverterRepository {
     override suspend fun getConversionRate(
         fromCurrencyCode: String,
@@ -47,11 +50,13 @@ class DefaultConverterRepository(
             val results = deferredResults.awaitAll()
 
             // Return first error if there is one
-            val errorResult = results.filterIsInstance<Result.Error<DataError.Network>>().firstOrNull()
+            val errorResult =
+                results.filterIsInstance<Result.Error<DataError.Network>>().firstOrNull()
             if (errorResult != null) return@coroutineScope errorResult
 
             // Otherwise, return the successful results
-            val exchangeRates = results.filterIsInstance<Result.Success<ExchangeRate>>().map { it.data }
+            val exchangeRates =
+                results.filterIsInstance<Result.Success<ExchangeRate>>().map { it.data }
             Result.Success(exchangeRates)
         }
     }
