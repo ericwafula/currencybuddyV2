@@ -1,26 +1,32 @@
 package tech.ericwathome.core.domain.converter
 
+import kotlinx.coroutines.flow.Flow
 import tech.ericwathome.core.domain.converter.model.CurrencyDetails
-import tech.ericwathome.core.domain.converter.model.CurrencyPair
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
-import tech.ericwathome.core.domain.util.Result
 
 interface ConverterRepository {
-    suspend fun getConversionRate(
+    suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
         amount: Double,
-    ): Result<ExchangeRate, DataError.Network>
+        isSelected: Boolean,
+    ): EmptyResult<DataError>
 
-    suspend fun getCurrencyDetails(): Result<List<CurrencyDetails>, DataError.Network>
+    fun getExchangeRate(): Flow<ExchangeRate>
 
-    suspend fun getFavouriteCurrencies(): Result<List<ExchangeRate>, DataError.Network>
+    fun getSavedExchangeRates(): Flow<List<ExchangeRate>>
 
-    suspend fun upsertToFavourites(currencyPair: CurrencyPair): EmptyResult<DataError>
+    fun getCurrencyDetails(): Flow<List<CurrencyDetails>>
 
-    suspend fun removeFromFavourites(currencyPair: CurrencyPair)
+    suspend fun fetchCurrencyDetails(): EmptyResult<DataError>
 
-    suspend fun clearAllFavourites()
+    suspend fun deleteExchangeRate(exchangeRate: ExchangeRate)
+
+    suspend fun clearAllSavedExchangeRates()
+
+    suspend fun clearAllCurrencyDetails()
+
+    suspend fun syncSavedExchangeRates()
 }
