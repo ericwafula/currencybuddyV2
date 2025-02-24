@@ -10,7 +10,7 @@ class EncryptedSessionStorage(
 ) : SessionStorage {
     override suspend fun isOnboardingComplete(): Boolean? {
         return withContext(Dispatchers.IO) {
-            sharedPreferences.getBoolean("onboarding_complete", false)
+            sharedPreferences.getBoolean(KEY_ONBOARDING_COMPLETE, false)
         }
     }
 

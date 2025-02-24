@@ -15,10 +15,11 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun RootNav() {
+fun RootNav(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
     NavHost(
+        modifier = modifier,
         navController = navController,
         startDestination = Routes.Onboarding.OnboardingGraph,
     ) {

@@ -23,6 +23,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/auth" />
+            <option value="$PROJECT_DIR$/auth/data" />
+            <option value="$PROJECT_DIR$/auth/domain" />
+            <option value="$PROJECT_DIR$/auth/presentation" />
             <option value="$PROJECT_DIR$/build-logic" />
             <option value="$PROJECT_DIR$/build-logic/convention" />
             <option value="$PROJECT_DIR$/converter" />
