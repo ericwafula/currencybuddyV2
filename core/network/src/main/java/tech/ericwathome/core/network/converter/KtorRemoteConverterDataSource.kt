@@ -5,9 +5,9 @@ import tech.ericwathome.core.data.network.get
 import tech.ericwathome.core.domain.converter.RemoteConverterDataSource
 import tech.ericwathome.core.domain.converter.model.CurrencyDetails
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
-import tech.ericwathome.core.domain.util.CurrencyUtils
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.Result
+import tech.ericwathome.core.domain.util.map
 import tech.ericwathome.core.network.BuildConfig
 import tech.ericwathome.core.network.converter.dto.ExchangeRatesDto
 
@@ -29,19 +29,25 @@ class KtorRemoteConverterDataSource(
                 exchangeRatesResult.data.rates[base]?.get(quote) ?: return Result.Error(
                     DataError.Network.UNKNOWN,
                 )
-            val result = with(CurrencyUtils) { (exchangeRate * amount).roundToDecimalPlaces(2) }
 
             return Result.Success(
-                ExchangeRate(
-                    baseCode = base,
-                    conversionRate = with(CurrencyUtils) { exchangeRate.roundToDecimalPlaces(2) },
-                    conversionResult = result,
-                    targetCode = quote,
+                exchangeRatesResult.data.toDomain(
+                    base = base,
+                    quote = quote,
+                    rate = exchangeRate,
+                    amount = amount,
                 ),
             )
         }
 
-        return exchangeRatesResult as Result.Error<DataError.Network>
+        return exchangeRatesResult.map {
+            it.toDomain(
+                base = base,
+                quote = quote,
+                rate = 0.0,
+                amount = 0.0,
+            )
+        }
     }
 
     override suspend fun getCurrencyDetails(): Result<List<CurrencyDetails>, DataError.Network> {

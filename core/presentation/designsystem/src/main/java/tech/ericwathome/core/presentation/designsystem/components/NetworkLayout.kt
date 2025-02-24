@@ -8,9 +8,8 @@ import androidx.compose.ui.tooling.preview.Preview
 fun NetworkLayout(
     modifier: Modifier = Modifier,
     onRetry: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-
 }
 
 @Preview
@@ -18,6 +17,6 @@ fun NetworkLayout(
 private fun NetworkLayoutPreview() {
     NetworkLayout(
         onRetry = {},
-        content = {}
+        content = {},
     )
 }
