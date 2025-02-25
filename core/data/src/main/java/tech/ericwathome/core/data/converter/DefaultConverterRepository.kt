@@ -16,6 +16,7 @@ import tech.ericwathome.core.domain.util.DispatcherProvider
 import tech.ericwathome.core.domain.util.EmptyResult
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.domain.util.asEmptyDataResult
+import timber.log.Timber
 
 class DefaultConverterRepository(
     private val remoteConverterDataSource: RemoteConverterDataSource,
@@ -104,7 +105,9 @@ class DefaultConverterRepository(
                                     amount = if (exchangeRate.isSelected) exchangeRate.amount else 1.0,
                                 )
                         ) {
-                            is Result.Error -> Unit
+                            is Result.Error -> {
+                                Timber.e("Failed to sync exchange rate: $exchangeRate")
+                            }
                             is Result.Success -> {
                                 applicationScope.launch {
                                     localConverterDataSource.upsertLocalExchangeRate(
