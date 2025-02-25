@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.currencybuddy.navigation.RootNav
@@ -30,9 +31,13 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
-                    RootNav(
-                        modifier = Modifier.padding(innerPadding),
-                    )
+                    if (!viewModel.state.isCheckingOnBoardingStatus) {
+                        val navController = rememberNavController()
+                        RootNav(
+                            modifier = Modifier.padding(innerPadding),
+                            navController = navController
+                        )
+                    }
                 }
             }
         }
