@@ -6,10 +6,12 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import tech.ericwathome.converter.data.ConverterWorkerScheduler
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
+import tech.ericwathome.converter.data.workers.SyncExchangeRatesWorker
 import tech.ericwathome.core.domain.ConverterScheduler
 
 val converterDataModule =
     module {
         workerOf(::SyncCurrencyMetaDataWorker)
+        workerOf(::SyncExchangeRatesWorker)
         singleOf(::ConverterWorkerScheduler).bind<ConverterScheduler>()
     }

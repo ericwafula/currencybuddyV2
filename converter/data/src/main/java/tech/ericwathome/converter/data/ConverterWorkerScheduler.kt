@@ -10,6 +10,7 @@ import androidx.work.await
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
+import tech.ericwathome.converter.data.workers.SyncExchangeRatesWorker
 import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.SessionStorage
 import java.util.concurrent.TimeUnit
@@ -26,6 +27,10 @@ class ConverterWorkerScheduler(
         when (syncType) {
             is ConverterScheduler.SyncType.FetchCurrencyMetaData -> {
                 fetchCurrencyMetaData(syncType.duration)
+            }
+
+            is ConverterScheduler.SyncType.FetchExchangeRates -> {
+                fetchExchangeRates(syncType.duration)
             }
         }
     }
@@ -62,6 +67,43 @@ class ConverterWorkerScheduler(
                 backoffDelay = SyncCurrencyMetaDataWorker.DELAY,
                 timeUnit = TimeUnit.MILLISECONDS,
             ).addTag(SyncCurrencyMetaDataWorker.TAG)
+                .setInitialDelay(30, TimeUnit.MINUTES)
+                .build()
+
+        workManager.enqueue(workRequest)
+    }
+
+    private suspend fun fetchExchangeRates(duration: Duration) {
+        val isSyncing =
+            withContext(Dispatchers.IO) {
+                workManager
+                    .getWorkInfosByTag(SyncExchangeRatesWorker.TAG)
+                    .get()
+                    .isNotEmpty()
+            }
+        val lastSyncTimeStamp = sessionStorage.lastExchangeRateSyncTimestamp()
+        val elapsedTime = System.currentTimeMillis() - lastSyncTimeStamp
+
+        if (elapsedTime < duration.inWholeMilliseconds) {
+            return
+        }
+
+        if (isSyncing) {
+            return
+        }
+
+        val workRequest =
+            PeriodicWorkRequestBuilder<SyncExchangeRatesWorker>(
+                repeatInterval = duration.toJavaDuration(),
+            ).setConstraints(
+                Constraints(
+                    requiredNetworkType = NetworkType.CONNECTED,
+                ),
+            ).setBackoffCriteria(
+                backoffPolicy = BackoffPolicy.EXPONENTIAL,
+                backoffDelay = SyncExchangeRatesWorker.BACKOFF_DELAY,
+                timeUnit = TimeUnit.MILLISECONDS,
+            ).addTag(SyncExchangeRatesWorker.TAG)
                 .setInitialDelay(30, TimeUnit.MINUTES)
                 .build()
 
