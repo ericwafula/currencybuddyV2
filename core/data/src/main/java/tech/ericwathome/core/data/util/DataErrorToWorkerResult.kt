@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.data.util
 
+import androidx.annotation.Keep
 import androidx.work.ListenableWorker.Result
 import tech.ericwathome.core.domain.util.DataError
 
