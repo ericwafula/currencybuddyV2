@@ -10,29 +10,70 @@ import tech.ericwathome.core.database.entity.ExchangeRateEntity
 
 @Dao
 interface ConverterDao {
-    // Handle exchange rates
+    /**
+     * Observes the locally saved exchange rate that is marked as selected.
+     *
+     * @return A Flow emitting the selected [ExchangeRateEntity] object.
+     */
     @Query("SELECT * FROM exchangerateentity where isSelected = 1 LIMIT 1")
-    fun getSelectedSavedExchangeRate(): Flow<ExchangeRateEntity>
+    fun observeSelectedExchangeRate(): Flow<ExchangeRateEntity>
 
+    /**
+     * Observes exchange rates that have not been marked as selected.
+     *
+     * @return A Flow emitting lists of non‑selected [ExchangeRateEntity] objects.
+     */
     @Query("SELECT * FROM exchangerateentity where isSelected != 1")
-    fun getSavedExchangeRates(): Flow<List<ExchangeRateEntity>>
+    fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRateEntity>>
 
-    @Query("SELECT * FROM exchangerateentity where isSelected != 1")
-    suspend fun getSavedExchangedRatesList(): List<ExchangeRateEntity>
+    /**
+     * Retrieves a list of all locally saved exchange rates.
+     *
+     * @return A [List] of all [ExchangeRateEntity] objects stored in the database.
+     */
+    @Query("SELECT * FROM exchangerateentity")
+    suspend fun retrieveSavedExchangeRates(): List<ExchangeRateEntity>
 
+    /**
+     * Inserts or updates the given exchange rate in the local database.
+     *
+     * @param exchangeRate The [ExchangeRateEntity] to be inserted or updated.
+     */
     @Upsert
-    suspend fun upsertToSavedExchangeRates(exchangeRate: ExchangeRateEntity)
+    suspend fun upsertLocalExchangeRate(exchangeRate: ExchangeRateEntity)
 
+    /**
+     * Deletes the specified exchange rate from the local saved exchange rates.
+     *
+     * @param exchangeRate The [ExchangeRateEntity] to be removed.
+     */
     @Delete
-    suspend fun removeFromSavedExchangeRates(exchangeRate: ExchangeRateEntity)
+    suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRateEntity)
 
+    /**
+     * Clears all exchange rates from the local saved exchange rates.
+     *
+     * This function deletes every record in the [ExchangeRateEntity] table.
+     */
     @Query("DELETE FROM exchangerateentity")
-    suspend fun clearAllSavedExchangeRates()
+    suspend fun clearLocalExchangeRates()
 
-    // Handle currency details
+    /**
+     * Observes the list of locally stored currency details.
+     *
+     * @return A Flow emitting lists of [CurrencyDetailsEntity] objects.
+     */
     @Query("SELECT * FROM currencydetailsentity")
-    fun getCurrencyDetails(): Flow<List<CurrencyDetailsEntity>>
+    fun observeCurrencyDetails(): Flow<List<CurrencyDetailsEntity>>
 
+    /**
+     * Observes currency details filtered by a search query.
+     *
+     * The function returns a Flow emitting lists of [CurrencyDetailsEntity] objects whose name or code contains the specified query (case-insensitive).
+     *
+     * @param query The search string used to filter currency details.
+     * @return A Flow emitting matching [CurrencyDetailsEntity] objects.
+     */
     @Query(
         """
     SELECT * FROM currencydetailsentity 
@@ -40,14 +81,29 @@ interface ConverterDao {
        OR code LIKE '%' || :query || '%' COLLATE NOCASE
     """,
     )
-    fun queryCurrencyDetails(query: String): Flow<List<CurrencyDetailsEntity>>
+    fun observeFilteredCurrencyDetails(query: String): Flow<List<CurrencyDetailsEntity>>
 
+    /**
+     * Inserts or updates the provided currency details in the local database.
+     *
+     * @param currencyDetails The [CurrencyDetailsEntity] to be inserted or updated.
+     */
     @Upsert
-    suspend fun upsertCurrencyDetails(currencyDetails: CurrencyDetailsEntity)
+    suspend fun upsertLocalCurrencyDetails(currencyDetails: CurrencyDetailsEntity)
 
+    /**
+     * Inserts or updates a list of currency details in the local database.
+     *
+     * @param currencyDetailsList The list of [CurrencyDetailsEntity] objects to be inserted or updated.
+     */
     @Upsert
-    suspend fun upsertCurrencyDetailsList(currencyDetailsList: List<CurrencyDetailsEntity>)
+    suspend fun upsertLocalCurrencyDetailsList(currencyDetailsList: List<CurrencyDetailsEntity>)
 
+    /**
+     * Clears all currency details from the local database.
+     *
+     * This function deletes every record in the [CurrencyDetailsEntity] table.
+     */
     @Query("DELETE FROM currencydetailsentity")
-    suspend fun clearAllCurrencyDetails()
+    suspend fun clearLocalCurrencyDetails()
 }

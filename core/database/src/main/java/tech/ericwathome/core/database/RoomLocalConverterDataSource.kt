@@ -16,71 +16,71 @@ import tech.ericwathome.core.domain.util.Result
 class RoomLocalConverterDataSource(
     private val converterDao: ConverterDao,
 ) : LocalConverterDataSource {
-    override fun getSelectedSavedExchangeRate(): Flow<ExchangeRate> {
-        return converterDao.getSelectedSavedExchangeRate().map { it.toDomain() }
+    override fun observeSelectedExchangeRate(): Flow<ExchangeRate> {
+        return converterDao.observeSelectedExchangeRate().map { it.toDomain() }
     }
 
-    override fun getSavedExchangeRates(): Flow<List<ExchangeRate>> {
-        return converterDao.getSavedExchangeRates().map { exchangeRateEntities ->
+    override fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>> {
+        return converterDao.observeNonSelectedExchangeRates().map { exchangeRateEntities ->
             exchangeRateEntities.map { it.toDomain() }
         }
     }
 
-    override suspend fun getSavedExchangedRatesList(): List<ExchangeRate> {
-        return converterDao.getSavedExchangedRatesList().map { it.toDomain() }
+    override suspend fun retrieveSavedExchangeRates(): List<ExchangeRate> {
+        return converterDao.retrieveSavedExchangeRates().map { it.toDomain() }
     }
 
-    override suspend fun upsertToSavedExchangeRates(exchangeRate: ExchangeRate): EmptyResult<DataError.Local> {
+    override suspend fun upsertLocalExchangeRate(exchangeRate: ExchangeRate): EmptyResult<DataError.Local> {
         return try {
-            converterDao.upsertToSavedExchangeRates(exchangeRate.toEntity())
+            converterDao.upsertLocalExchangeRate(exchangeRate.toEntity())
             Result.Success(Unit)
         } catch (e: SQLiteFullException) {
             Result.Error(DataError.Local.DISK_FULL)
         }
     }
 
-    override suspend fun removeFromSavedExchangeRates(exchangeRate: ExchangeRate) {
-        converterDao.removeFromSavedExchangeRates(exchangeRate.toEntity())
+    override suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate) {
+        converterDao.deleteLocalExchangeRate(exchangeRate.toEntity())
     }
 
-    override suspend fun clearAllSavedExchangeRates() {
-        converterDao.clearAllSavedExchangeRates()
+    override suspend fun clearLocalExchangeRates() {
+        converterDao.clearLocalExchangeRates()
     }
 
-    override fun getCurrencyDetails(): Flow<List<CurrencyDetails>> {
-        return converterDao.getCurrencyDetails().map { currencyDetailsEntities ->
+    override fun observeCurrencyDetails(): Flow<List<CurrencyDetails>> {
+        return converterDao.observeCurrencyDetails().map { currencyDetailsEntities ->
             currencyDetailsEntities.map { it.toDomain() }
         }
     }
 
-    override fun queryCurrencyDetails(query: String): Flow<List<CurrencyDetails>> {
-        return converterDao.queryCurrencyDetails(query).map { currencyDetailsEntities ->
+    override fun observeFilteredCurrencyDetails(query: String): Flow<List<CurrencyDetails>> {
+        return converterDao.observeFilteredCurrencyDetails(query).map { currencyDetailsEntities ->
             currencyDetailsEntities.map { it.toDomain() }
         }
     }
 
-    override suspend fun upsertCurrencyDetails(
+    override suspend fun upsertLocalCurrencyDetails(
         currencyDetails: CurrencyDetails,
         rate: Double,
     ): EmptyResult<DataError.Local> {
         return try {
-            converterDao.upsertCurrencyDetails(currencyDetails.toEntity(rate))
+            converterDao.upsertLocalCurrencyDetails(currencyDetails.toEntity(rate))
             Result.Success(Unit)
         } catch (e: SQLiteFullException) {
             Result.Error(DataError.Local.DISK_FULL)
         }
     }
 
-    override suspend fun upsertCurrencyDetailsList(currencyDetailsList: List<CurrencyDetails>): EmptyResult<DataError.Local> {
+    override suspend fun upsertLocalCurrencyDetailsList(currencyDetailsList: List<CurrencyDetails>): EmptyResult<DataError.Local> {
         return try {
-            converterDao.upsertCurrencyDetailsList(currencyDetailsList.map { it.toEntity() })
+            converterDao.upsertLocalCurrencyDetailsList(currencyDetailsList.map { it.toEntity() })
             Result.Success(Unit)
         } catch (e: SQLiteFullException) {
             Result.Error(DataError.Local.DISK_FULL)
         }
     }
 
-    override suspend fun clearAllCurrencyDetails() {
-        converterDao.clearAllCurrencyDetails()
+    override suspend fun clearLocalCurrencyDetails() {
+        converterDao.clearLocalCurrencyDetails()
     }
 }
