@@ -1,6 +1,6 @@
 package tech.ericwathome.core.domain.converter
 
-import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
+import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.Result
@@ -12,5 +12,5 @@ interface RemoteConverterDataSource {
         amount: Double,
     ): Result<ExchangeRate, DataError.Network>
 
-    suspend fun fetchCurrencyMetaData(): Result<List<CurrencyMetaData>, DataError.Network>
+    suspend fun fetchCurrencyMetadata(): Result<List<CurrencyMetadata>, DataError.Network>
 }

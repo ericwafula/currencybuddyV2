@@ -7,7 +7,7 @@ import tech.ericwathome.core.database.dao.ConverterDao
 import tech.ericwathome.core.database.mappers.toDomain
 import tech.ericwathome.core.database.mappers.toEntity
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
-import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
+import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
@@ -47,40 +47,40 @@ class RoomLocalConverterDataSource(
         converterDao.clearLocalExchangeRates()
     }
 
-    override fun observeCurrencyMetaData(): Flow<List<CurrencyMetaData>> {
-        return converterDao.observeCurrencyMetaData().map { currencyMetaDataEntities ->
+    override fun observeCurrencyMetadata(): Flow<List<CurrencyMetadata>> {
+        return converterDao.observeCurrencyMetadata().map { currencyMetaDataEntities ->
             currencyMetaDataEntities.map { it.toDomain() }
         }
     }
 
-    override fun observeFilteredCurrencyMetaData(query: String): Flow<List<CurrencyMetaData>> {
-        return converterDao.observeFilteredCurrencyMetaData(query).map { currencyMetaDataEntities ->
+    override fun observeFilteredCurrencyMetaData(query: String): Flow<List<CurrencyMetadata>> {
+        return converterDao.observeFilteredCurrencyMetadata(query).map { currencyMetaDataEntities ->
             currencyMetaDataEntities.map { it.toDomain() }
         }
     }
 
     override suspend fun upsertLocalCurrencyMetaData(
-        currencyMetaData: CurrencyMetaData,
+        currencyMetaData: CurrencyMetadata,
         rate: Double,
     ): EmptyResult<DataError.Local> {
         return try {
-            converterDao.upsertLocalCurrencyMetaData(currencyMetaData.toEntity(rate))
+            converterDao.upsertLocalCurrencyMetadata(currencyMetaData.toEntity(rate))
             Result.Success(Unit)
         } catch (e: SQLiteFullException) {
             Result.Error(DataError.Local.DISK_FULL)
         }
     }
 
-    override suspend fun upsertLocalCurrencyMetaDataList(currencyMetaDataList: List<CurrencyMetaData>): EmptyResult<DataError.Local> {
+    override suspend fun upsertLocalCurrencyMetaDataList(currencyMetadataList: List<CurrencyMetadata>): EmptyResult<DataError.Local> {
         return try {
-            converterDao.upsertLocalCurrencyMetaDataList(currencyMetaDataList.map { it.toEntity() })
+            converterDao.upsertLocalCurrencyMetadataList(currencyMetadataList.map { it.toEntity() })
             Result.Success(Unit)
         } catch (e: SQLiteFullException) {
             Result.Error(DataError.Local.DISK_FULL)
         }
     }
 
-    override suspend fun clearLocalCurrencyMetaData() {
-        converterDao.clearLocalCurrencyMetaData()
+    override suspend fun clearLocalCurrencyMetadata() {
+        converterDao.clearLocalCurrencyMetadata()
     }
 }

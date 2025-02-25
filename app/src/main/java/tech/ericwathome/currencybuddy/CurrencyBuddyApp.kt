@@ -7,6 +7,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
+import tech.ericwathome.converter.data.di.converterDataModule
 import tech.ericwathome.core.data.di.coreDataModule
 import tech.ericwathome.core.database.di.databaseModule
 import tech.ericwathome.core.network.converter.di.networkModule
@@ -44,6 +45,7 @@ class CurrencyBuddyApp : Application() {
                 coreDataModule,
                 databaseModule,
                 networkModule,
+                converterDataModule,
             )
         }
     }

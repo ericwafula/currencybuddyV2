@@ -4,7 +4,7 @@ import androidx.work.ListenableWorker.Result
 import tech.ericwathome.core.domain.util.DataError
 
 fun DataError.toWorkerResult(): Result {
-    return when(this) {
+    return when (this) {
         DataError.Local.DISK_FULL -> Result.failure()
         DataError.Network.REQUEST_TIMEOUT -> Result.retry()
         DataError.Network.UNAUTHORIZED -> Result.retry()
