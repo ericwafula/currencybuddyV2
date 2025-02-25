@@ -1,7 +1,7 @@
 package tech.ericwathome.core.domain.converter
 
 import kotlinx.coroutines.flow.Flow
-import tech.ericwathome.core.domain.converter.model.CurrencyDetails
+import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
@@ -19,16 +19,16 @@ interface LocalConverterDataSource {
 
     suspend fun clearLocalExchangeRates()
 
-    fun observeCurrencyDetails(): Flow<List<CurrencyDetails>>
+    fun observeCurrencyMetaData(): Flow<List<CurrencyMetaData>>
 
-    fun observeFilteredCurrencyDetails(query: String): Flow<List<CurrencyDetails>>
+    fun observeFilteredCurrencyMetaData(query: String): Flow<List<CurrencyMetaData>>
 
-    suspend fun upsertLocalCurrencyDetails(
-        currencyDetails: CurrencyDetails,
+    suspend fun upsertLocalCurrencyMetaData(
+        currencyMetaData: CurrencyMetaData,
         rate: Double,
     ): EmptyResult<DataError.Local>
 
-    suspend fun upsertLocalCurrencyDetailsList(currencyDetailsList: List<CurrencyDetails>): EmptyResult<DataError.Local>
+    suspend fun upsertLocalCurrencyMetaDataList(currencyMetaDataList: List<CurrencyMetaData>): EmptyResult<DataError.Local>
 
-    suspend fun clearLocalCurrencyDetails()
+    suspend fun clearLocalCurrencyMetaData()
 }

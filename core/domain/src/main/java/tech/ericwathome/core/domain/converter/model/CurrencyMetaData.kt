@@ -1,6 +1,6 @@
 package tech.ericwathome.core.domain.converter.model
 
-data class CurrencyDetails(
+data class CurrencyMetaData(
     val code: String,
     val name: String,
     val symbol: String,

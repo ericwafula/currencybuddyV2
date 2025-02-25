@@ -7,7 +7,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import tech.ericwathome.core.data.EncryptedSessionStorage
-import tech.ericwathome.core.data.converter.DefaultConverterRepository
+import tech.ericwathome.core.data.converter.OfflineFirstConverterRepository
 import tech.ericwathome.core.data.network.HttpClientFactory
 import tech.ericwathome.core.data.util.DefaultDispatcherProvider
 import tech.ericwathome.core.domain.SessionStorage
@@ -21,7 +21,7 @@ val coreDataModule =
         }
         singleOf(::EncryptedSessionStorage).bind<SessionStorage>()
 
-        singleOf(::DefaultConverterRepository).bind<ConverterRepository>()
+        singleOf(::OfflineFirstConverterRepository).bind<ConverterRepository>()
 
         singleOf(::DefaultDispatcherProvider).bind<DispatcherProvider>()
     }

@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import tech.ericwathome.core.domain.converter.RemoteConverterDataSource
-import tech.ericwathome.core.domain.converter.model.CurrencyDetails
+import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.DispatcherProvider
@@ -18,7 +18,7 @@ import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.domain.util.asEmptyDataResult
 import timber.log.Timber
 
-class DefaultConverterRepository(
+class OfflineFirstConverterRepository(
     private val remoteConverterDataSource: RemoteConverterDataSource,
     private val localConverterDataSource: LocalConverterDataSource,
     private val dispatchers: DispatcherProvider,
@@ -53,41 +53,41 @@ class DefaultConverterRepository(
         }
     }
 
-    override fun getExchangeRate(): Flow<ExchangeRate> {
+    override fun observeSelectedExchangeRate(): Flow<ExchangeRate> {
         return localConverterDataSource.observeSelectedExchangeRate()
     }
 
-    override suspend fun fetchCurrencyDetails(): EmptyResult<DataError> {
+    override suspend fun fetchCurrencyMetaData(): EmptyResult<DataError> {
         return when (
-            val result = remoteConverterDataSource.getCurrencyDetails()
+            val result = remoteConverterDataSource.fetchCurrencyMetaData()
         ) {
             is Result.Error -> result.asEmptyDataResult()
             is Result.Success -> {
                 applicationScope.async {
-                    localConverterDataSource.upsertLocalCurrencyDetailsList(result.data)
+                    localConverterDataSource.upsertLocalCurrencyMetaDataList(result.data)
                 }.await()
             }
         }
     }
 
-    override fun getSavedExchangeRates(): Flow<List<ExchangeRate>> {
+    override fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>> {
         return localConverterDataSource.observeNonSelectedExchangeRates()
     }
 
-    override fun getCurrencyDetails(): Flow<List<CurrencyDetails>> {
-        return localConverterDataSource.observeCurrencyDetails()
+    override fun observeCurrencyMetaData(): Flow<List<CurrencyMetaData>> {
+        return localConverterDataSource.observeCurrencyMetaData()
     }
 
-    override suspend fun deleteExchangeRate(exchangeRate: ExchangeRate) {
+    override suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate) {
         localConverterDataSource.deleteLocalExchangeRate(exchangeRate)
     }
 
-    override suspend fun clearAllSavedExchangeRates() {
+    override suspend fun clearLocalExchangeRates() {
         localConverterDataSource.clearLocalExchangeRates()
     }
 
-    override suspend fun clearAllCurrencyDetails() {
-        localConverterDataSource.clearLocalCurrencyDetails()
+    override suspend fun clearLocalCurrencyMetaData() {
+        localConverterDataSource.clearLocalCurrencyMetaData()
     }
 
     override suspend fun syncSavedExchangeRates() {
@@ -108,6 +108,7 @@ class DefaultConverterRepository(
                             is Result.Error -> {
                                 Timber.e("Failed to sync exchange rate: $exchangeRate")
                             }
+
                             is Result.Success -> {
                                 applicationScope.launch {
                                     localConverterDataSource.upsertLocalExchangeRate(

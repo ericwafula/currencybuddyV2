@@ -3,7 +3,7 @@ package tech.ericwathome.core.network.converter
 import io.ktor.client.HttpClient
 import tech.ericwathome.core.data.network.get
 import tech.ericwathome.core.domain.converter.RemoteConverterDataSource
-import tech.ericwathome.core.domain.converter.model.CurrencyDetails
+import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.Result
@@ -50,8 +50,8 @@ class KtorRemoteConverterDataSource(
         }
     }
 
-    override suspend fun getCurrencyDetails(): Result<List<CurrencyDetails>, DataError.Network> {
-        return httpClient.get<List<CurrencyDetails>>(
+    override suspend fun fetchCurrencyMetaData(): Result<List<CurrencyMetaData>, DataError.Network> {
+        return httpClient.get<List<CurrencyMetaData>>(
             route = BuildConfig.CURRENCY_DETAILS_URL,
         )
     }

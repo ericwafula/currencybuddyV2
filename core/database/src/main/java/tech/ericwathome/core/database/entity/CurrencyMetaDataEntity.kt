@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class CurrencyDetailsEntity(
+data class CurrencyMetaDataEntity(
     @PrimaryKey
     val code: String,
     val name: String,
