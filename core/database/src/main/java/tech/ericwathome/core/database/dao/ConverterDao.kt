@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import tech.ericwathome.core.database.entity.CurrencyMetaDataEntity
+import tech.ericwathome.core.database.entity.CurrencyMetadataEntity
 import tech.ericwathome.core.database.entity.ExchangeRateEntity
 
 @Dao
@@ -61,18 +61,18 @@ interface ConverterDao {
     /**
      * Observes the list of locally stored currency details.
      *
-     * @return A Flow emitting lists of [CurrencyMetaDataEntity] objects.
+     * @return A Flow emitting lists of [CurrencyMetadataEntity] objects.
      */
     @Query("SELECT * FROM currencymetadataentity")
-    fun observeCurrencyMetaData(): Flow<List<CurrencyMetaDataEntity>>
+    fun observeCurrencyMetadata(): Flow<List<CurrencyMetadataEntity>>
 
     /**
      * Observes currency details filtered by a search query.
      *
-     * The function returns a Flow emitting lists of [CurrencyMetaDataEntity] objects whose name or code contains the specified query (case-insensitive).
+     * The function returns a Flow emitting lists of [CurrencyMetadataEntity] objects whose name or code contains the specified query (case-insensitive).
      *
      * @param query The search string used to filter currency details.
-     * @return A Flow emitting matching [CurrencyMetaDataEntity] objects.
+     * @return A Flow emitting matching [CurrencyMetadataEntity] objects.
      */
     @Query(
         """
@@ -81,29 +81,29 @@ interface ConverterDao {
        OR code LIKE '%' || :query || '%' COLLATE NOCASE
     """,
     )
-    fun observeFilteredCurrencyMetaData(query: String): Flow<List<CurrencyMetaDataEntity>>
+    fun observeFilteredCurrencyMetadata(query: String): Flow<List<CurrencyMetadataEntity>>
 
     /**
      * Inserts or updates the provided currency details in the local database.
      *
-     * @param currencyDetails The [CurrencyMetaDataEntity] to be inserted or updated.
+     * @param currencyDetails The [CurrencyMetadataEntity] to be inserted or updated.
      */
     @Upsert
-    suspend fun upsertLocalCurrencyMetaData(currencyDetails: CurrencyMetaDataEntity)
+    suspend fun upsertLocalCurrencyMetadata(currencyDetails: CurrencyMetadataEntity)
 
     /**
      * Inserts or updates a list of currency details in the local database.
      *
-     * @param currencyDetailsList The list of [CurrencyMetaDataEntity] objects to be inserted or updated.
+     * @param currencyDetailsList The list of [CurrencyMetadataEntity] objects to be inserted or updated.
      */
     @Upsert
-    suspend fun upsertLocalCurrencyMetaDataList(currencyDetailsList: List<CurrencyMetaDataEntity>)
+    suspend fun upsertLocalCurrencyMetadataList(currencyDetailsList: List<CurrencyMetadataEntity>)
 
     /**
      * Clears all currency details from the local database.
      *
-     * This function deletes every record in the [CurrencyMetaDataEntity] table.
+     * This function deletes every record in the [CurrencyMetadataEntity] table.
      */
     @Query("DELETE FROM currencymetadataentity")
-    suspend fun clearLocalCurrencyMetaData()
+    suspend fun clearLocalCurrencyMetadata()
 }

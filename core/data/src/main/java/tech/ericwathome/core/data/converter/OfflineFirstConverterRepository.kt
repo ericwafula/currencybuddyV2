@@ -2,14 +2,15 @@ package tech.ericwathome.core.data.converter
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import tech.ericwathome.core.domain.SessionStorage
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import tech.ericwathome.core.domain.converter.RemoteConverterDataSource
-import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
+import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.DispatcherProvider
@@ -23,6 +24,7 @@ class OfflineFirstConverterRepository(
     private val localConverterDataSource: LocalConverterDataSource,
     private val dispatchers: DispatcherProvider,
     private val applicationScope: CoroutineScope,
+    private val sessionStorage: SessionStorage,
 ) : ConverterRepository {
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
@@ -57,14 +59,17 @@ class OfflineFirstConverterRepository(
         return localConverterDataSource.observeSelectedExchangeRate()
     }
 
-    override suspend fun fetchCurrencyMetaData(): EmptyResult<DataError> {
+    override suspend fun syncCurrencyMetadata(): EmptyResult<DataError> {
         return when (
-            val result = remoteConverterDataSource.fetchCurrencyMetaData()
+            val result = remoteConverterDataSource.fetchCurrencyMetadata()
         ) {
             is Result.Error -> result.asEmptyDataResult()
             is Result.Success -> {
                 applicationScope.async {
-                    localConverterDataSource.upsertLocalCurrencyMetaDataList(result.data)
+                    val syncResult =
+                        localConverterDataSource.upsertLocalCurrencyMetaDataList(result.data)
+                    sessionStorage.setLastMetadataSyncTimestamp(System.currentTimeMillis())
+                    syncResult
                 }.await()
             }
         }
@@ -74,8 +79,8 @@ class OfflineFirstConverterRepository(
         return localConverterDataSource.observeNonSelectedExchangeRates()
     }
 
-    override fun observeCurrencyMetaData(): Flow<List<CurrencyMetaData>> {
-        return localConverterDataSource.observeCurrencyMetaData()
+    override fun observeCurrencyMetadata(): Flow<List<CurrencyMetadata>> {
+        return localConverterDataSource.observeCurrencyMetadata()
     }
 
     override suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate) {
@@ -86,17 +91,18 @@ class OfflineFirstConverterRepository(
         localConverterDataSource.clearLocalExchangeRates()
     }
 
-    override suspend fun clearLocalCurrencyMetaData() {
-        localConverterDataSource.clearLocalCurrencyMetaData()
+    override suspend fun clearLocalCurrencyMetadata() {
+        localConverterDataSource.clearLocalCurrencyMetadata()
     }
 
-    override suspend fun syncSavedExchangeRates() {
-        withContext(dispatchers.io) {
+    override suspend fun syncSavedExchangeRates(): EmptyResult<DataError> {
+        return withContext(dispatchers.io) {
             val savedExchangeRates = localConverterDataSource.retrieveSavedExchangeRates()
+            val errorList = mutableListOf<DataError>()
 
             val syncJobs =
                 savedExchangeRates.map { exchangeRate ->
-                    launch {
+                    async {
                         when (
                             val result =
                                 remoteConverterDataSource.getExchangeRate(
@@ -107,6 +113,7 @@ class OfflineFirstConverterRepository(
                         ) {
                             is Result.Error -> {
                                 Timber.e("Failed to sync exchange rate: $exchangeRate")
+                                errorList += result.error
                             }
 
                             is Result.Success -> {
@@ -120,7 +127,14 @@ class OfflineFirstConverterRepository(
                     }
                 }
 
-            syncJobs.joinAll()
+            syncJobs.awaitAll()
+
+            if (errorList.isNotEmpty()) {
+                Result.Error(errorList.first())
+            }
+
+            sessionStorage.setLastExchangeRateSyncTimestamp(System.currentTimeMillis())
+            Result.Success(Unit).asEmptyDataResult()
         }
     }
 }

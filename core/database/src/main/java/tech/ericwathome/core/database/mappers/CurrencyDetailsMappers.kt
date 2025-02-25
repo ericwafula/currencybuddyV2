@@ -1,11 +1,11 @@
 package tech.ericwathome.core.database.mappers
 
-import tech.ericwathome.core.database.entity.CurrencyMetaDataEntity
-import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
+import tech.ericwathome.core.database.entity.CurrencyMetadataEntity
+import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.converter.model.Flag
 
-fun CurrencyMetaDataEntity.toDomain(): CurrencyMetaData {
-    return CurrencyMetaData(
+fun CurrencyMetadataEntity.toDomain(): CurrencyMetadata {
+    return CurrencyMetadata(
         code = code,
         name = name,
         symbol = symbol,
@@ -17,8 +17,8 @@ fun CurrencyMetaDataEntity.toDomain(): CurrencyMetaData {
     )
 }
 
-fun CurrencyMetaData.toEntity(rate: Double = 0.0): CurrencyMetaDataEntity {
-    return CurrencyMetaDataEntity(
+fun CurrencyMetadata.toEntity(rate: Double = 0.0): CurrencyMetadataEntity {
+    return CurrencyMetadataEntity(
         code = code,
         name = name,
         symbol = symbol,
