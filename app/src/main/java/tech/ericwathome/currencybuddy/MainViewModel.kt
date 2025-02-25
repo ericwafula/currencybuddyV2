@@ -19,7 +19,7 @@ class MainViewModel(
             state = state.copy(isCheckingOnBoardingStatus = true)
             state =
                 state.copy(
-                    isOnboarded = sessionStorage.isOnboardingComplete() == true,
+                    isOnboarded = sessionStorage.isOnboardingComplete(),
                 )
             state = state.copy(isCheckingOnBoardingStatus = false)
         }
