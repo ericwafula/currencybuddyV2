@@ -1,7 +1,7 @@
 package tech.ericwathome.core.domain.converter
 
 import kotlinx.coroutines.flow.Flow
-import tech.ericwathome.core.domain.converter.model.CurrencyDetails
+import tech.ericwathome.core.domain.converter.model.CurrencyMetaData
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
@@ -14,19 +14,19 @@ interface ConverterRepository {
         isSelected: Boolean,
     ): EmptyResult<DataError>
 
-    fun getExchangeRate(): Flow<ExchangeRate>
+    fun observeSelectedExchangeRate(): Flow<ExchangeRate>
 
-    fun getSavedExchangeRates(): Flow<List<ExchangeRate>>
+    fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>>
 
-    fun getCurrencyDetails(): Flow<List<CurrencyDetails>>
+    fun observeCurrencyMetaData(): Flow<List<CurrencyMetaData>>
 
-    suspend fun fetchCurrencyDetails(): EmptyResult<DataError>
+    suspend fun fetchCurrencyMetaData(): EmptyResult<DataError>
 
-    suspend fun deleteExchangeRate(exchangeRate: ExchangeRate)
+    suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate)
 
-    suspend fun clearAllSavedExchangeRates()
+    suspend fun clearLocalExchangeRates()
 
-    suspend fun clearAllCurrencyDetails()
+    suspend fun clearLocalCurrencyMetaData()
 
     suspend fun syncSavedExchangeRates()
 }
