@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.converter.data.di
 
+import androidx.annotation.Keep
 import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
