@@ -7,28 +7,28 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
 
 interface LocalConverterDataSource {
-    fun getSelectedSavedExchangeRate(): Flow<ExchangeRate>
+    fun observeSelectedExchangeRate(): Flow<ExchangeRate>
 
-    fun getSavedExchangeRates(): Flow<List<ExchangeRate>>
+    fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>>
 
-    suspend fun getSavedExchangedRatesList(): List<ExchangeRate>
+    suspend fun retrieveSavedExchangeRates(): List<ExchangeRate>
 
-    suspend fun upsertToSavedExchangeRates(exchangeRate: ExchangeRate): EmptyResult<DataError.Local>
+    suspend fun upsertLocalExchangeRate(exchangeRate: ExchangeRate): EmptyResult<DataError.Local>
 
-    suspend fun removeFromSavedExchangeRates(exchangeRate: ExchangeRate)
+    suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate)
 
-    suspend fun clearAllSavedExchangeRates()
+    suspend fun clearLocalExchangeRates()
 
-    fun getCurrencyDetails(): Flow<List<CurrencyDetails>>
+    fun observeCurrencyDetails(): Flow<List<CurrencyDetails>>
 
-    fun queryCurrencyDetails(query: String): Flow<List<CurrencyDetails>>
+    fun observeFilteredCurrencyDetails(query: String): Flow<List<CurrencyDetails>>
 
-    suspend fun upsertCurrencyDetails(
+    suspend fun upsertLocalCurrencyDetails(
         currencyDetails: CurrencyDetails,
         rate: Double,
     ): EmptyResult<DataError.Local>
 
-    suspend fun upsertCurrencyDetailsList(currencyDetailsList: List<CurrencyDetails>): EmptyResult<DataError.Local>
+    suspend fun upsertLocalCurrencyDetailsList(currencyDetailsList: List<CurrencyDetails>): EmptyResult<DataError.Local>
 
-    suspend fun clearAllCurrencyDetails()
+    suspend fun clearLocalCurrencyDetails()
 }

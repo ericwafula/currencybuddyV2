@@ -39,7 +39,7 @@ class DefaultConverterRepository(
         ) {
             is Result.Success -> {
                 applicationScope.async {
-                    localConverterDataSource.upsertToSavedExchangeRates(
+                    localConverterDataSource.upsertLocalExchangeRate(
                         result.data.copy(
                             isSelected = isSelected,
                             amount = amount,
@@ -53,7 +53,7 @@ class DefaultConverterRepository(
     }
 
     override fun getExchangeRate(): Flow<ExchangeRate> {
-        return localConverterDataSource.getSelectedSavedExchangeRate()
+        return localConverterDataSource.observeSelectedExchangeRate()
     }
 
     override suspend fun fetchCurrencyDetails(): EmptyResult<DataError> {
@@ -63,35 +63,35 @@ class DefaultConverterRepository(
             is Result.Error -> result.asEmptyDataResult()
             is Result.Success -> {
                 applicationScope.async {
-                    localConverterDataSource.upsertCurrencyDetailsList(result.data)
+                    localConverterDataSource.upsertLocalCurrencyDetailsList(result.data)
                 }.await()
             }
         }
     }
 
     override fun getSavedExchangeRates(): Flow<List<ExchangeRate>> {
-        return localConverterDataSource.getSavedExchangeRates()
+        return localConverterDataSource.observeNonSelectedExchangeRates()
     }
 
     override fun getCurrencyDetails(): Flow<List<CurrencyDetails>> {
-        return localConverterDataSource.getCurrencyDetails()
+        return localConverterDataSource.observeCurrencyDetails()
     }
 
     override suspend fun deleteExchangeRate(exchangeRate: ExchangeRate) {
-        localConverterDataSource.removeFromSavedExchangeRates(exchangeRate)
+        localConverterDataSource.deleteLocalExchangeRate(exchangeRate)
     }
 
     override suspend fun clearAllSavedExchangeRates() {
-        localConverterDataSource.clearAllSavedExchangeRates()
+        localConverterDataSource.clearLocalExchangeRates()
     }
 
     override suspend fun clearAllCurrencyDetails() {
-        localConverterDataSource.clearAllCurrencyDetails()
+        localConverterDataSource.clearLocalCurrencyDetails()
     }
 
     override suspend fun syncSavedExchangeRates() {
         withContext(dispatchers.io) {
-            val savedExchangeRates = localConverterDataSource.getSavedExchangedRatesList()
+            val savedExchangeRates = localConverterDataSource.retrieveSavedExchangeRates()
 
             val syncJobs =
                 savedExchangeRates.map { exchangeRate ->
@@ -107,7 +107,7 @@ class DefaultConverterRepository(
                             is Result.Error -> Unit
                             is Result.Success -> {
                                 applicationScope.launch {
-                                    localConverterDataSource.upsertToSavedExchangeRates(
+                                    localConverterDataSource.upsertLocalExchangeRate(
                                         result.data,
                                     )
                                 }.join()
