@@ -44,13 +44,6 @@ class ConverterWorkerScheduler(
                     .isNotEmpty()
             }
 
-        val elapsedTime =
-            System.currentTimeMillis() - sessionStorage.lastMetadataSyncTimestamp()
-
-        if (elapsedTime < duration.inWholeMilliseconds) {
-            return
-        }
-
         if (isSyncing) {
             return
         }
@@ -64,10 +57,13 @@ class ConverterWorkerScheduler(
                 ),
             ).setBackoffCriteria(
                 backoffPolicy = BackoffPolicy.EXPONENTIAL,
-                backoffDelay = SyncCurrencyMetaDataWorker.DELAY,
+                backoffDelay = SyncCurrencyMetaDataWorker.backoffDelayMillis,
                 timeUnit = TimeUnit.MILLISECONDS,
             ).addTag(SyncCurrencyMetaDataWorker.TAG)
-                .setInitialDelay(30, TimeUnit.MINUTES)
+                .setInitialDelay(
+                    SyncCurrencyMetaDataWorker.initialDelayDurationMillis,
+                    TimeUnit.MINUTES,
+                )
                 .build()
 
         workManager.enqueue(workRequest)
@@ -81,12 +77,6 @@ class ConverterWorkerScheduler(
                     .get()
                     .isNotEmpty()
             }
-        val lastSyncTimeStamp = sessionStorage.lastExchangeRateSyncTimestamp()
-        val elapsedTime = System.currentTimeMillis() - lastSyncTimeStamp
-
-        if (elapsedTime < duration.inWholeMilliseconds) {
-            return
-        }
 
         if (isSyncing) {
             return
@@ -101,10 +91,13 @@ class ConverterWorkerScheduler(
                 ),
             ).setBackoffCriteria(
                 backoffPolicy = BackoffPolicy.EXPONENTIAL,
-                backoffDelay = SyncExchangeRatesWorker.BACKOFF_DELAY,
+                backoffDelay = SyncExchangeRatesWorker.backoffDelayMillis,
                 timeUnit = TimeUnit.MILLISECONDS,
             ).addTag(SyncExchangeRatesWorker.TAG)
-                .setInitialDelay(30, TimeUnit.MINUTES)
+                .setInitialDelay(
+                    SyncExchangeRatesWorker.initialDelayDurationMillis,
+                    TimeUnit.MINUTES,
+                )
                 .build()
 
         workManager.enqueue(workRequest)

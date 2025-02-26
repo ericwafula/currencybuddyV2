@@ -5,6 +5,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import tech.ericwathome.core.data.util.toWorkerResult
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class SyncExchangeRatesWorker(
     context: Context,
@@ -22,6 +24,7 @@ class SyncExchangeRatesWorker(
 
     companion object {
         const val TAG = "sync_exchange_rates_worker_tag"
-        const val BACKOFF_DELAY = 2_000L
+        val backoffDelayMillis = 2.seconds.inWholeMilliseconds
+        val initialDelayDurationMillis = 30.minutes.inWholeMilliseconds
     }
 }

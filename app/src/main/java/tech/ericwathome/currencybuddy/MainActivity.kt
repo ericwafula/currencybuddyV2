@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
                         val navController = rememberNavController()
                         RootNav(
                             modifier = Modifier.padding(innerPadding),
-                            navController = navController
+                            navController = navController,
                         )
                     }
                 }
