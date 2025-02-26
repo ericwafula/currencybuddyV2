@@ -5,6 +5,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import tech.ericwathome.core.data.util.toWorkerResult
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class SyncCurrencyMetaDataWorker(
     context: Context,
@@ -29,6 +31,7 @@ class SyncCurrencyMetaDataWorker(
 
     companion object {
         const val TAG = "fetch_currency_metadata_worker_tag"
-        const val DELAY = 2_000L
+        val backoffDelayMillis = 2.seconds.inWholeMilliseconds
+        val initialDelayDurationMillis = 30.minutes.inWholeMilliseconds
     }
 }
