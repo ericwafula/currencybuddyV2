@@ -3,36 +3,46 @@
 package tech.ericwathome.core.presentation.designsystem
 
 import androidx.annotation.Keep
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import tech.ericwathome.core.presentation.designsystem.utils.previewSupported
 
 private val LightColorScheme =
     lightColorScheme(
         primary = md_theme_light_primary,
-        onPrimary = md_theme_light_onPrimary,
-        secondary = md_theme_light_secondary,
-        onSecondary = md_theme_light_onSecondary,
-        secondaryContainer = md_theme_light_secondaryContainer,
-        onSecondaryContainer = md_theme_light_onSecondaryContainer,
-        error = md_theme_light_error,
-        errorContainer = md_theme_light_errorContainer,
-        onError = md_theme_light_onError,
-        onErrorContainer = md_theme_light_onErrorContainer,
+        onPrimary = md_theme_light_on_primary,
         background = md_theme_light_background,
-        onBackground = md_theme_light_onBackground,
+        onBackground = md_theme_light_on_background,
         surface = md_theme_light_surface,
-        onSurface = md_theme_light_onSurface,
-        outline = md_theme_light_outline,
-        inverseOnSurface = md_theme_light_inverseOnSurface,
-        inverseSurface = md_theme_light_inverseSurface,
-        inversePrimary = md_theme_light_inversePrimary,
-        scrim = md_theme_light_scrim,
+        onSurface = md_theme_light_on_surface,
+        secondary = md_theme_light_secondary,
+        onSecondary = md_theme_light_on_secondary,
+        error = md_theme_light_error,
+    )
+
+private val DarkColorScheme =
+    lightColorScheme(
+        primary = md_theme_dark_primary,
+        onPrimary = md_theme_dark_on_primary,
+        background = md_theme_dark_background,
+        onBackground = md_theme_dark_on_background,
+        surface = md_theme_dark_surface,
+        onSurface = md_theme_dark_on_surface,
+        secondary = md_theme_dark_secondary,
+        onSecondary = md_theme_dark_on_secondary,
+        error = md_theme_dark_error,
     )
 
 @Composable
-fun CurrencybuddyTheme(content: @Composable () -> Unit) {
+fun CurrencybuddyTheme(
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
+    val colorScheme = if (isDarkTheme) DarkColorScheme else LightColorScheme
+
     CompositionLocalProvider(
         values =
             arrayOf(
@@ -40,8 +50,8 @@ fun CurrencybuddyTheme(content: @Composable () -> Unit) {
             ),
     ) {
         MaterialTheme(
-            colorScheme = LightColorScheme,
-            typography = Typography,
+            colorScheme = colorScheme,
+            typography = Typography.previewSupported,
             content = content,
         )
     }

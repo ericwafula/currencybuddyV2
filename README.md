@@ -9,14 +9,14 @@
 
 ## Table of Contents
 
-- [Tech Stack & Tools Used](#Libraries)
+- [Tech Stack & Tools Used](#tech-stack--tools-used)
 - [Features](#features)
 - [Architecture & Modularization](#architecture--modularization)
 - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
-    - [Running the App](#running-the-app)
-- [Dependencies & Tools](#dependencies--tools)
+    - [Running the App](#getting-started)
+- [Dependencies & Tools](#tech-stack--tools-used)
 - [Contributing](#contributing)
 - [Support](#support)
 - [License](#license)
@@ -31,13 +31,14 @@
     - [AndroidX](https://developer.android.com/jetpack/androidx) - The androidx namespace comprises the Android Jetpack libraries. It's a major improvement to the original Android [Support Library](https://developer.android.com/topic/libraries/support-library/index), which is no longer maintained.
     - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle) - Lifecycle-aware components perform actions in response to a change in the lifecycle status of another component, such as activities and fragments. These components help you produce better-organized, and often lighter-weight code, that is easier to maintain.
     - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) - The ViewModel class is a business logic or screen level state holder. It exposes state to the UI and encapsulates related business logic. Its principal advantage is that it caches state and persists it through configuration changes.
+    - [Room Database](https://developer.android.com/topic/libraries/architecture/room) - The Room persistence library provides an abstraction layer over SQLite to allow fluent database access while harnessing the full power of SQLite.
+    - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager) - WorkManager is an API that makes it easy to schedule deferrable, asynchronous tasks that are expected to run even if the app exits or the device restarts.
 - - [Ktor Client](https://ktor.io/) is a Network Client Provider for Android a asynchronous HTTP client, which allows you to make requests and handle responses, extend its functionality with plugins, such as authentication, JSON serialization, and more
 - [Koin ](https://insert-koin.io/) - The pragmatic Kotlin & Kotlin Multiplatform Dependency Injection framework.
 - [Kotlin Coroutines](https://developer.android.com/kotlin/coroutines) - A concurrency design pattern that you can use on Android to simplify code that executes asynchronously and it's the recommended way for asynchronous programming on Android.
 - [Kotlin Flow](https://developer.android.com/kotlin/flow) - In coroutines, a flow is a type that can emit multiple values sequentially, as opposed to suspend functions that return only a single value.
 - [Ktor Client](https://ktor.io/) is a Network Client Provider for Androidi a asynchronous HTTP client, which allows you to make requests and handle responses, extend its functionality with plugins, such as authentication, JSON serialization, and more.
-- [GSON](https://github.com/google/gson) - JSON Parser, used to parse requests on the data layer for Entities and understands Kotlin non-nullable and default parameters.
-- [Logging Interceptor](https://github.com/square/okhttp/blob/master/okhttp-logging-interceptor/README.md) - An OkHttp interceptor which logs HTTP request and response data.
+- [Kotlin Serialization](https://kotlinlang.org/docs/serialization.html) - Kotlin Serialization is a framework that consists of a compiler plugin, which automatically generates visitor code for objects, and runtime library, which uses generated code to serialize objects to and from formats like JSON, ProtoBuf, and others.
 - [Timber](https://github.com/JakeWharton/timber)- A logger with a small, extensible API which provides utility on top of Android's normal Log class.
 - [Mockk](https://github.com/mockk/mockk)- A mocking library for Kotlin
 - [Junit5](https://github.com/mannodermaus/android-junit5)-A Gradle plugin that allows for the execution of JUnit 5 tests in Android environments using Android Gradle Plugin 8.0.0 or later.
@@ -48,6 +49,7 @@
 - **Intuitive UI:** A clean and simple interface powered by Jetpack Compose for effortless currency conversion.
 - **Modular Design:** Separation of concerns through a layered architecture combined with feature-based modularization.
 - **Accurate Conversions:** Real-time currency conversion using up-to-date exchange rates.
+- **Offline First:** Caching of currency data for seamless operation even without an active internet connection.
 - **Best Practices:** Updated to leverage modern Android development techniques and libraries for improved performance and maintainability.
 
 ---

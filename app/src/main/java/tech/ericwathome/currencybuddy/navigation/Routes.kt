@@ -20,5 +20,8 @@ object Routes {
 
         @Serializable
         data object Favourites
+
+        @Serializable
+        data class CurrencyDetails(val id: Long) : Home
     }
 }
