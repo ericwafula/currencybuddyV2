@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.designsystem.components
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
