@@ -1,4 +1,4 @@
-package tech.ericwathome.core.presentation.designsystem.components
+package tech.ericwathome.core.presentation.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
