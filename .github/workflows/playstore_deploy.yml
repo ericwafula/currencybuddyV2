@@ -2,7 +2,7 @@ name: Deploy to Playstore
 
 on:
   workflow_dispatch:
-    branches: [ main ]
+    branches: [ master ]
     inputs:
       release-notes:
         description: 'Release notes for this version'
