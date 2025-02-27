@@ -23,7 +23,7 @@ import tech.ericwathome.core.presentation.designsystem.R
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
-fun CurrencyBuddyTinyPopUp(
+fun CurrencyBuddyTinyPopup(
     modifier: Modifier = Modifier,
     onAccept: () -> Unit,
     onDecline: () -> Unit,
@@ -99,7 +99,7 @@ fun CurrencyBuddyTinyPopUp(
 @Composable
 private fun CurrencyBuddyTinyPopUpPreview() {
     CurrencybuddyTheme {
-        CurrencyBuddyTinyPopUp(
+        CurrencyBuddyTinyPopup(
             onAccept = {},
             onDecline = {},
             isVisible = true,

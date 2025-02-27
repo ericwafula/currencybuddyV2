@@ -3,4 +3,7 @@
     <string name="would_you_like_to_add_this_to_your_favourites">Would you like to add this to your favourites?</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="network_unavailable">Network unavailable. Please check your internet connection</string>
+    <string name="poor_network_connection">Poor network connection</string>
+    <string name="dismiss">Dismiss</string>
 </resources>
