@@ -1,4 +1,4 @@
-package tech.ericwathome.core.presentation.ui.components
+package tech.ericwathome.core.presentation.designsystem.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,9 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
-import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyTinyPopup
+import tech.ericwathome.core.presentation.designsystem.R
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
-import tech.ericwathome.core.presentation.ui.R
 
 @Composable
 fun NetworkLayout(

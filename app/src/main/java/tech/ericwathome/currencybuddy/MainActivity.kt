@@ -12,7 +12,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
-import tech.ericwathome.core.presentation.ui.components.NetworkLayout
+import tech.ericwathome.core.presentation.designsystem.components.NetworkLayout
 import tech.ericwathome.currencybuddy.navigation.RootNav
 
 class MainActivity : ComponentActivity() {
