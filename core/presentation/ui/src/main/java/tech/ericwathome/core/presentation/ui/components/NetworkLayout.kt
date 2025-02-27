@@ -24,16 +24,17 @@ fun NetworkLayout(
     content: @Composable () -> Unit,
 ) {
     Surface(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
     ) {
         Box {
             content()
             when (connectionState) {
                 ConnectionObserver.ConnectionState.DISCONNECTED -> {
                     Box(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.BottomCenter)
+                        modifier =
+                            Modifier
+                                .padding(16.dp)
+                                .align(Alignment.BottomCenter),
                     ) {
                         CurrencyBuddyTinyPopUp(
                             modifier = Modifier.fillMaxWidth(),
@@ -42,7 +43,7 @@ fun NetworkLayout(
                             isVisible = true,
                             text = stringResource(R.string.network_unavailable),
                             dismissText = "",
-                            acceptText = stringResource(R.string.dismiss)
+                            acceptText = stringResource(R.string.dismiss),
                         )
                     }
                 }
@@ -60,7 +61,7 @@ private fun NetworkLayoutPreview() {
         NetworkLayout(
             onDismiss = {},
             content = {},
-            connectionState = ConnectionObserver.ConnectionState.DISCONNECTED
+            connectionState = ConnectionObserver.ConnectionState.DISCONNECTED,
         )
     }
 }
