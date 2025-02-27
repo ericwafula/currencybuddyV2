@@ -29,18 +29,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CurrencybuddyTheme {
-                NetworkLayout(
-                    modifier = Modifier,
-                    onDismiss = { viewModel.onDismissNetworkError() },
-                    showNetworkPopup = viewModel.state.showNetworkPopup,
-                ) {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                    ) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                ) { innerPadding ->
+                    NetworkLayout(
+                        modifier = Modifier.padding(innerPadding),
+                        onDismiss = { viewModel.onDismissNetworkError() },
+                        showNetworkPopup = viewModel.state.showNetworkPopup,
+                    ) {
                         if (!viewModel.state.isCheckingOnBoardingStatus) {
                             val navController = rememberNavController()
                             RootNav(
-                                modifier = Modifier.padding(innerPadding),
+                                modifier = Modifier,
                                 navController = navController,
                             )
                         }
