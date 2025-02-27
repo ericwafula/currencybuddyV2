@@ -10,7 +10,7 @@ import org.koin.core.context.startKoin
 import tech.ericwathome.converter.data.di.converterDataModule
 import tech.ericwathome.core.data.di.coreDataModule
 import tech.ericwathome.core.database.di.databaseModule
-import tech.ericwathome.core.network.converter.di.networkModule
+import tech.ericwathome.core.network.di.networkModule
 import tech.ericwathome.currencybuddy.di.appModule
 import tech.ericwathome.currencybuddy.error.CrashHandler
 import tech.ericwathome.currencybuddy.error.CrashlyticsTree
