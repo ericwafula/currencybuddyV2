@@ -10,9 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
-import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyTinyPopUp
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyTinyPopup
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.ui.R
 
@@ -20,7 +19,7 @@ import tech.ericwathome.core.presentation.ui.R
 fun NetworkLayout(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
-    connectionState: ConnectionObserver.ConnectionState,
+    showNetworkPopup: Boolean,
     content: @Composable () -> Unit,
 ) {
     Surface(
@@ -28,27 +27,23 @@ fun NetworkLayout(
     ) {
         Box {
             content()
-            when (connectionState) {
-                ConnectionObserver.ConnectionState.DISCONNECTED -> {
-                    Box(
-                        modifier =
-                            Modifier
-                                .padding(16.dp)
-                                .align(Alignment.BottomCenter),
-                    ) {
-                        CurrencyBuddyTinyPopUp(
-                            modifier = Modifier.fillMaxWidth(),
-                            onAccept = onDismiss,
-                            onDecline = { },
-                            isVisible = true,
-                            text = stringResource(R.string.network_unavailable),
-                            dismissText = "",
-                            acceptText = stringResource(R.string.dismiss),
-                        )
-                    }
+            if (showNetworkPopup) {
+                Box(
+                    modifier =
+                        Modifier
+                            .padding(16.dp)
+                            .align(Alignment.BottomCenter),
+                ) {
+                    CurrencyBuddyTinyPopup(
+                        modifier = Modifier.fillMaxWidth(),
+                        onAccept = onDismiss,
+                        onDecline = { },
+                        isVisible = true,
+                        text = stringResource(R.string.network_unavailable),
+                        dismissText = "",
+                        acceptText = stringResource(R.string.dismiss),
+                    )
                 }
-
-                ConnectionObserver.ConnectionState.CONNECTED -> Unit
             }
         }
     }
@@ -61,7 +56,7 @@ private fun NetworkLayoutPreview() {
         NetworkLayout(
             onDismiss = {},
             content = {},
-            connectionState = ConnectionObserver.ConnectionState.DISCONNECTED,
+            showNetworkPopup = true,
         )
     }
 }

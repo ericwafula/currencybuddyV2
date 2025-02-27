@@ -12,6 +12,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
+import tech.ericwathome.core.presentation.ui.components.NetworkLayout
 import tech.ericwathome.currencybuddy.navigation.RootNav
 
 class MainActivity : ComponentActivity() {
@@ -28,15 +29,21 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CurrencybuddyTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                ) { innerPadding ->
-                    if (!viewModel.state.isCheckingOnBoardingStatus) {
-                        val navController = rememberNavController()
-                        RootNav(
-                            modifier = Modifier.padding(innerPadding),
-                            navController = navController,
-                        )
+                NetworkLayout(
+                    modifier = Modifier,
+                    onDismiss = { viewModel.onDismissNetworkError() },
+                    showNetworkPopup = viewModel.state.showNetworkPopup,
+                ) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                    ) { innerPadding ->
+                        if (!viewModel.state.isCheckingOnBoardingStatus) {
+                            val navController = rememberNavController()
+                            RootNav(
+                                modifier = Modifier.padding(innerPadding),
+                                navController = navController,
+                            )
+                        }
                     }
                 }
             }
