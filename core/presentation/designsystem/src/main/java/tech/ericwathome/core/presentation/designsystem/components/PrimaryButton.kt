@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.designsystem.components
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
