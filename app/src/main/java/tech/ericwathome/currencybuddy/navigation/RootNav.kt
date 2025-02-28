@@ -37,10 +37,18 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
         composable<Routes.Onboarding.SyncScreen> {
             SyncScreen(
                 onNavigateToGetStarted = {
-                    navController.navigate(Routes.Onboarding.GetStartedScreen)
+                    navController.navigate(Routes.Onboarding.GetStartedScreen) {
+                        popUpTo(Routes.Onboarding.SyncScreen) {
+                            inclusive = true
+                        }
+                    }
                 },
                 onNavigateToHome = {
-                    navController.navigate(Routes.Home.HomeGraph)
+                    navController.navigate(Routes.Home.HomeGraph) {
+                        popUpTo(Routes.Onboarding.OnboardingGraph) {
+                            inclusive = true
+                        }
+                    }
                 },
                 animatedVisibilityScope = this,
             )
@@ -49,7 +57,11 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
         composable<Routes.Onboarding.GetStartedScreen> {
             GetStartedScreen(
                 onNavigateToHome = {
-                    navController.navigate(Routes.Home.HomeGraph)
+                    navController.navigate(Routes.Home.HomeGraph) {
+                        popUpTo(Routes.Onboarding.OnboardingGraph) {
+                            inclusive = true
+                        }
+                    }
                 },
                 animatedVisibilityScope = this,
             )

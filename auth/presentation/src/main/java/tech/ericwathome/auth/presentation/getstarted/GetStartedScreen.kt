@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.koinViewModel
 import tech.ericwathome.auth.presentation.R
 import tech.ericwathome.auth.presentation.assets.GetStartedCurrencyImage
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
@@ -31,16 +32,24 @@ import tech.ericwathome.core.presentation.designsystem.assets.LogoFull
 import tech.ericwathome.core.presentation.designsystem.components.PrimaryButton
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
+import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
 import tech.ericwathome.core.presentation.ui.SharedContentKeys
 
 @Composable
 fun GetStartedScreen(
     onNavigateToHome: () -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    viewModel: GetStartedViewModel = koinViewModel(),
 ) {
+    CollectOneTimeEvent(viewModel.event) { event ->
+        when (event) {
+            is GetStartedEvent.OnSuccess -> onNavigateToHome()
+        }
+    }
+
     WithSharedTransitionScope {
         GetStartedScreenContent(
-            onNavigateToHome = onNavigateToHome,
+            onClickGetStarted = viewModel::onClickGetStarted,
             animatedVisibilityScope = animatedVisibilityScope,
         )
     }
@@ -48,7 +57,7 @@ fun GetStartedScreen(
 
 @Composable
 fun SharedTransitionScope.GetStartedScreenContent(
-    onNavigateToHome: () -> Unit,
+    onClickGetStarted: () -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     Surface {
@@ -104,7 +113,7 @@ fun SharedTransitionScope.GetStartedScreenContent(
             }
             PrimaryButton(
                 modifier = Modifier,
-                onClick = onNavigateToHome,
+                onClick = onClickGetStarted,
                 text = stringResource(R.string.get_started),
             )
         }
@@ -118,7 +127,7 @@ private fun GetStartedScreenPreview() {
         WithSharedTransitionScope {
             AnimatedVisibility(true) {
                 GetStartedScreenContent(
-                    onNavigateToHome = {},
+                    onClickGetStarted = {},
                     animatedVisibilityScope = this,
                 )
             }
