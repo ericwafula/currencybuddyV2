@@ -1,4 +1,4 @@
-package tech.ericwathome.core.presentation.designsystem
+package tech.ericwathome.core.presentation.designsystem.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf

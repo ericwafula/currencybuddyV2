@@ -9,6 +9,9 @@ object Routes {
 
         @Serializable
         data object GetStartedScreen
+
+        @Serializable
+        data object SyncScreen
     }
 
     sealed interface Home {

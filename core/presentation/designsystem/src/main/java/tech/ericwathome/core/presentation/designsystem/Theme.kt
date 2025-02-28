@@ -3,11 +3,15 @@
 package tech.ericwathome.core.presentation.designsystem
 
 import androidx.annotation.Keep
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import tech.ericwathome.core.presentation.designsystem.utils.LocalTextUtils
+import tech.ericwathome.core.presentation.designsystem.utils.TextUtils
+import tech.ericwathome.core.presentation.designsystem.utils.WithProviders
 import tech.ericwathome.core.presentation.designsystem.utils.previewSupported
 
 private val LightColorScheme =
@@ -36,6 +40,7 @@ private val DarkColorScheme =
         error = md_theme_dark_error,
     )
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun CurrencybuddyTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
@@ -43,16 +48,15 @@ fun CurrencybuddyTheme(
 ) {
     val colorScheme = if (isDarkTheme) DarkColorScheme else LightColorScheme
 
-    CompositionLocalProvider(
-        values =
-            arrayOf(
-                LocalTextUtils provides TextUtils(),
-            ),
-    ) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography.previewSupported,
-            content = content,
-        )
+    SharedTransitionLayout {
+        WithProviders(
+            LocalTextUtils provides TextUtils(),
+        ) {
+            MaterialTheme(
+                colorScheme = colorScheme,
+                typography = Typography.previewSupported,
+                content = content,
+            )
+        }
     }
 }

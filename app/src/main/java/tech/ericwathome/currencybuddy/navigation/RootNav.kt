@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import tech.ericwathome.auth.presentation.sync.SyncScreen
 
 @Composable
 fun RootNav(
@@ -33,6 +34,18 @@ fun NavGraphBuilder.onboardingGraph(navController: NavController) {
     navigation<Routes.Onboarding.OnboardingGraph>(
         startDestination = Routes.Onboarding.GetStartedScreen,
     ) {
+        composable<Routes.Onboarding.SyncScreen> {
+            SyncScreen(
+                onNavigateToGetStarted = {
+                    navController.navigate(Routes.Onboarding.GetStartedScreen)
+                },
+                onNavigateToHome = {
+                    navController.navigate(Routes.Home.HomeGraph)
+                },
+                animatedVisibilityScope = this,
+            )
+        }
+
         composable<Routes.Onboarding.GetStartedScreen> {
             val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -54,6 +67,13 @@ fun NavGraphBuilder.homeGraph(navController: NavController) {
     ) {
         composable<Routes.Home.HomeScreen> {
             // todo add home screen
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("Home Screen")
+            }
         }
 
         composable<Routes.Home.Favourites> {
