@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.ui
 
+import androidx.annotation.Keep
 import tech.ericwathome.core.domain.util.DataError
 
 fun DataError.asUiText(): UiText {
