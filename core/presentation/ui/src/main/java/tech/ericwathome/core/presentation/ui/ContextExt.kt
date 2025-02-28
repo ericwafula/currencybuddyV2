@@ -1,7 +1,10 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.ui
 
 import android.content.Context
 import android.widget.Toast
+import androidx.annotation.Keep
 
 fun Context.showToast(
     text: String,
