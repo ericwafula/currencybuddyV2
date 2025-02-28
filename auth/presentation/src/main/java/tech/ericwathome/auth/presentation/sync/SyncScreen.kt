@@ -1,7 +1,8 @@
-@file:OptIn(ExperimentalSharedTransitionApi::class)
+@file:[Keep OptIn(ExperimentalSharedTransitionApi::class)]
 
 package tech.ericwathome.auth.presentation.sync
 
+import androidx.annotation.Keep
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -28,10 +29,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import tech.ericwathome.auth.presentation.R
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
-import tech.ericwathome.core.presentation.designsystem.LogoCompact
+import tech.ericwathome.core.presentation.designsystem.assets.LogoCompact
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
 import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
+import tech.ericwathome.core.presentation.ui.SharedContentKeys
 import tech.ericwathome.core.presentation.ui.showToastIfNeeded
 
 @Composable
@@ -77,18 +79,18 @@ private fun SharedTransitionScope.SyncScreenContent(
         Box(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .sharedElement(
-                        state = rememberSharedContentState("sync_screen"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                    ),
+                    .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Image(
-                    modifier = Modifier,
+                    modifier =
+                        Modifier.sharedElement(
+                            state = rememberSharedContentState(key = SharedContentKeys.SYNC_SCREEN_LOGO),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        ),
                     imageVector = LogoCompact,
                     contentDescription = stringResource(R.string.currency_buddy_logo),
                 )
