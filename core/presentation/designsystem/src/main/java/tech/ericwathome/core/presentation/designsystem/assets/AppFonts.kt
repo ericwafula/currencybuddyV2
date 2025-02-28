@@ -1,8 +1,9 @@
-package tech.ericwathome.core.presentation.designsystem
+package tech.ericwathome.core.presentation.designsystem.assets
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import tech.ericwathome.core.presentation.designsystem.R
 
 internal object AppFonts {
     val inter: FontFamily = interFontFamily

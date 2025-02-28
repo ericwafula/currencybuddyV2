@@ -6,13 +6,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import tech.ericwathome.auth.presentation.getstarted.GetStartedScreen
 import tech.ericwathome.auth.presentation.sync.SyncScreen
 
 @Composable
@@ -25,14 +25,14 @@ fun RootNav(
         navController = navController,
         startDestination = Routes.Onboarding.OnboardingGraph,
     ) {
-        onboardingGraph(navController)
+        authGraph(navController)
         homeGraph(navController)
     }
 }
 
-fun NavGraphBuilder.onboardingGraph(navController: NavController) {
+fun NavGraphBuilder.authGraph(navController: NavController) {
     navigation<Routes.Onboarding.OnboardingGraph>(
-        startDestination = Routes.Onboarding.GetStartedScreen,
+        startDestination = Routes.Onboarding.SyncScreen,
     ) {
         composable<Routes.Onboarding.SyncScreen> {
             SyncScreen(
@@ -47,16 +47,12 @@ fun NavGraphBuilder.onboardingGraph(navController: NavController) {
         }
 
         composable<Routes.Onboarding.GetStartedScreen> {
-            val lifecycleOwner = LocalLifecycleOwner.current
-
-            // todo add get started screen
-
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("Get Started Screen")
-            }
+            GetStartedScreen(
+                onNavigateToHome = {
+                    navController.navigate(Routes.Home.HomeGraph)
+                },
+                animatedVisibilityScope = this,
+            )
         }
     }
 }
