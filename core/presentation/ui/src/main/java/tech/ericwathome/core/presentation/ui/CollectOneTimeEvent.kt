@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.ui
 
+import androidx.annotation.Keep
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.Lifecycle

@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.designsystem.assets
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
