@@ -83,4 +83,7 @@ dependencies {
     implementation(projects.converter.data)
     implementation(projects.converter.domain)
     implementation(projects.converter.presentation)
+    implementation(projects.auth.data)
+    implementation(projects.auth.domain)
+    implementation(projects.auth.presentation)
 }

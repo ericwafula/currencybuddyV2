@@ -15,4 +15,5 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.database)
     implementation(projects.converter.domain)
+    implementation(projects.auth.domain)
 }

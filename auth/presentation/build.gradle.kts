@@ -13,4 +13,5 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.converter.domain)
     implementation(projects.core.notification)
+    implementation(projects.auth.domain)
 }
