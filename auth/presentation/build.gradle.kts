@@ -13,5 +13,7 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.converter.domain)
     implementation(projects.core.notification)
+    implementation(projects.core.presentation.designsystem)
+    implementation(projects.core.presentation.ui)
     implementation(projects.auth.domain)
 }

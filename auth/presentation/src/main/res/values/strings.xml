@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="currency_buddy_logo">Currency Buddy Logo</string>
+    <string name="syncing_currency_data">Syncing currency data...</string>
+</resources>
