@@ -15,6 +15,7 @@ import tech.ericwathome.core.domain.SessionStorage
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
+import kotlin.time.Duration.Companion.minutes
 
 @Keep
 class SyncViewModel(
@@ -27,32 +28,49 @@ class SyncViewModel(
     private val _isSyncing = MutableStateFlow(false)
     val isSyncing =
         _isSyncing
-            .onStart { syncMetadata() }
+            .onStart { handleSyncing() }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = false,
             )
 
-    private fun syncMetadata() {
+    private fun handleSyncing() {
         _isSyncing.update { true }
         viewModelScope.launch {
-            val result = converterRepository.syncCurrencyMetadata()
-            _isSyncing.update { false }
+            val lastSyncTimestamp = sessionStorage.lastMetadataSyncTimestamp()
+            val elapsedTime = System.currentTimeMillis() - lastSyncTimestamp
             val hasFinishedOnboarding = sessionStorage.isOnboardingComplete()
 
-            if (hasFinishedOnboarding) {
-                when (result) {
-                    is Result.Error -> _event.send(SyncEvent.OnNavigateToHome(result.error.asUiText(), showToast = true))
-                    is Result.Success -> _event.send(SyncEvent.OnNavigateToHome(showToast = false))
-                }
+            if (elapsedTime >= 30.minutes.inWholeMilliseconds) {
+                syncMetadata(hasFinishedOnboarding)
                 return@launch
             }
 
-            when (result) {
-                is Result.Error -> _event.send(SyncEvent.OnNavigateToGetStarted(result.error.asUiText(), showToast = true))
-                is Result.Success -> _event.send(SyncEvent.OnNavigateToGetStarted(showToast = false))
+            if (hasFinishedOnboarding) {
+                _event.send(SyncEvent.OnNavigateToHome(showToast = false))
+                return@launch
             }
+
+            _event.send(SyncEvent.OnNavigateToGetStarted(showToast = false))
+        }
+    }
+
+    private suspend fun syncMetadata(hasFinishedOnboarding: Boolean) {
+        val result = converterRepository.syncCurrencyMetadata()
+        _isSyncing.update { false }
+
+        if (hasFinishedOnboarding) {
+            when (result) {
+                is Result.Error -> _event.send(SyncEvent.OnNavigateToHome(result.error.asUiText(), showToast = true))
+                is Result.Success -> _event.send(SyncEvent.OnNavigateToHome(showToast = false))
+            }
+            return
+        }
+
+        when (result) {
+            is Result.Error -> _event.send(SyncEvent.OnNavigateToGetStarted(result.error.asUiText(), showToast = true))
+            is Result.Success -> _event.send(SyncEvent.OnNavigateToGetStarted(showToast = false))
         }
     }
 }
