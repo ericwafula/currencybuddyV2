@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.auth.presentation.sync
 
+import androidx.annotation.Keep
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
