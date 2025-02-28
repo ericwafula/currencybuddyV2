@@ -2,4 +2,10 @@
 <resources>
     <string name="currency_buddy_logo">Currency Buddy Logo</string>
     <string name="syncing_currency_data">Syncing currency data...</string>
+    <string name="currency">currency</string>
+    <string name="buddy">buddy</string>
+    <string name="your_ultimate_currency_companion">Your ultimate currency companion</string>
+    <string name="currency_illustration">Currency illustration</string>
+    <string name="currency_buddy_is_your_trusted_companion_for_managing_currencies">Currency Buddy is your trusted companion for managing currencies, tracking expenses, and staying on top of economic events.</string>
+    <string name="get_started">Get Started</string>
 </resources>

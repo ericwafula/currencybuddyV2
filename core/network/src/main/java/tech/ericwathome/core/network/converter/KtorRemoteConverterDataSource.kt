@@ -9,7 +9,9 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.domain.util.map
 import tech.ericwathome.core.network.BuildConfig
+import tech.ericwathome.core.network.converter.dto.CurrencyMetadataDto
 import tech.ericwathome.core.network.converter.dto.ExchangeRatesDto
+import tech.ericwathome.core.network.converter.mappers.toDomain
 
 class KtorRemoteConverterDataSource(
     private val httpClient: HttpClient,
@@ -51,8 +53,8 @@ class KtorRemoteConverterDataSource(
     }
 
     override suspend fun fetchCurrencyMetadata(): Result<List<CurrencyMetadata>, DataError.Network> {
-        return httpClient.get<List<CurrencyMetadata>>(
+        return httpClient.get<List<CurrencyMetadataDto>>(
             route = BuildConfig.CURRENCY_DETAILS_URL,
-        )
+        ).map { it.map { currencyMetadata -> currencyMetadata.toDomain() } }
     }
 }

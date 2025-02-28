@@ -4,6 +4,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import tech.ericwathome.core.presentation.designsystem.assets.AppFonts
 
 val Typography =
     Typography(
@@ -44,7 +45,7 @@ val Typography =
                 fontFamily = AppFonts.inter,
                 fontWeight = FontWeight.Normal,
                 fontSize = 18.sp,
-                lineHeight = 24.sp,
+                lineHeight = 18.sp,
                 letterSpacing = 0.sp,
             ),
         titleSmall =
