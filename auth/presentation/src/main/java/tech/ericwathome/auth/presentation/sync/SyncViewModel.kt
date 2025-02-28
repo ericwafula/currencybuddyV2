@@ -1,5 +1,3 @@
-@file:Keep
-
 package tech.ericwathome.auth.presentation.sync
 
 import androidx.annotation.Keep
@@ -18,6 +16,7 @@ import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
 
+@Keep
 class SyncViewModel(
     private val converterRepository: ConverterRepository,
     private val sessionStorage: SessionStorage,
