@@ -1,5 +1,3 @@
-@file:Keep
-
 package tech.ericwathome.core.presentation.ui
 
 import android.content.Context
@@ -8,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
+@Keep
 sealed interface UiText {
     data class DynamicString(val value: String) : UiText
 
