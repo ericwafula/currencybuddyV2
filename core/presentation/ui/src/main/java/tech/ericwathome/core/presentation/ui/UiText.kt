@@ -1,3 +1,5 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.ui
 
 import android.content.Context
