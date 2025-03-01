@@ -9,6 +9,7 @@ import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import tech.ericwathome.auth.presentation.di.authPresentationModule
 import tech.ericwathome.converter.data.di.converterDataModule
+import tech.ericwathome.converter.presentation.di.converterPresentationModule
 import tech.ericwathome.core.data.di.coreDataModule
 import tech.ericwathome.core.database.di.databaseModule
 import tech.ericwathome.core.network.di.networkModule
@@ -48,6 +49,7 @@ class CurrencyBuddyApp : Application() {
                 networkModule,
                 converterDataModule,
                 authPresentationModule,
+                converterPresentationModule,
             )
         }
     }
