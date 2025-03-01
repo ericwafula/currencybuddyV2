@@ -25,10 +25,10 @@ fun NumberGridLayout(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items((1..9).toList()) {
+        items((1..9).toList()) { digit ->
             SecondaryButton(
-                text = it.toString(),
-                onClick = { onClickNumber(it.toChar()) },
+                text = digit.toString(),
+                onClick = { digit.toString().firstOrNull()?.let { onClickNumber(it) } },
             )
         }
     }
