@@ -97,7 +97,13 @@ private fun SharedTransitionScope.SyncScreenContent(
                 if (isSyncing) {
                     Spacer(modifier = Modifier.height(24.dp))
                     LinearProgressIndicator(
-                        modifier = Modifier.width(118.dp),
+                        modifier =
+                            Modifier
+                                .width(118.dp)
+                                .sharedElement(
+                                    state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                ),
                         color = MaterialTheme.colorScheme.secondary,
                         trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
                     )
