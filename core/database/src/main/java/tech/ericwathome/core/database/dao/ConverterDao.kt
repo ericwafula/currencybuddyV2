@@ -15,16 +15,16 @@ interface ConverterDao {
      *
      * @return A Flow emitting the selected [ExchangeRateEntity] object.
      */
-    @Query("SELECT * FROM exchangerateentity where isSelected = 1 LIMIT 1")
-    fun observeSelectedExchangeRate(): Flow<ExchangeRateEntity>
+    @Query("SELECT * FROM exchangerateentity where isDefault = 1 LIMIT 1")
+    fun observeDefaultExchangeRate(): Flow<ExchangeRateEntity>
 
     /**
      * Observes exchange rates that have not been marked as selected.
      *
      * @return A Flow emitting lists of non‑selected [ExchangeRateEntity] objects.
      */
-    @Query("SELECT * FROM exchangerateentity where isSelected != 1")
-    fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRateEntity>>
+    @Query("SELECT * FROM exchangerateentity where isDefault != 1")
+    fun observeNonDefaultExchangeRates(): Flow<List<ExchangeRateEntity>>
 
     /**
      * Retrieves a list of all locally saved exchange rates.

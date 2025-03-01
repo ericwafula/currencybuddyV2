@@ -11,7 +11,7 @@ interface ConverterRepository {
         fromCurrencyCode: String,
         toCurrencyCode: String,
         amount: Double,
-        isSelected: Boolean,
+        isDefault: Boolean,
     ): EmptyResult<DataError>
 
     fun observeSelectedExchangeRate(): Flow<ExchangeRate>
