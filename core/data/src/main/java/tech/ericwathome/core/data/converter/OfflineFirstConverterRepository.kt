@@ -55,7 +55,7 @@ class OfflineFirstConverterRepository(
         }
     }
 
-    override fun observeSelectedExchangeRate(): Flow<ExchangeRate> {
+    override fun observeDefaultExchangeRate(): Flow<ExchangeRate> {
         return localConverterDataSource.observeDefaultExchangeRate()
     }
 

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,62 +61,66 @@ fun SharedTransitionScope.GetStartedScreenContent(
     onClickGetStarted: () -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    Surface {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Scaffold { paddingValues ->
+        Surface(
+            modifier = Modifier.padding(paddingValues),
         ) {
-            Image(
-                modifier =
-                    Modifier.sharedElement(
-                        state = rememberSharedContentState(key = SharedContentKeys.SYNC_SCREEN_LOGO),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                    ),
-                imageVector = LogoFull,
-                contentDescription = stringResource(tech.ericwathome.core.presentation.ui.R.string.logo),
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = stringResource(R.string.your_ultimate_currency_companion),
-                style =
-                    MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        textAlign = TextAlign.Center,
-                    ),
-            )
             Column(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
+                        .fillMaxSize()
+                        .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
             ) {
                 Image(
-                    imageVector = GetStartedCurrencyImage,
-                    contentDescription = stringResource(R.string.currency_illustration),
-                )
-                Spacer(modifier = Modifier.height(100.dp))
-                Text(
-                    text =
-                        stringResource(
-                            R.string.currency_buddy_is_your_trusted_companion_for_managing_currencies,
+                    modifier =
+                        Modifier.sharedElement(
+                            state = rememberSharedContentState(key = SharedContentKeys.SYNC_SCREEN_LOGO),
+                            animatedVisibilityScope = animatedVisibilityScope,
                         ),
+                    imageVector = LogoFull,
+                    contentDescription = stringResource(tech.ericwathome.core.presentation.ui.R.string.logo),
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = stringResource(R.string.your_ultimate_currency_companion),
                     style =
                         MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             textAlign = TextAlign.Center,
                         ),
                 )
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Image(
+                        imageVector = GetStartedCurrencyImage,
+                        contentDescription = stringResource(R.string.currency_illustration),
+                    )
+                    Spacer(modifier = Modifier.height(100.dp))
+                    Text(
+                        text =
+                            stringResource(
+                                R.string.currency_buddy_is_your_trusted_companion_for_managing_currencies,
+                            ),
+                        style =
+                            MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center,
+                            ),
+                    )
+                }
+                PrimaryButton(
+                    modifier = Modifier,
+                    onClick = onClickGetStarted,
+                    text = stringResource(R.string.get_started),
+                )
             }
-            PrimaryButton(
-                modifier = Modifier,
-                onClick = onClickGetStarted,
-                text = stringResource(R.string.get_started),
-            )
         }
     }
 }
