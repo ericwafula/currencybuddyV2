@@ -1,5 +1,6 @@
 package tech.ericwathome.converter.presentation
 
+import androidx.annotation.Keep
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
 
+@Keep
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
 ) : ViewModel() {
