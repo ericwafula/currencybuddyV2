@@ -99,6 +99,12 @@ fun SharedTransitionScope.GetStartedScreenContent(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Image(
+                        modifier =
+                            Modifier
+                                .sharedElement(
+                                    state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                ),
                         imageVector = GetStartedCurrencyImage,
                         contentDescription = stringResource(R.string.currency_illustration),
                     )
