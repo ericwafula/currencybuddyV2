@@ -10,6 +10,7 @@ fun ExchangeRate.toEntity(): ExchangeRateEntity {
         conversionRate = conversionRate,
         conversionResult = conversionResult,
         amount = amount,
+        isDefault = isDefault,
     )
 }
 

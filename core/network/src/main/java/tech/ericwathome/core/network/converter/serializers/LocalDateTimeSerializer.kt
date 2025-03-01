@@ -9,7 +9,7 @@ import tech.ericwathome.core.domain.util.DateUtils
 import tech.ericwathome.core.domain.util.tryOrNull
 import java.time.LocalDateTime
 
-class LocalDateSerializer : KSerializer<LocalDateTime?> {
+object LocalDateTimeSerializer : KSerializer<LocalDateTime?> {
     override val descriptor =
         PrimitiveSerialDescriptor(this::class.java.simpleName, PrimitiveKind.STRING)
 

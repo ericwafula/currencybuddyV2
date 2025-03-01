@@ -19,12 +19,9 @@ object Routes {
         data object HomeGraph
 
         @Serializable
-        data object HomeScreen
+        data object ConverterScreen
 
         @Serializable
         data object Favourites
-
-        @Serializable
-        data class CurrencyDetails(val id: Long) : Home
     }
 }

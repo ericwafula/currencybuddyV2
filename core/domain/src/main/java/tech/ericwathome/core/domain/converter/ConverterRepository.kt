@@ -14,7 +14,7 @@ interface ConverterRepository {
         isDefault: Boolean,
     ): EmptyResult<DataError>
 
-    fun observeSelectedExchangeRate(): Flow<ExchangeRate>
+    fun observeDefaultExchangeRate(): Flow<ExchangeRate>
 
     fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>>
 
