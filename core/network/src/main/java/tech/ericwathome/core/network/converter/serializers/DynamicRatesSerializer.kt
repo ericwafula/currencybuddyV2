@@ -17,7 +17,6 @@ object DynamicRatesSerializer : KSerializer<ExchangeRatesDto> {
     override val descriptor: SerialDescriptor =
         buildClassSerialDescriptor("ExchangeRatesDto") {
             element<String>("date")
-            // Note: "rates" is not declared in the JSON, so we don't add it here.
         }
 
     override fun serialize(
