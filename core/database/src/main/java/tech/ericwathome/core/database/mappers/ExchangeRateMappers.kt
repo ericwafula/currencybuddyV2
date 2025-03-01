@@ -19,7 +19,7 @@ fun ExchangeRateEntity.toDomain(): ExchangeRate {
         targetCode = targetCode,
         conversionRate = conversionRate,
         conversionResult = conversionResult,
-        isSelected = isSelected,
+        isDefault = isDefault,
         amount = amount,
     )
 }

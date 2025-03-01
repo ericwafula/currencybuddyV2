@@ -16,12 +16,12 @@ import tech.ericwathome.core.domain.util.Result
 class RoomLocalConverterDataSource(
     private val converterDao: ConverterDao,
 ) : LocalConverterDataSource {
-    override fun observeSelectedExchangeRate(): Flow<ExchangeRate> {
-        return converterDao.observeSelectedExchangeRate().map { it.toDomain() }
+    override fun observeDefaultExchangeRate(): Flow<ExchangeRate> {
+        return converterDao.observeDefaultExchangeRate().map { it.toDomain() }
     }
 
-    override fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>> {
-        return converterDao.observeNonSelectedExchangeRates().map { exchangeRateEntities ->
+    override fun observeNonDefaultExchangeRates(): Flow<List<ExchangeRate>> {
+        return converterDao.observeNonDefaultExchangeRates().map { exchangeRateEntities ->
             exchangeRateEntities.map { it.toDomain() }
         }
     }
