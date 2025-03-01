@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
+import timber.log.Timber
 
 @Keep
 class ConverterViewModel(
@@ -49,6 +50,8 @@ class ConverterViewModel(
 
     private fun onEnterInput(input: Char) {
         var currentInput = state.value.amount
+
+        Timber.tag("ConverterViewModel").d("currentInput: $currentInput, newInput: $input")
         when {
             input.isDigit() -> {
                 currentInput = if (currentInput == "0") input.toString() else currentInput + input
