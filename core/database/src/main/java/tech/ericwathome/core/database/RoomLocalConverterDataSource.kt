@@ -2,6 +2,7 @@ package tech.ericwathome.core.database
 
 import android.database.sqlite.SQLiteFullException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import tech.ericwathome.core.database.dao.ConverterDao
 import tech.ericwathome.core.database.mappers.toDomain
@@ -17,7 +18,7 @@ class RoomLocalConverterDataSource(
     private val converterDao: ConverterDao,
 ) : LocalConverterDataSource {
     override fun observeDefaultExchangeRate(): Flow<ExchangeRate> {
-        return converterDao.observeDefaultExchangeRate().map { it.toDomain() }
+        return converterDao.observeDefaultExchangeRate().filterNotNull().map { it.toDomain() }
     }
 
     override fun observeNonDefaultExchangeRates(): Flow<List<ExchangeRate>> {

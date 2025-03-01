@@ -6,4 +6,5 @@
     <string name="network_unavailable">Network unavailable. Please check your internet connection</string>
     <string name="poor_network_connection">Poor network connection</string>
     <string name="dismiss">Dismiss</string>
+    <string name="currency_converter">Currency Converter</string>
 </resources>

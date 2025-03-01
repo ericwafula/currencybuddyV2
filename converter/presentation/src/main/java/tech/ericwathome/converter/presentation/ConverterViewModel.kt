@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -27,6 +29,14 @@ class ConverterViewModel(
             initialValue = ConverterState(),
         )
 
+    init {
+        converterRepository
+            .observeDefaultExchangeRate()
+            .onEach { exchangeRate ->
+                _state.update { it.copy(result = exchangeRate.conversionResult.toString()) }
+            }.launchIn(viewModelScope)
+    }
+
     fun onAction(action: ConverterAction) {
         when (action) {
             is ConverterAction.OnEnterInput -> onEnterInput(action.input)
@@ -41,7 +51,7 @@ class ConverterViewModel(
         var currentInput = state.value.amount
         when {
             input.isDigit() -> {
-                currentInput += input
+                currentInput = if (currentInput == "0") input.toString() else currentInput + input
             }
 
             input == '.' -> {
@@ -54,31 +64,33 @@ class ConverterViewModel(
 
             else -> return
         }
-
         _state.update { it.copy(amount = currentInput) }
     }
 
     private fun onDeleteInput() {
         val currentInput = state.value.amount
-        if (currentInput.isEmpty()) return
+        if (currentInput.isEmpty() || currentInput == "0") return
 
-        val updatedInput = currentInput.dropLast(1)
+        val updatedInput = currentInput.dropLast(1).ifEmpty { "0" }
         _state.update { it.copy(amount = updatedInput) }
     }
 
     private fun onClearInput() {
-        _state.update { it.copy(amount = "") }
+        _state.update { it.copy(amount = "0") }
     }
 
     private fun getExchangeRate() {
         _state.update { it.copy(converting = true) }
         viewModelScope.launch {
+            val rawAmount = state.value.amount
+            val processedAmount = if (rawAmount.endsWith(".")) "${rawAmount}0" else rawAmount
+
             when (
                 val result =
                     converterRepository.fetchExchangeRate(
-                        fromCurrencyCode = state.value.baseCurrencyCode,
-                        toCurrencyCode = state.value.quoteCurrencyCode,
-                        amount = state.value.amount.toDoubleOrNull() ?: 0.0,
+                        fromCurrencyCode = state.value.baseCurrencyCode.lowercase(),
+                        toCurrencyCode = state.value.quoteCurrencyCode.lowercase(),
+                        amount = processedAmount.toDoubleOrNull() ?: 0.0,
                         isDefault = true,
                     )
             ) {
@@ -91,10 +103,10 @@ class ConverterViewModel(
                         )
                     }
                 }
+
                 is Result.Success -> {
                     _state.update {
                         it.copy(
-                            result = result.data.toString(),
                             converting = false,
                             isError = false,
                             errorMessage = null,

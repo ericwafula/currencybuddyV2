@@ -3,8 +3,8 @@ package tech.ericwathome.converter.presentation
 import tech.ericwathome.core.presentation.ui.UiText
 
 data class ConverterState(
-    val amount: String = "",
-    val result: String = "",
+    val amount: String = "1",
+    val result: String = "0",
     val baseCurrencyCode: String = "EUR",
     val quoteCurrencyCode: String = "USD",
     val baseFlagUrl: String = "",
