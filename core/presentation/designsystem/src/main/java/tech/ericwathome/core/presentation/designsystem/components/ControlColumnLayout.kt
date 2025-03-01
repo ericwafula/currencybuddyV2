@@ -19,7 +19,7 @@ fun ControlColumnLayout(
     onClickDEL: () -> Unit,
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.width(80.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         SecondaryButtonOutlined(
@@ -41,7 +41,7 @@ private fun ControlColumnLayoutPreview() {
     CurrencybuddyTheme {
         Surface {
             ControlColumnLayout(
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier,
                 onClickAC = {},
                 onClickDEL = {},
             )
