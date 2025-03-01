@@ -35,6 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 import tech.ericwathome.converter.presentation.components.ConverterKeyboard
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyCenteredTopBarLayout
+import tech.ericwathome.core.presentation.designsystem.components.LiquidLoadingAnimation
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
 import tech.ericwathome.core.presentation.ui.SharedContentKeys
@@ -107,6 +108,12 @@ private fun SharedTransitionScope.ConverterScreenContent(
                                 fontSize = 24.sp,
                                 color = MaterialTheme.colorScheme.onSecondary,
                             ),
+                    )
+                }
+                if (state.converting) {
+                    LiquidLoadingAnimation(
+                        modifier = Modifier.align(Alignment.Center),
+                        isPlaying = state.converting,
                     )
                 }
             }
