@@ -7,9 +7,9 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
 
 interface LocalConverterDataSource {
-    fun observeSelectedExchangeRate(): Flow<ExchangeRate>
+    fun observeDefaultExchangeRate(): Flow<ExchangeRate>
 
-    fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>>
+    fun observeNonDefaultExchangeRates(): Flow<List<ExchangeRate>>
 
     suspend fun retrieveSavedExchangeRates(): List<ExchangeRate>
 

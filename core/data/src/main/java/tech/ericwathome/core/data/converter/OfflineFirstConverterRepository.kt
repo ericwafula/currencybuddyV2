@@ -30,7 +30,7 @@ class OfflineFirstConverterRepository(
         fromCurrencyCode: String,
         toCurrencyCode: String,
         amount: Double,
-        isSelected: Boolean,
+        isDefault: Boolean,
     ): EmptyResult<DataError> {
         return when (
             val result =
@@ -44,7 +44,7 @@ class OfflineFirstConverterRepository(
                 applicationScope.async {
                     localConverterDataSource.upsertLocalExchangeRate(
                         result.data.copy(
-                            isSelected = isSelected,
+                            isDefault = isDefault,
                             amount = amount,
                         ),
                     )
@@ -56,7 +56,7 @@ class OfflineFirstConverterRepository(
     }
 
     override fun observeSelectedExchangeRate(): Flow<ExchangeRate> {
-        return localConverterDataSource.observeSelectedExchangeRate()
+        return localConverterDataSource.observeDefaultExchangeRate()
     }
 
     override suspend fun syncCurrencyMetadata(): EmptyResult<DataError> {
@@ -76,7 +76,7 @@ class OfflineFirstConverterRepository(
     }
 
     override fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>> {
-        return localConverterDataSource.observeNonSelectedExchangeRates()
+        return localConverterDataSource.observeNonDefaultExchangeRates()
     }
 
     override fun observeCurrencyMetadata(): Flow<List<CurrencyMetadata>> {
@@ -108,7 +108,7 @@ class OfflineFirstConverterRepository(
                                 remoteConverterDataSource.getExchangeRate(
                                     base = exchangeRate.baseCode,
                                     quote = exchangeRate.targetCode,
-                                    amount = if (exchangeRate.isSelected) exchangeRate.amount else 1.0,
+                                    amount = if (exchangeRate.isDefault) exchangeRate.amount else 1.0,
                                 )
                         ) {
                             is Result.Error -> {

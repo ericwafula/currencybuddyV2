@@ -8,5 +8,5 @@ data class ExchangeRate(
     val amount: Double,
     val conversionRate: Double,
     val conversionResult: Double,
-    val isSelected: Boolean = false,
+    val isDefault: Boolean = false,
 )

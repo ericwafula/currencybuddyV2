@@ -12,6 +12,6 @@ data class ExchangeRateEntity(
     val targetFlag: String = "",
     val conversionRate: Double,
     val conversionResult: Double,
-    val isSelected: Boolean = false,
+    val isDefault: Boolean = false,
     val amount: Double,
 )
