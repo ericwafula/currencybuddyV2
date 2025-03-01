@@ -1,8 +1,13 @@
 @file:Keep
+@file:OptIn(ExperimentalSharedTransitionApi::class)
 
 package tech.ericwathome.converter.presentation
 
 import androidx.annotation.Keep
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,21 +36,30 @@ import tech.ericwathome.converter.presentation.components.ConverterKeyboard
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyCenteredTopBarLayout
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
+import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
+import tech.ericwathome.core.presentation.ui.SharedContentKeys
 
 @Composable
-fun ConverterScreen(viewModel: ConverterViewModel = koinViewModel()) {
+fun ConverterScreen(
+    viewModel: ConverterViewModel = koinViewModel(),
+    animatedVisibilityScope: AnimatedVisibilityScope,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    ConverterScreenContent(
-        state = state,
-        onAction = viewModel::onAction,
-    )
+    WithSharedTransitionScope {
+        ConverterScreenContent(
+            state = state,
+            animatedVisibilityScope = animatedVisibilityScope,
+            onAction = viewModel::onAction,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ConverterScreenContent(
+private fun SharedTransitionScope.ConverterScreenContent(
     state: ConverterState,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onAction: (ConverterAction) -> Unit,
 ) {
     CurrencyBuddyCenteredTopBarLayout(
@@ -68,7 +82,11 @@ private fun ConverterScreenContent(
                         .weight(1f)
                         .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
                         .background(color = MaterialTheme.colorScheme.secondary)
-                        .padding(16.dp),
+                        .padding(16.dp)
+                        .sharedElement(
+                            state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        ),
             ) {
                 Column(
                     modifier = Modifier.align(Alignment.TopStart),
@@ -108,10 +126,15 @@ private fun ConverterScreenContent(
 private fun ConverterScreenPreview() {
     CurrencybuddyTheme {
         Surface {
-            ConverterScreenContent(
-                state = ConverterState(),
-                onAction = { },
-            )
+            WithSharedTransitionScope {
+                AnimatedVisibility(true) {
+                    ConverterScreenContent(
+                        state = ConverterState(),
+                        onAction = { },
+                        animatedVisibilityScope = this,
+                    )
+                }
+            }
         }
     }
 }

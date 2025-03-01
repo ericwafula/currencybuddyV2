@@ -71,7 +71,9 @@ fun NavGraphBuilder.homeGraph(navController: NavController) {
         startDestination = Routes.Home.ConverterScreen,
     ) {
         composable<Routes.Home.ConverterScreen> {
-            ConverterScreen()
+            ConverterScreen(
+                animatedVisibilityScope = this,
+            )
         }
 
         composable<Routes.Home.Favourites> {
