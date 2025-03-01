@@ -15,4 +15,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.material3)
+    api(libs.lottie.compose)
 }

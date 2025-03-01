@@ -43,6 +43,7 @@ google-services = "4.4.2"
 firebase-crashlytics-gradle = "3.0.3"
 firebase-bom = "33.9.0"
 ktlint = "12.1.2"
+lottie-compose = "4.0.0"
 
 # Project versions
 projectApplicationId = "tech.ericwathome.currencybuddy"
@@ -106,6 +107,7 @@ annotation = { group = "androidx.annotation", name = "annotation", version.ref =
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx", version.ref = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx", version.ref = "firebase-crashlytics" }
+lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie-compose" }
 
 # Gradle
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
