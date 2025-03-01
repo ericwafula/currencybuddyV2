@@ -13,7 +13,7 @@ import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 @Composable
 fun NumberGridLayout(
     modifier: Modifier = Modifier,
-    onClickNumber: (Int) -> Unit = {},
+    onClickNumber: (Int) -> Unit,
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -35,6 +35,6 @@ fun NumberGridLayout(
 @Composable
 private fun NumberGridPreview() {
     CurrencybuddyTheme {
-        NumberGridLayout()
+        NumberGridLayout(onClickNumber = {})
     }
 }
