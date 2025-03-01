@@ -13,7 +13,7 @@ import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 @Composable
 fun NumberGridLayout(
     modifier: Modifier = Modifier,
-    onClickNumber: (Int) -> Unit,
+    onClickNumber: (Char) -> Unit,
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -25,7 +25,7 @@ fun NumberGridLayout(
         items((1..9).toList()) {
             SecondaryButton(
                 text = it.toString(),
-                onClick = { onClickNumber(it) },
+                onClick = { onClickNumber(it.toChar()) },
             )
         }
     }

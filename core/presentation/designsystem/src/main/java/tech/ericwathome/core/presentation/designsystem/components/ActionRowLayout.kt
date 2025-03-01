@@ -14,7 +14,7 @@ import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWit
 @Composable
 fun ActionRowLayout(
     modifier: Modifier = Modifier,
-    onClickAction: (Char) -> Unit,
+    onClickInputKey: (Char) -> Unit,
     ctaText: String,
     onClickCta: () -> Unit,
 ) {
@@ -25,12 +25,12 @@ fun ActionRowLayout(
         SecondaryButton(
             modifier = Modifier.width(80.dp),
             text = "0",
-            onClick = { onClickAction('0') },
+            onClick = { onClickInputKey('0') },
         )
         SecondaryButton(
             modifier = Modifier.width(80.dp),
             text = ".",
-            onClick = { onClickAction('.') },
+            onClick = { onClickInputKey('.') },
         )
         PrimaryButton(
             modifier = Modifier.weight(1f),
@@ -46,7 +46,7 @@ private fun ActionRowLayoutPreview() {
     CurrencybuddyTheme {
         Surface {
             ActionRowLayout(
-                onClickAction = {},
+                onClickInputKey = {},
                 ctaText = "Convert",
                 onClickCta = {},
             )
