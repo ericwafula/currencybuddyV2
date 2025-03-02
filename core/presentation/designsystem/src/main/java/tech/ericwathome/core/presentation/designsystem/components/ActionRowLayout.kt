@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
+import tech.ericwathome.core.presentation.designsystem.utils.LocalTextUtils
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
@@ -21,6 +23,8 @@ fun ActionRowLayout(
     ctaText: String,
     onClickCta: () -> Unit,
 ) {
+    val textUtils = LocalTextUtils.current
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -39,6 +43,7 @@ fun ActionRowLayout(
             modifier = Modifier.weight(1f),
             text = ctaText,
             onClick = onClickCta,
+            fontSize = with(textUtils) { MaterialTheme.typography.bodyLarge.fontSize.fixedSize },
         )
     }
 }
