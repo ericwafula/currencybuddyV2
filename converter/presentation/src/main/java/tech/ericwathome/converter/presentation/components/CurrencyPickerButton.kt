@@ -13,16 +13,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import tech.ericwathome.converter.presentation.R
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.DownIconThin
@@ -49,10 +51,13 @@ fun CurrencyPickerButton(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.onSurface.copy(0.15f)),
+                    .clip(CircleShape),
             contentDescription = stringResource(id = R.string.flag_image),
-            model = imageUrl,
+            model =
+                ImageRequest.Builder(LocalContext.current)
+                    .data(imageUrl)
+                    .decoderFactory(SvgDecoder.Factory())
+                    .build(),
             contentScale = ContentScale.Crop,
             loading = {
                 Box(
@@ -66,7 +71,8 @@ fun CurrencyPickerButton(
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.onSecondary),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -82,14 +88,14 @@ fun CurrencyPickerButton(
             text = text,
             style =
                 MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSecondary,
                 ),
         )
         Spacer(modifier = Modifier.width(4.dp))
         Icon(
             imageVector = DownIconThin,
             contentDescription = stringResource(R.string.drop_down_icon),
-            tint = MaterialTheme.colorScheme.onSurface,
+            tint = MaterialTheme.colorScheme.onSecondary,
         )
     }
 }
@@ -98,7 +104,7 @@ fun CurrencyPickerButton(
 @Composable
 private fun CurrencyPickerButtonPreview() {
     CurrencybuddyTheme {
-        Surface {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.secondary)) {
             CurrencyPickerButton(
                 modifier = Modifier,
                 imageUrl = "",

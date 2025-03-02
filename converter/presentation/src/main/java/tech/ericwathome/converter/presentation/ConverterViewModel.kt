@@ -37,6 +37,25 @@ class ConverterViewModel(
             .onEach { exchangeRate ->
                 _state.update { it.copy(result = exchangeRate.conversionResult.toString()) }
             }.launchIn(viewModelScope)
+
+        converterRepository
+            .currencyMetadata
+            .onEach { currencyMetadata ->
+                val initialBaseFlagUrl =
+                    currencyMetadata
+                        .find { state.value.baseCurrencyCode.uppercase() == it.code.uppercase() }?.flag?.svg ?: ""
+                val initialQuoteFlagUrl =
+                    currencyMetadata
+                        .find { state.value.quoteCurrencyCode.uppercase() == it.code.uppercase() }?.flag?.svg ?: ""
+
+                _state.update {
+                    it.copy(
+                        currencyMetadataList = currencyMetadata,
+                        baseFlagUrl = initialBaseFlagUrl,
+                        quoteFlagUrl = initialQuoteFlagUrl,
+                    )
+                }
+            }.launchIn(viewModelScope)
     }
 
     fun onAction(action: ConverterAction) {
@@ -57,6 +76,7 @@ class ConverterViewModel(
                 input.isDigit() -> {
                     if (currentInput == "0") input.toString() else currentInput + input
                 }
+
                 input == '.' -> {
                     when {
                         currentInput.isEmpty() -> "0."
@@ -64,6 +84,7 @@ class ConverterViewModel(
                         else -> currentInput + input
                     }
                 }
+
                 else -> return
             }
 

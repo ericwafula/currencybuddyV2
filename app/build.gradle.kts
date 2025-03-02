@@ -26,6 +26,7 @@ android {
 dependencies {
     // Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
 
     // Compose
     implementation(libs.androidx.activity.compose)
