@@ -22,7 +22,7 @@ class ConverterViewModel(
     private val _state = MutableStateFlow(ConverterState())
     val state =
         _state.onStart {
-            getExchangeRate()
+            fetchExchangeRate()
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -42,7 +42,7 @@ class ConverterViewModel(
     fun onAction(action: ConverterAction) {
         when (action) {
             is ConverterAction.OnEnterInput -> onEnterInput(action.input)
-            ConverterAction.OnClickConvert -> getExchangeRate()
+            ConverterAction.OnClickConvert -> fetchExchangeRate()
             ConverterAction.OnDeleteInput -> onDeleteInput()
             ConverterAction.OnClearInput -> onClearInput()
             else -> Unit
@@ -90,7 +90,7 @@ class ConverterViewModel(
         _state.update { it.copy(amount = "0") }
     }
 
-    private fun getExchangeRate() {
+    private fun fetchExchangeRate() {
         _state.update { it.copy(converting = true) }
         viewModelScope.launch {
             val rawAmount = state.value.amount

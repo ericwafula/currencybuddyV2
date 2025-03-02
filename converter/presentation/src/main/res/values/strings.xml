@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="currency_converter">Currency Converter</string>
+    <string name="flag_image">Flag image</string>
+    <string name="error_icon">Error icon</string>
+    <string name="drop_down_icon">Dropdown icon</string>
 </resources>

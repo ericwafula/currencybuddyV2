@@ -114,7 +114,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                 if (state.converting) {
                     LiquidLoadingAnimation(
                         modifier = Modifier.align(Alignment.Center),
-                        isPlaying = state.converting,
+                        isPlaying = true,
                     )
                 }
             }
