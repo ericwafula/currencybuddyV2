@@ -21,7 +21,7 @@ import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWit
 @Composable
 fun NetworkLayout(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
+    onClickConnect: () -> Unit,
     showNetworkPopup: Boolean,
     content: @Composable () -> Unit,
 ) {
@@ -39,12 +39,12 @@ fun NetworkLayout(
             ) {
                 CurrencyBuddyTinyPopup(
                     modifier = Modifier.fillMaxWidth(),
-                    onAccept = onDismiss,
+                    onAccept = onClickConnect,
                     onDecline = { },
                     isVisible = true,
                     text = stringResource(R.string.network_unavailable),
                     dismissText = "",
-                    acceptText = stringResource(R.string.dismiss),
+                    acceptText = stringResource(R.string.connect),
                 )
             }
         }
@@ -56,7 +56,7 @@ fun NetworkLayout(
 private fun NetworkLayoutPreview() {
     CurrencybuddyTheme {
         NetworkLayout(
-            onDismiss = {},
+            onClickConnect = {},
             content = {},
             showNetworkPopup = true,
         )

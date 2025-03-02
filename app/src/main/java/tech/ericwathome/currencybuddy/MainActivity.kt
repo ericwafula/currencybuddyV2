@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.components.NetworkLayout
+import tech.ericwathome.core.presentation.ui.rememberOpenNetworkSettings
 import tech.ericwathome.currencybuddy.navigation.RootNav
 
 class MainActivity : ComponentActivity() {
@@ -25,9 +26,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val openNetworkSettings = rememberOpenNetworkSettings()
+
             CurrencybuddyTheme {
                 NetworkLayout(
-                    onDismiss = { viewModel.onDismissNetworkError() },
+                    onClickConnect = openNetworkSettings,
                     showNetworkPopup = viewModel.state.showNetworkPopup,
                 ) {
                     if (!viewModel.state.isCheckingOnBoardingStatus) {

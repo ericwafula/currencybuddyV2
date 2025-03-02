@@ -35,8 +35,4 @@ class MainViewModel(
             state = state.copy(showNetworkPopup = isAvailable.not())
         }
     }
-
-    fun onDismissNetworkError() {
-        state = state.copy(showNetworkPopup = false)
-    }
 }
