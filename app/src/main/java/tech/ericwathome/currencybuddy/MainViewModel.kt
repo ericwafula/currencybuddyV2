@@ -31,7 +31,7 @@ class MainViewModel(
     }
 
     private suspend fun observeNetworkStatus() {
-        connectionObserver.isAvailable().collectLatest { isAvailable ->
+        connectionObserver.hasNetworkConnection.collectLatest { isAvailable ->
             state = state.copy(showNetworkPopup = isAvailable.not())
         }
     }

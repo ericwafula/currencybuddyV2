@@ -3,6 +3,7 @@
 package tech.ericwathome.core.presentation.designsystem.components
 
 import androidx.annotation.Keep
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,23 +30,22 @@ fun NetworkLayout(
     ) {
         Box {
             content()
-            if (showNetworkPopup) {
-                Box(
-                    modifier =
-                        Modifier
-                            .padding(16.dp)
-                            .align(Alignment.BottomCenter),
-                ) {
-                    CurrencyBuddyTinyPopup(
-                        modifier = Modifier.fillMaxWidth(),
-                        onAccept = onDismiss,
-                        onDecline = { },
-                        isVisible = true,
-                        text = stringResource(R.string.network_unavailable),
-                        dismissText = "",
-                        acceptText = stringResource(R.string.dismiss),
-                    )
-                }
+            AnimatedVisibility(
+                modifier =
+                    Modifier
+                        .padding(16.dp)
+                        .align(Alignment.BottomCenter),
+                visible = showNetworkPopup,
+            ) {
+                CurrencyBuddyTinyPopup(
+                    modifier = Modifier.fillMaxWidth(),
+                    onAccept = onDismiss,
+                    onDecline = { },
+                    isVisible = true,
+                    text = stringResource(R.string.network_unavailable),
+                    dismissText = "",
+                    acceptText = stringResource(R.string.dismiss),
+                )
             }
         }
     }
