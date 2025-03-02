@@ -12,42 +12,56 @@ import kotlinx.coroutines.flow.callbackFlow
 import tech.ericwathome.core.domain.ConnectionObserver
 
 class DefaultConnectionObserver(
-    private val context: Context,
+    context: Context,
 ) : ConnectionObserver {
-    override fun isAvailable(): Flow<Boolean> {
-        val connectivityManager = context.getSystemService<ConnectivityManager>()
-        val networkRequest =
-            NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build()
+    private val connectivityManager = context.getSystemService<ConnectivityManager>()
+    private val networkRequest: NetworkRequest =
+        NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build()
 
-        return callbackFlow {
-            val networkCallback =
-                object : ConnectivityManager.NetworkCallback() {
-                    override fun onUnavailable() {
-                        super.onUnavailable()
-                        trySend(false)
+    override val hasNetworkConnection: Flow<Boolean>
+        get() =
+            callbackFlow {
+                trySend(isNetworkAvailable())
+
+                val networkCallback =
+                    object : ConnectivityManager.NetworkCallback() {
+                        override fun onUnavailable() {
+                            super.onUnavailable()
+                            trySend(false)
+                        }
+
+                        override fun onLost(network: Network) {
+                            super.onLost(network)
+                            trySend(false)
+                        }
+
+                        override fun onAvailable(network: Network) {
+                            super.onAvailable(network)
+                            trySend(true)
+                        }
                     }
 
-                    override fun onLost(network: Network) {
-                        super.onLost(network)
-                        trySend(false)
-                    }
+                connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
 
-                    override fun onAvailable(network: Network) {
-                        super.onAvailable(network)
-                        trySend(true)
-                    }
+                awaitClose {
+                    connectivityManager?.unregisterNetworkCallback(networkCallback)
                 }
-
-            connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
-
-            awaitClose {
-                connectivityManager?.unregisterNetworkCallback(networkCallback)
             }
+
+    private fun isNetworkAvailable(): Boolean {
+        val activeNetwork = connectivityManager?.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return when {
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+            else -> false
         }
     }
 }
