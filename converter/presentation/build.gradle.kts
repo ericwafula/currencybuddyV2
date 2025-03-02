@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
     implementation(libs.timber)
     implementation(projects.core.domain)
     implementation(projects.converter.domain)
