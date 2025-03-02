@@ -1,5 +1,6 @@
 package tech.ericwathome.converter.presentation
 
+import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.presentation.ui.UiText
 
 data class ConverterState(
@@ -13,4 +14,5 @@ data class ConverterState(
     val isError: Boolean = false,
     val errorMessage: UiText? = null,
     val showBottomSheet: Boolean = false,
+    val currencyMetadataList: List<CurrencyMetadata> = emptyList(),
 )

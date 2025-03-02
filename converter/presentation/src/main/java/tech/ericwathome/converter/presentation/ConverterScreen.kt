@@ -12,11 +12,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,7 +36,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import tech.ericwathome.converter.presentation.components.ConverterKeyboard
+import tech.ericwathome.converter.presentation.components.CurrencyPickerButton
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
+import tech.ericwathome.core.presentation.designsystem.assets.SwapIcon
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyCenteredTopBarLayout
 import tech.ericwathome.core.presentation.designsystem.components.LiquidLoadingAnimation
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
@@ -77,41 +82,73 @@ private fun SharedTransitionScope.ConverterScreenContent(
             verticalArrangement = Arrangement.spacedBy(32.dp),
         ) {
             Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
-                        .background(color = MaterialTheme.colorScheme.secondary)
-                        .padding(16.dp)
-                        .sharedElement(
-                            state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
-                            animatedVisibilityScope = animatedVisibilityScope,
-                        ),
+                modifier = Modifier.weight(1f),
             ) {
-                Column(
-                    modifier = Modifier.align(Alignment.TopStart),
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
+                            .background(color = MaterialTheme.colorScheme.secondary)
+                            .padding(16.dp)
+                            .sharedElement(
+                                state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                            ),
                 ) {
-                    Text(
-                        text = "${state.amount} ${state.baseCurrencyCode}",
-                        style =
-                            MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 64.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                lineHeight = 64.sp,
-                            ),
-                    )
-                    Text(
-                        text = "= ${state.result} ${state.quoteCurrencyCode}",
-                        style =
-                            MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 24.sp,
-                                color = MaterialTheme.colorScheme.onSecondary,
-                            ),
-                    )
+                    Column(
+                        modifier = Modifier.align(Alignment.TopStart),
+                    ) {
+                        Text(
+                            text = "${state.amount} ${state.baseCurrencyCode}",
+                            style =
+                                MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = 64.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    lineHeight = 64.sp,
+                                ),
+                        )
+                        Text(
+                            text = "= ${state.result} ${state.quoteCurrencyCode}",
+                            style =
+                                MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = 24.sp,
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                ),
+                        )
+                    }
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .align(Alignment.BottomCenter),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CurrencyPickerButton(
+                            imageUrl = state.baseFlagUrl,
+                            text = state.baseCurrencyCode,
+                            onClick = { onAction(ConverterAction.OnClickBaseButton) },
+                        )
+                        IconButton(onClick = { onAction(ConverterAction.OnClickSwapButton) }) {
+                            Icon(
+                                imageVector = SwapIcon,
+                                contentDescription = stringResource(R.string.error_icon),
+                                tint = MaterialTheme.colorScheme.onSecondary,
+                            )
+                        }
+                        CurrencyPickerButton(
+                            imageUrl = state.quoteFlagUrl,
+                            text = state.quoteCurrencyCode,
+                            onClick = { onAction(ConverterAction.OnClickBaseButton) },
+                        )
+                    }
                 }
-                if (state.converting) {
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = state.converting,
+                ) {
                     LiquidLoadingAnimation(
                         modifier = Modifier.align(Alignment.Center),
                         isPlaying = true,

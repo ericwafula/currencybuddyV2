@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.ui
 
+import androidx.annotation.Keep
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
