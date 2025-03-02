@@ -26,6 +26,15 @@ class OfflineFirstConverterRepository(
     private val applicationScope: CoroutineScope,
     private val sessionStorage: SessionStorage,
 ) : ConverterRepository {
+    override val defaultExchangeRate: Flow<ExchangeRate>
+        get() = localConverterDataSource.observeDefaultExchangeRate()
+
+    override val savedExchangeRates: Flow<List<ExchangeRate>>
+        get() = localConverterDataSource.observeNonDefaultExchangeRates()
+
+    override val currencyMetadata: Flow<List<CurrencyMetadata>>
+        get() = localConverterDataSource.observeCurrencyMetadata()
+
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
@@ -55,10 +64,6 @@ class OfflineFirstConverterRepository(
         }
     }
 
-    override fun observeDefaultExchangeRate(): Flow<ExchangeRate> {
-        return localConverterDataSource.observeDefaultExchangeRate()
-    }
-
     override suspend fun syncCurrencyMetadata(): EmptyResult<DataError> {
         return when (
             val result = remoteConverterDataSource.fetchCurrencyMetadata()
@@ -73,14 +78,6 @@ class OfflineFirstConverterRepository(
                 }.await()
             }
         }
-    }
-
-    override fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>> {
-        return localConverterDataSource.observeNonDefaultExchangeRates()
-    }
-
-    override fun observeCurrencyMetadata(): Flow<List<CurrencyMetadata>> {
-        return localConverterDataSource.observeCurrencyMetadata()
     }
 
     override suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate) {

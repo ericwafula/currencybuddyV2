@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
-import timber.log.Timber
 
 @Keep
 class ConverterViewModel(
@@ -29,10 +28,12 @@ class ConverterViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ConverterState(),
         )
+    private val maxIntegerDigits = 10
+    private val maxFractionDigits = 2
 
     init {
         converterRepository
-            .observeDefaultExchangeRate()
+            .defaultExchangeRate
             .onEach { exchangeRate ->
                 _state.update { it.copy(result = exchangeRate.conversionResult.toString()) }
             }.launchIn(viewModelScope)
@@ -49,25 +50,32 @@ class ConverterViewModel(
     }
 
     private fun onEnterInput(input: Char) {
-        var currentInput = state.value.amount
+        val currentInput = state.value.amount
 
-        Timber.tag("ConverterViewModel").d("currentInput: $currentInput, newInput: $input")
-        when {
-            input.isDigit() -> {
-                currentInput = if (currentInput == "0") input.toString() else currentInput + input
-            }
-
-            input == '.' -> {
-                when {
-                    currentInput.isEmpty() -> currentInput += "0."
-                    currentInput.contains('.') -> return
-                    else -> currentInput += input
+        val newInput =
+            when {
+                input.isDigit() -> {
+                    if (currentInput == "0") input.toString() else currentInput + input
                 }
+                input == '.' -> {
+                    when {
+                        currentInput.isEmpty() -> "0."
+                        currentInput.contains('.') -> return
+                        else -> currentInput + input
+                    }
+                }
+                else -> return
             }
 
-            else -> return
-        }
-        _state.update { it.copy(amount = currentInput) }
+        val parts = newInput.split('.')
+        val integerPart = parts[0]
+        val fractionPart = if (parts.size > 1) parts[1] else ""
+
+        if (integerPart.length > maxIntegerDigits) return
+
+        if (fractionPart.length > maxFractionDigits) return
+
+        _state.update { it.copy(amount = newInput) }
     }
 
     private fun onDeleteInput() {

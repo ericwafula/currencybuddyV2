@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
@@ -21,6 +22,7 @@ fun PrimaryButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     text: String,
+    fontSize: TextUnit = MaterialTheme.typography.bodyLarge.fontSize,
 ) {
     Button(
         modifier = modifier.sizeIn(minHeight = 56.dp, minWidth = 168.dp),
@@ -29,7 +31,11 @@ fun PrimaryButton(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+            style =
+                MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = fontSize,
+                ),
         )
     }
 }

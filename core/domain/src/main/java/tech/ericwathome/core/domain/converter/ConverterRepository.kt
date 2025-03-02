@@ -7,18 +7,16 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
 
 interface ConverterRepository {
+    val defaultExchangeRate: Flow<ExchangeRate>
+    val savedExchangeRates: Flow<List<ExchangeRate>>
+    val currencyMetadata: Flow<List<CurrencyMetadata>>
+
     suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
         amount: Double,
         isDefault: Boolean,
     ): EmptyResult<DataError>
-
-    fun observeDefaultExchangeRate(): Flow<ExchangeRate>
-
-    fun observeNonSelectedExchangeRates(): Flow<List<ExchangeRate>>
-
-    fun observeCurrencyMetadata(): Flow<List<CurrencyMetadata>>
 
     suspend fun syncCurrencyMetadata(): EmptyResult<DataError>
 
