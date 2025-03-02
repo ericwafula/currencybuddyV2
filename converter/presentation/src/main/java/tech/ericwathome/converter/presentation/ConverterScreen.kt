@@ -99,6 +99,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                                 fontSize = 64.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSecondary,
+                                lineHeight = 64.sp,
                             ),
                     )
                     Text(

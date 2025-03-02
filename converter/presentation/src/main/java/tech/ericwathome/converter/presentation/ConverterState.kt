@@ -12,4 +12,5 @@ data class ConverterState(
     val converting: Boolean = false,
     val isError: Boolean = false,
     val errorMessage: UiText? = null,
+    val showBottomSheet: Boolean = false,
 )
