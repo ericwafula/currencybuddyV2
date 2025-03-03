@@ -41,12 +41,18 @@ class ConverterViewModel(
         converterRepository
             .currencyMetadata
             .onEach { currencyMetadata ->
+                val baseCodeUpper = state.value.baseCurrencyCode.uppercase()
+                val quoteCodeUpper = state.value.quoteCurrencyCode.uppercase()
+
                 val initialBaseFlagUrl =
                     currencyMetadata
-                        .find { state.value.baseCurrencyCode.uppercase() == it.code.uppercase() }?.flag?.svg ?: ""
+                        .find { it.code.uppercase() == baseCodeUpper }
+                        ?.flag?.svg.orEmpty()
+
                 val initialQuoteFlagUrl =
                     currencyMetadata
-                        .find { state.value.quoteCurrencyCode.uppercase() == it.code.uppercase() }?.flag?.svg ?: ""
+                        .find { it.code.uppercase() == quoteCodeUpper }
+                        ?.flag?.svg.orEmpty()
 
                 _state.update {
                     it.copy(
