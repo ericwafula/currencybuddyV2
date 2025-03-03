@@ -15,4 +15,5 @@ data class ConverterState(
     val errorMessage: UiText? = null,
     val showBottomSheet: Boolean = false,
     val currencyMetadataList: List<CurrencyMetadata> = emptyList(),
+    val currencyMetadataMap: Map<String, CurrencyMetadata> = emptyMap(),
 )
