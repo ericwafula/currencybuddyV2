@@ -81,11 +81,12 @@ private fun SharedTransitionScope.ConverterScreenContent(
     onAction: (ConverterAction) -> Unit,
 ) {
     val errorColor by animateColorAsState(
-        targetValue = if (state.isError) {
-            MaterialTheme.colorScheme.error
-        } else {
-            MaterialTheme.colorScheme.secondary
-        }
+        targetValue =
+            if (state.isError) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.secondary
+            },
     )
 
     CurrencyBuddyCenteredTopBarLayout(
@@ -175,14 +176,14 @@ private fun SharedTransitionScope.ConverterScreenContent(
 
                     androidx.compose.animation.AnimatedVisibility(
                         modifier = Modifier.align(Alignment.Center),
-                        visible = state.isError
+                        visible = state.isError,
                     ) {
                         Text(
                             text = state.errorMessage?.asString() ?: "",
                             style =
-                            MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSecondary,
-                            ),
+                                MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                ),
                         )
                     }
                 }
