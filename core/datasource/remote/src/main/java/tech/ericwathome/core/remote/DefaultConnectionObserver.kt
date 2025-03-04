@@ -32,17 +32,17 @@ class DefaultConnectionObserver(
                     object : ConnectivityManager.NetworkCallback() {
                         override fun onUnavailable() {
                             super.onUnavailable()
-                            trySend(false)
+                            trySend(isNetworkAvailable())
                         }
 
                         override fun onLost(network: Network) {
                             super.onLost(network)
-                            trySend(false)
+                            trySend(isNetworkAvailable())
                         }
 
                         override fun onAvailable(network: Network) {
                             super.onAvailable(network)
-                            trySend(true)
+                            trySend(isNetworkAvailable())
                         }
                     }
 
@@ -60,7 +60,6 @@ class DefaultConnectionObserver(
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
             else -> false
         }
     }

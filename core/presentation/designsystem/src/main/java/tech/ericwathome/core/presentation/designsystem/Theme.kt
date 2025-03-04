@@ -25,6 +25,7 @@ private val LightColorScheme =
         secondary = md_theme_light_secondary,
         onSecondary = md_theme_light_on_secondary,
         error = md_theme_light_error,
+        onError = md_theme_light_on_error,
     )
 
 private val DarkColorScheme =
@@ -38,6 +39,7 @@ private val DarkColorScheme =
         secondary = md_theme_dark_secondary,
         onSecondary = md_theme_dark_on_secondary,
         error = md_theme_dark_error,
+        onError = md_theme_dark_on_error,
     )
 
 @OptIn(ExperimentalSharedTransitionApi::class)
