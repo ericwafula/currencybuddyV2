@@ -1,4 +1,4 @@
-package tech.ericwathome.core.network
+package tech.ericwathome.core.remote
 
 import org.junit.Assert.*
 import org.junit.Test
