@@ -8,7 +8,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,6 +80,14 @@ private fun SharedTransitionScope.ConverterScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onAction: (ConverterAction) -> Unit,
 ) {
+    val errorColor by animateColorAsState(
+        targetValue = if (state.isError) {
+            MaterialTheme.colorScheme.error
+        } else {
+            MaterialTheme.colorScheme.secondary
+        }
+    )
+
     CurrencyBuddyCenteredTopBarLayout(
         modifier = Modifier.fillMaxSize(),
         toolbarTitle = stringResource(id = R.string.currency_converter),
@@ -99,7 +109,14 @@ private fun SharedTransitionScope.ConverterScreenContent(
                         Modifier
                             .fillMaxSize()
                             .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
-                            .background(color = MaterialTheme.colorScheme.secondary)
+                            .background(
+                                color = MaterialTheme.colorScheme.secondary,
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = errorColor,
+                                shape = RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp),
+                            )
                             .padding(16.dp)
                             .sharedElement(
                                 state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
@@ -153,6 +170,19 @@ private fun SharedTransitionScope.ConverterScreenContent(
                             imageUrl = state.quoteFlagUrl,
                             text = state.quoteCurrencyCode,
                             onClick = { onAction(ConverterAction.OnClickBaseButton) },
+                        )
+                    }
+
+                    androidx.compose.animation.AnimatedVisibility(
+                        modifier = Modifier.align(Alignment.Center),
+                        visible = state.isError
+                    ) {
+                        Text(
+                            text = state.errorMessage?.asString() ?: "",
+                            style =
+                            MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSecondary,
+                            ),
                         )
                     }
                 }
