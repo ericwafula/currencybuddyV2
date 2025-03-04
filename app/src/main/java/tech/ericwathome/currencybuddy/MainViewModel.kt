@@ -6,12 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.ConnectionObserver
-import tech.ericwathome.core.domain.SessionStorage
 
 class MainViewModel(
-    private val sessionStorage: SessionStorage,
+    private val authRepository: AuthRepository,
     private val connectionObserver: ConnectionObserver,
 ) : ViewModel() {
     var state by mutableStateOf(MainState())
@@ -24,7 +25,7 @@ class MainViewModel(
             state = state.copy(isCheckingOnBoardingStatus = true)
             state =
                 state.copy(
-                    isOnboarded = sessionStorage.isOnboardingComplete(),
+                    isOnboarded = authRepository.isOnboardingCompletedObservable.firstOrNull() == true,
                 )
             state = state.copy(isCheckingOnBoardingStatus = false)
         }

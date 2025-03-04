@@ -6,12 +6,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import tech.ericwathome.core.domain.SessionStorage
+import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
@@ -20,7 +21,7 @@ import kotlin.time.Duration.Companion.minutes
 @Keep
 class SyncViewModel(
     private val converterRepository: ConverterRepository,
-    private val sessionStorage: SessionStorage,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _event = Channel<SyncEvent>()
     val event = _event.receiveAsFlow()
@@ -38,9 +39,9 @@ class SyncViewModel(
     private fun handleSyncing() {
         _isSyncing.update { true }
         viewModelScope.launch {
-            val lastSyncTimestamp = sessionStorage.lastMetadataSyncTimestamp()
+            val lastSyncTimestamp = converterRepository.lastMetadataSyncTimestampObservable.firstOrNull() ?: 0
             val elapsedTime = System.currentTimeMillis() - lastSyncTimestamp
-            val hasFinishedOnboarding = sessionStorage.isOnboardingComplete()
+            val hasFinishedOnboarding = authRepository.isOnboardingCompletedObservable.firstOrNull() == true
 
             if (elapsedTime >= 30.minutes.inWholeMilliseconds) {
                 syncMetadata(hasFinishedOnboarding)

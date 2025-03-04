@@ -13,7 +13,7 @@ dependencies {
     implementation(libs.koin.android.workmanager)
     implementation(libs.kotlinx.serialization.json)
     implementation(projects.core.domain)
-    implementation(projects.core.database)
+    implementation(projects.core.datasource.local)
     implementation(projects.core.data)
     implementation(projects.converter.domain)
 }

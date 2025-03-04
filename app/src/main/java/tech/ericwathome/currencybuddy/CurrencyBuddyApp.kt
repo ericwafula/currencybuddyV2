@@ -7,11 +7,12 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
+import tech.ericwathome.auth.data.di.authDataModule
 import tech.ericwathome.auth.presentation.di.authPresentationModule
 import tech.ericwathome.converter.data.di.converterDataModule
 import tech.ericwathome.converter.presentation.di.converterPresentationModule
 import tech.ericwathome.core.data.di.coreDataModule
-import tech.ericwathome.core.database.di.databaseModule
+import tech.ericwathome.core.local.di.localModule
 import tech.ericwathome.core.network.di.networkModule
 import tech.ericwathome.currencybuddy.di.appModule
 import tech.ericwathome.currencybuddy.error.CrashHandler
@@ -45,11 +46,12 @@ class CurrencyBuddyApp : Application() {
             modules(
                 appModule,
                 coreDataModule,
-                databaseModule,
+                localModule,
                 networkModule,
                 converterDataModule,
                 authPresentationModule,
                 converterPresentationModule,
+                authDataModule,
             )
         }
     }
