@@ -1,4 +1,4 @@
-package tech.ericwathome.core.network
+package tech.ericwathome.core.remote
 
 import android.content.Context
 import android.net.ConnectivityManager

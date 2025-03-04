@@ -18,7 +18,7 @@ import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.domain.util.asEmptyDataResult
 import timber.log.Timber
 
-class OfflineFirstConverterRepository(
+internal class OfflineFirstConverterRepository(
     private val remoteConverterDataSource: RemoteConverterDataSource,
     private val localConverterDataSource: LocalConverterDataSource,
     private val dispatchers: DispatcherProvider,
@@ -45,6 +45,10 @@ class OfflineFirstConverterRepository(
         amount: Double,
         isDefault: Boolean,
     ): EmptyResult<DataError> {
+        if (amount == 0.0) {
+            return Result.Success(Unit).asEmptyDataResult()
+        }
+
         return when (
             val result =
                 remoteConverterDataSource.getExchangeRate(
@@ -102,7 +106,7 @@ class OfflineFirstConverterRepository(
             val errorList = mutableListOf<DataError>()
 
             val syncJobs =
-                savedExchangeRates.map { exchangeRate ->
+                savedExchangeRates.filter { exchangeRate -> exchangeRate.amount != 0.0 }.map { exchangeRate ->
                     async {
                         when (
                             val result =

@@ -1,4 +1,4 @@
-package tech.ericwathome.core.network.converter
+package tech.ericwathome.core.remote.converter
 
 import io.ktor.client.HttpClient
 import tech.ericwathome.core.data.network.get
@@ -9,9 +9,9 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.domain.util.map
 import tech.ericwathome.core.network.BuildConfig
-import tech.ericwathome.core.network.converter.dto.CurrencyMetadataDto
-import tech.ericwathome.core.network.converter.dto.ExchangeRatesDto
-import tech.ericwathome.core.network.converter.mappers.toDomain
+import tech.ericwathome.core.remote.converter.dto.CurrencyMetadataDto
+import tech.ericwathome.core.remote.converter.dto.ExchangeRatesDto
+import tech.ericwathome.core.remote.converter.mappers.toDomain
 
 class KtorRemoteConverterDataSource(
     private val httpClient: HttpClient,

@@ -23,7 +23,7 @@ class ConverterWorkerScheduler(
 
     override suspend fun scheduleSync(syncType: ConverterScheduler.SyncType) {
         when (syncType) {
-            is ConverterScheduler.SyncType.FetchCurrencyMetaData -> {
+            is ConverterScheduler.SyncType.FetchCurrencyMetadata -> {
                 fetchCurrencyMetaData(syncType.duration)
             }
 
