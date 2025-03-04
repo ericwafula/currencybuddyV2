@@ -21,6 +21,5 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class tech.ericwathome.core.data.di.CoreDataModuleKt { *; }
--keep class tech.ericwathome.core.database.di.DatabaseModuleKt { *; }
--keep class tech.ericwathome.core.network.converter.di.NetworkModuleKt { *; }
+-keep class tech.ericwathome.core.local.di.LocalModuleKt { *; }
 -keep class tech.ericwathome.core.presentation.designsystem.ThemeKt { *; }

@@ -35,9 +35,10 @@
             <option value="$PROJECT_DIR$/converter/presentation" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/data" />
-            <option value="$PROJECT_DIR$/core/database" />
+            <option value="$PROJECT_DIR$/core/datasource" />
+            <option value="$PROJECT_DIR$/core/datasource/local" />
+            <option value="$PROJECT_DIR$/core/datasource/remote" />
             <option value="$PROJECT_DIR$/core/domain" />
-            <option value="$PROJECT_DIR$/core/network" />
             <option value="$PROJECT_DIR$/core/notification" />
             <option value="$PROJECT_DIR$/core/presentation" />
             <option value="$PROJECT_DIR$/core/presentation/designsystem" />

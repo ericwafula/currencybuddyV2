@@ -33,13 +33,13 @@ class ConverterViewModel(
 
     init {
         converterRepository
-            .defaultExchangeRate
+            .defaultExchangeRateObservable
             .onEach { exchangeRate ->
                 _state.update { it.copy(result = exchangeRate.conversionResult.toString()) }
             }.launchIn(viewModelScope)
 
         converterRepository
-            .currencyMetadata
+            .currencyMetadataObservable
             .onEach { currencyMetadata ->
                 val baseCodeUpper = state.value.baseCurrencyCode.uppercase()
                 val quoteCodeUpper = state.value.quoteCurrencyCode.uppercase()
