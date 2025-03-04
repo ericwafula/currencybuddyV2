@@ -9,6 +9,7 @@ import org.koin.dsl.module
 import tech.ericwathome.auth.data.DefaultAuthRepository
 import tech.ericwathome.auth.domain.AuthRepository
 
-val authDataModule = module {
-    singleOf(::DefaultAuthRepository).bind<AuthRepository>()
-}
+val authDataModule =
+    module {
+        singleOf(::DefaultAuthRepository).bind<AuthRepository>()
+    }

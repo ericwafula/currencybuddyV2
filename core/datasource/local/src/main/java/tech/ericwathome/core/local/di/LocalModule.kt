@@ -16,20 +16,20 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import tech.ericwathome.auth.domain.AuthLocalDataSource
-import tech.ericwathome.core.local.database.ConverterDatabase
-import tech.ericwathome.core.local.source.converter.DefaultLocalConverterDataSource
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
-import tech.ericwathome.core.local.source.converter.ConverterPreferences
+import tech.ericwathome.core.local.database.ConverterDatabase
 import tech.ericwathome.core.local.preference.DefaultLocalPreferenceSource
 import tech.ericwathome.core.local.preference.LocalPreferenceSource
 import tech.ericwathome.core.local.source.auth.AuthPreferences
 import tech.ericwathome.core.local.source.auth.DefaultAuthLocalDataSource
 import tech.ericwathome.core.local.source.auth.DefaultAuthPreferences
+import tech.ericwathome.core.local.source.converter.ConverterPreferences
 import tech.ericwathome.core.local.source.converter.DefaultConverterPreferences
+import tech.ericwathome.core.local.source.converter.DefaultLocalConverterDataSource
 
 val Context.datastore: DataStore<Preferences> by preferencesDataStore(
     name = "currencybuddy.local",
-    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() }
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
 )
 
 val localModule =

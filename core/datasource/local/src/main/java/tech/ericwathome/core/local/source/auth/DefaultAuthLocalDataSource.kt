@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import tech.ericwathome.auth.domain.AuthLocalDataSource
 
 internal class DefaultAuthLocalDataSource(
-    private val authPreferences: AuthPreferences
+    private val authPreferences: AuthPreferences,
 ) : AuthLocalDataSource {
     override val isOnboardingCompletedObservable: Flow<Boolean>
         get() = authPreferences.isOnboardingCompletedObservable

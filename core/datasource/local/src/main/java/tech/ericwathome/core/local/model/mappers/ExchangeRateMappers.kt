@@ -1,7 +1,7 @@
 package tech.ericwathome.core.local.model.mappers
 
-import tech.ericwathome.core.local.model.entity.ExchangeRateEntity
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
+import tech.ericwathome.core.local.model.entity.ExchangeRateEntity
 
 fun ExchangeRate.toEntity(): ExchangeRateEntity {
     return ExchangeRateEntity(

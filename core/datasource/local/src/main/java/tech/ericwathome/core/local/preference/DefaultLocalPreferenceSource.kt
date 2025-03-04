@@ -13,11 +13,17 @@ class DefaultLocalPreferenceSource(
         return dataStore.data.map { it[key] }
     }
 
-    override fun <T> get(key: Preferences.Key<T>, default: T): Flow<T> {
+    override fun <T> get(
+        key: Preferences.Key<T>,
+        default: T,
+    ): Flow<T> {
         return dataStore.data.map { it[key] ?: default }
     }
 
-    override suspend fun <T> saveOrUpdate(key: Preferences.Key<T>, value: T) {
+    override suspend fun <T> saveOrUpdate(
+        key: Preferences.Key<T>,
+        value: T,
+    ) {
         dataStore.edit { it[key] = value }
     }
 

@@ -1,8 +1,8 @@
 package tech.ericwathome.core.local.model.mappers
 
-import tech.ericwathome.core.local.model.entity.CurrencyMetadataEntity
 import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.converter.model.Flag
+import tech.ericwathome.core.local.model.entity.CurrencyMetadataEntity
 
 fun CurrencyMetadataEntity.toDomain(): CurrencyMetadata {
     return CurrencyMetadata(

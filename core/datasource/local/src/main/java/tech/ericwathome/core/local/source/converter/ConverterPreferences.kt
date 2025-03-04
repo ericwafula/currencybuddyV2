@@ -7,5 +7,6 @@ interface ConverterPreferences {
     val lastExchangeRateSyncTimestamp: Flow<Long?>
 
     suspend fun setLastMetadataSyncTimestamp(value: Long)
+
     suspend fun setLastExchangeRateSyncTimestamp(value: Long)
 }

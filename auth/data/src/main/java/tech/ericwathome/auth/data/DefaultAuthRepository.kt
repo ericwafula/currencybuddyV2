@@ -5,7 +5,7 @@ import tech.ericwathome.auth.domain.AuthLocalDataSource
 import tech.ericwathome.auth.domain.AuthRepository
 
 class DefaultAuthRepository(
-    private val authLocalDataSource: AuthLocalDataSource
+    private val authLocalDataSource: AuthLocalDataSource,
 ) : AuthRepository {
     override val isOnboardingCompletedObservable: Flow<Boolean>
         get() = authLocalDataSource.isOnboardingCompletedObservable

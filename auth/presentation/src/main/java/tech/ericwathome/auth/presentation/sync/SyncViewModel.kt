@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.minutes
 @Keep
 class SyncViewModel(
     private val converterRepository: ConverterRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _event = Channel<SyncEvent>()
     val event = _event.receiveAsFlow()

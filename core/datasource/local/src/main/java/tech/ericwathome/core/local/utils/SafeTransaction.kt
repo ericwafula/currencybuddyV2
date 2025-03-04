@@ -13,7 +13,7 @@ import tech.ericwathome.core.domain.util.Result
 
 suspend fun <T> safeTransaction(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    block: suspend () -> T
+    block: suspend () -> T,
 ): EmptyResult<DataError.Local> {
     return withContext(dispatcher) {
         try {

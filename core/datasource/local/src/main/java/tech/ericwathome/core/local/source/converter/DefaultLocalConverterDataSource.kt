@@ -3,26 +3,27 @@ package tech.ericwathome.core.local.source.converter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import tech.ericwathome.core.local.model.mappers.toDomain
-import tech.ericwathome.core.local.model.mappers.toEntity
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
+import tech.ericwathome.core.local.model.mappers.toDomain
+import tech.ericwathome.core.local.model.mappers.toEntity
 import tech.ericwathome.core.local.utils.safeTransaction
 
 internal class DefaultLocalConverterDataSource(
     private val converterDao: ConverterDao,
-    private val converterPreferences: ConverterPreferences
+    private val converterPreferences: ConverterPreferences,
 ) : LocalConverterDataSource {
     override val defaultExchangeRateObservable: Flow<ExchangeRate>
         get() = converterDao.observeDefaultExchangeRate().filterNotNull().map { it.toDomain() }
 
     override val nonDefaultExchangeRatesObservable: Flow<List<ExchangeRate>>
-        get() = converterDao.observeNonDefaultExchangeRates().map { exchangeRateEntities ->
-            exchangeRateEntities.map { it.toDomain() }
-        }
+        get() =
+            converterDao.observeNonDefaultExchangeRates().map { exchangeRateEntities ->
+                exchangeRateEntities.map { it.toDomain() }
+            }
     override val lastMetadataSyncTimestamp: Flow<Long?>
         get() = converterPreferences.lastMetadataSyncTimestamp
 

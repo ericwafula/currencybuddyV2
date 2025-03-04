@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import tech.ericwathome.core.local.preference.LocalPreferenceSource
 
 internal class DefaultAuthPreferences(
-    private val preferenceSource: LocalPreferenceSource
+    private val preferenceSource: LocalPreferenceSource,
 ) : AuthPreferences {
     object Keys {
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_complete")
