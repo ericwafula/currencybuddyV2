@@ -3,22 +3,28 @@ package tech.ericwathome.converter.presentation
 import androidx.annotation.Keep
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
+import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
 
 @Keep
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
 ) : ViewModel() {
+    private val _event = Channel<ConverterEvent>()
+    val event = _event.receiveAsFlow()
+
     private val _state = MutableStateFlow(ConverterState())
     val state =
         _state.onStart {
@@ -118,11 +124,17 @@ class ConverterViewModel(
     }
 
     private fun fetchExchangeRate() {
-        _state.update { it.copy(converting = true) }
         viewModelScope.launch {
             val rawAmount = state.value.amount
             val processedAmount = if (rawAmount.endsWith(".")) "${rawAmount}0" else rawAmount
 
+            if (rawAmount == "0") {
+                _event.send(ConverterEvent.ShowToast(UiText.StringResource(R.string.enter_value_greater_than_zero)))
+
+                return@launch
+            }
+
+            _state.update { it.copy(converting = true) }
             when (
                 val result =
                     converterRepository.fetchExchangeRate(
