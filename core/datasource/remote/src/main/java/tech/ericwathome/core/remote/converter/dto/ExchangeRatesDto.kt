@@ -1,11 +1,11 @@
-package tech.ericwathome.core.network.converter.dto
+package tech.ericwathome.core.remote.converter.dto
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 import tech.ericwathome.core.domain.util.CurrencyUtils
-import tech.ericwathome.core.network.converter.serializers.DynamicRatesSerializer
-import tech.ericwathome.core.network.converter.serializers.LocalDateTimeSerializer
+import tech.ericwathome.core.remote.converter.serializers.DynamicRatesSerializer
+import tech.ericwathome.core.remote.converter.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Keep

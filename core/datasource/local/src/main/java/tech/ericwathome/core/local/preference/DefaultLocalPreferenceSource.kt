@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class DefaultLocalPreferenceSource(
+internal class DefaultLocalPreferenceSource(
     private val dataStore: DataStore<Preferences>,
 ) : LocalPreferenceSource {
     override fun <T> getNullable(key: Preferences.Key<T>): Flow<T?> {

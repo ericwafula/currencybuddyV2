@@ -1,4 +1,4 @@
-package tech.ericwathome.core.network.converter.serializers
+package tech.ericwathome.core.remote.converter.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import tech.ericwathome.core.network.converter.dto.ExchangeRatesDto
+import tech.ericwathome.core.remote.converter.dto.ExchangeRatesDto
 
 object DynamicRatesSerializer : KSerializer<ExchangeRatesDto> {
     override val descriptor: SerialDescriptor =

@@ -1,4 +1,4 @@
-package tech.ericwathome.core.network.converter.serializers
+package tech.ericwathome.core.remote.converter.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

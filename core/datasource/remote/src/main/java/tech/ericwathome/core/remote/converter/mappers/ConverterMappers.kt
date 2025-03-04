@@ -1,10 +1,10 @@
 @file:Keep
 
-package tech.ericwathome.core.network.converter.mappers
+package tech.ericwathome.core.remote.converter.mappers
 
 import androidx.annotation.Keep
-import tech.ericwathome.core.network.converter.dto.CurrencyMetadataDto
-import tech.ericwathome.core.network.converter.dto.FlagDto
+import tech.ericwathome.core.remote.converter.dto.CurrencyMetadataDto
+import tech.ericwathome.core.remote.converter.dto.FlagDto
 
 fun CurrencyMetadataDto.toDomain() =
     tech.ericwathome.core.domain.converter.model.CurrencyMetadata(

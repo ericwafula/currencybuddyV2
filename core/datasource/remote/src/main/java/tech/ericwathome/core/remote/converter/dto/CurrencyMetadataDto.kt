@@ -1,4 +1,4 @@
-package tech.ericwathome.core.network.converter.dto
+package tech.ericwathome.core.remote.converter.dto
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
