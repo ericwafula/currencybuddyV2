@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,7 +44,9 @@ import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyC
 import tech.ericwathome.core.presentation.designsystem.components.LiquidLoadingAnimation
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
+import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
 import tech.ericwathome.core.presentation.ui.SharedContentKeys
+import tech.ericwathome.core.presentation.ui.showToast
 
 @Composable
 fun ConverterScreen(
@@ -51,6 +54,13 @@ fun ConverterScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    CollectOneTimeEvent(viewModel.event) { event ->
+        when (event) {
+            is ConverterEvent.ShowToast -> context.showToast(event.message.asString(context))
+        }
+    }
 
     WithSharedTransitionScope {
         ConverterScreenContent(
