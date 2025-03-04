@@ -12,14 +12,12 @@ import kotlinx.coroutines.withContext
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
 import tech.ericwathome.converter.data.workers.SyncExchangeRatesWorker
 import tech.ericwathome.core.domain.ConverterScheduler
-import tech.ericwathome.core.domain.SessionStorage
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
 class ConverterWorkerScheduler(
     context: Context,
-    private val sessionStorage: SessionStorage,
 ) : ConverterScheduler {
     private val workManager = WorkManager.getInstance(context)
 

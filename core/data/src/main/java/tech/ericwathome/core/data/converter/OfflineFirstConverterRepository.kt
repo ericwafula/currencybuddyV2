@@ -6,7 +6,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import tech.ericwathome.core.domain.SessionStorage
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import tech.ericwathome.core.domain.converter.RemoteConverterDataSource
@@ -24,16 +23,21 @@ class OfflineFirstConverterRepository(
     private val localConverterDataSource: LocalConverterDataSource,
     private val dispatchers: DispatcherProvider,
     private val applicationScope: CoroutineScope,
-    private val sessionStorage: SessionStorage,
 ) : ConverterRepository {
-    override val defaultExchangeRate: Flow<ExchangeRate>
-        get() = localConverterDataSource.observeDefaultExchangeRate()
+    override val defaultExchangeRateObservable: Flow<ExchangeRate>
+        get() = localConverterDataSource.defaultExchangeRateObservable
 
-    override val savedExchangeRates: Flow<List<ExchangeRate>>
-        get() = localConverterDataSource.observeNonDefaultExchangeRates()
+    override val savedExchangeRatesObservable: Flow<List<ExchangeRate>>
+        get() = localConverterDataSource.nonDefaultExchangeRatesObservable
 
-    override val currencyMetadata: Flow<List<CurrencyMetadata>>
+    override val currencyMetadataObservable: Flow<List<CurrencyMetadata>>
         get() = localConverterDataSource.observeCurrencyMetadata()
+
+    override val lastMetadataSyncTimestampObservable: Flow<Long?>
+        get() = localConverterDataSource.lastMetadataSyncTimestamp
+
+    override val lastExchangeRateSyncTimestampObservable: Flow<Long?>
+        get() = localConverterDataSource.lastExchangeRateSyncTimestamp
 
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
@@ -73,7 +77,7 @@ class OfflineFirstConverterRepository(
                 applicationScope.async {
                     val syncResult =
                         localConverterDataSource.upsertLocalCurrencyMetaDataList(result.data)
-                    sessionStorage.setLastMetadataSyncTimestamp(System.currentTimeMillis())
+                    localConverterDataSource.setLastMetadataSyncTimestamp(System.currentTimeMillis())
                     syncResult
                 }.await()
             }
@@ -130,7 +134,7 @@ class OfflineFirstConverterRepository(
                 Result.Error(errorList.first())
             }
 
-            sessionStorage.setLastExchangeRateSyncTimestamp(System.currentTimeMillis())
+            localConverterDataSource.setLastExchangeRateSyncTimestamp(System.currentTimeMillis())
             Result.Success(Unit).asEmptyDataResult()
         }
     }

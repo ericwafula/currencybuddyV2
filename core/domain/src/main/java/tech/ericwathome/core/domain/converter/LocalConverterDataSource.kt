@@ -7,9 +7,14 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
 
 interface LocalConverterDataSource {
-    fun observeDefaultExchangeRate(): Flow<ExchangeRate>
+    val defaultExchangeRateObservable: Flow<ExchangeRate>
+    val nonDefaultExchangeRatesObservable: Flow<List<ExchangeRate>>
+    val lastMetadataSyncTimestamp: Flow<Long?>
+    val lastExchangeRateSyncTimestamp: Flow<Long?>
 
-    fun observeNonDefaultExchangeRates(): Flow<List<ExchangeRate>>
+    suspend fun setLastMetadataSyncTimestamp(value: Long)
+
+    suspend fun setLastExchangeRateSyncTimestamp(value: Long)
 
     suspend fun retrieveSavedExchangeRates(): List<ExchangeRate>
 
