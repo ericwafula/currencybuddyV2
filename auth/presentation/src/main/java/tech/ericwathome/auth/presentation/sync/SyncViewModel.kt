@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.auth.domain.AuthRepository
+import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
@@ -22,6 +23,7 @@ import kotlin.time.Duration.Companion.minutes
 class SyncViewModel(
     private val converterRepository: ConverterRepository,
     private val authRepository: AuthRepository,
+    private val converterScheduler: ConverterScheduler,
 ) : ViewModel() {
     private val _event = Channel<SyncEvent>()
     val event = _event.receiveAsFlow()
@@ -35,6 +37,12 @@ class SyncViewModel(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = false,
             )
+
+    init {
+        viewModelScope.launch {
+            converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchCurrencyMetadata(30.minutes))
+        }
+    }
 
     private fun handleSyncing() {
         _isSyncing.update { true }

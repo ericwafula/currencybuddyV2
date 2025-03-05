@@ -11,8 +11,8 @@ interface LocalConverterDataSource {
     val nonDefaultExchangeRatesObservable: Flow<List<ExchangeRate>>
     val lastMetadataSyncTimestamp: Flow<Long?>
     val lastExchangeRateSyncTimestamp: Flow<Long?>
-    val isMetadataSyncing: Flow<Boolean?>
-    val isExchangeRateSyncing: Flow<Boolean?>
+    val isMetadataSyncingObservable: Flow<Boolean?>
+    val isExchangeRateSyncingObservable: Flow<Boolean?>
 
     suspend fun setLastMetadataSyncTimestamp(value: Long)
 
