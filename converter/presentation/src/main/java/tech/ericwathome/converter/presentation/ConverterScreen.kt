@@ -90,6 +90,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                 MaterialTheme.colorScheme.secondary
             },
     )
+
     val pullToRefreshState = rememberPullToRefreshState()
 
     CurrencyBuddyCenteredTopBarLayout(
@@ -201,6 +202,19 @@ private fun SharedTransitionScope.ConverterScreenContent(
                         LiquidLoadingAnimation(
                             modifier = Modifier.align(Alignment.Center),
                             isPlaying = true,
+                        )
+                    }
+
+                    androidx.compose.animation.AnimatedVisibility(
+                        modifier = Modifier.align(Alignment.Center),
+                        visible = state.isError,
+                    ) {
+                        Text(
+                            text = state.errorMessage?.asString() ?: "",
+                            style =
+                                MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                ),
                         )
                     }
                 }
