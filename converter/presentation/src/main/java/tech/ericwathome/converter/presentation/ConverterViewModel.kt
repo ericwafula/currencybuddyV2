@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -26,7 +27,7 @@ import tech.ericwathome.core.presentation.ui.asUiText
 @OptIn(FlowPreview::class)
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
-    private val connectionObserver: ConnectionObserver,
+    connectionObserver: ConnectionObserver,
 ) : ViewModel() {
     private val _event = Channel<ConverterEvent>()
     val event = _event.receiveAsFlow()
@@ -55,6 +56,7 @@ class ConverterViewModel(
             .combine(connectionObserver.hasNetworkConnection.debounce(500)) { currencyMetadata, hasNetworkConnection ->
                 if (currencyMetadata.isEmpty() && hasNetworkConnection) {
                     syncCurrencyMetadata()
+                    return@combine
                 }
 
                 val baseIndex =
@@ -82,6 +84,20 @@ class ConverterViewModel(
                         quoteFlagUrl = initialQuoteFlagUrl,
                     )
                 }
+            }
+            .launchIn(viewModelScope)
+
+        converterRepository.isMetadataSyncingObservable
+            .filterNotNull()
+            .onEach { isSyncing ->
+                _state.update { it.copy(isSyncing = isSyncing) }
+            }
+            .launchIn(viewModelScope)
+
+        converterRepository.isExchangeRateSyncingObservable
+            .filterNotNull()
+            .onEach { isSyncing ->
+                _state.update { it.copy(converting = isSyncing) }
             }
             .launchIn(viewModelScope)
     }
