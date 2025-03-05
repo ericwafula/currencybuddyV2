@@ -18,16 +18,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.ConnectionObserver
+import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
+import kotlin.time.Duration.Companion.minutes
 
 @Keep
 @OptIn(FlowPreview::class)
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
     connectionObserver: ConnectionObserver,
+    private val converterScheduler: ConverterScheduler,
 ) : ViewModel() {
     private val _event = Channel<ConverterEvent>()
     val event = _event.receiveAsFlow()
@@ -100,6 +103,10 @@ class ConverterViewModel(
                 _state.update { it.copy(converting = isSyncing) }
             }
             .launchIn(viewModelScope)
+
+        viewModelScope.launch {
+            converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchExchangeRates(30.minutes))
+        }
     }
 
     fun onAction(action: ConverterAction) {
