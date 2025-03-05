@@ -12,6 +12,8 @@ interface ConverterRepository {
     val currencyMetadataObservable: Flow<List<CurrencyMetadata>>
     val lastMetadataSyncTimestampObservable: Flow<Long?>
     val lastExchangeRateSyncTimestampObservable: Flow<Long?>
+    val isMetadataSyncingObservable: Flow<Boolean?>
+    val isExchangeRateSyncingObservable: Flow<Boolean?>
 
     suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
