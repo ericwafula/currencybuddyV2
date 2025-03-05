@@ -40,10 +40,10 @@ internal class OfflineFirstConverterRepository(
         get() = localConverterDataSource.lastExchangeRateSyncTimestamp
 
     override val isMetadataSyncingObservable: Flow<Boolean?>
-        get() = localConverterDataSource.isMetadataSyncing
+        get() = localConverterDataSource.isMetadataSyncingObservable
 
     override val isExchangeRateSyncingObservable: Flow<Boolean?>
-        get() = localConverterDataSource.isExchangeRateSyncing
+        get() = localConverterDataSource.isExchangeRateSyncingObservable
 
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
