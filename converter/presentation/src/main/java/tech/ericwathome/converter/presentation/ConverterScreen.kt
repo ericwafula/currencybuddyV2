@@ -26,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -88,6 +90,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                 MaterialTheme.colorScheme.secondary
             },
     )
+    val pullToRefreshState = rememberPullToRefreshState()
 
     CurrencyBuddyCenteredTopBarLayout(
         modifier = Modifier.fillMaxSize(),
@@ -99,110 +102,116 @@ private fun SharedTransitionScope.ConverterScreenContent(
                 actionIconContentColor = MaterialTheme.colorScheme.onSecondary,
             ),
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(32.dp),
+        PullToRefreshBox(
+            isRefreshing = state.isSyncing,
+            onRefresh = { },
         ) {
-            Box(
-                modifier = Modifier.weight(1f),
+            Column(
+                verticalArrangement = Arrangement.spacedBy(32.dp),
             ) {
                 Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
-                            .background(
-                                color = MaterialTheme.colorScheme.secondary,
-                            )
-                            .border(
-                                width = 1.dp,
-                                color = errorColor,
-                                shape = RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp),
-                            )
-                            .padding(16.dp)
-                            .sharedElement(
-                                state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
-                                animatedVisibilityScope = animatedVisibilityScope,
-                            ),
+                    modifier = Modifier.weight(1f),
                 ) {
-                    Column(
-                        modifier = Modifier.align(Alignment.TopStart),
-                    ) {
-                        Text(
-                            text = "${state.amount} ${state.baseCurrencyCode}",
-                            style =
-                                MaterialTheme.typography.titleLarge.copy(
-                                    fontSize = 64.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSecondary,
-                                    lineHeight = 64.sp,
-                                ),
-                        )
-                        Text(
-                            text = "= ${state.result} ${state.quoteCurrencyCode}",
-                            style =
-                                MaterialTheme.typography.titleLarge.copy(
-                                    fontSize = 24.sp,
-                                    color = MaterialTheme.colorScheme.onSecondary,
-                                ),
-                        )
-                    }
-                    Row(
+                    Box(
                         modifier =
                             Modifier
-                                .fillMaxWidth()
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
+                                .background(
+                                    color = MaterialTheme.colorScheme.secondary,
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = errorColor,
+                                    shape = RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp),
+                                )
                                 .padding(16.dp)
-                                .align(Alignment.BottomCenter),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                                .sharedElement(
+                                    state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                ),
                     ) {
-                        CurrencyPickerButton(
-                            imageUrl = state.baseFlagUrl,
-                            text = state.baseCurrencyCode,
-                            onClick = { onAction(ConverterAction.OnClickBaseButton) },
-                        )
-                        IconButton(onClick = { onAction(ConverterAction.OnClickSwapButton) }) {
-                            Icon(
-                                imageVector = SwapIcon,
-                                contentDescription = stringResource(R.string.error_icon),
-                                tint = MaterialTheme.colorScheme.onSecondary,
+                        Column(
+                            modifier = Modifier.align(Alignment.TopStart),
+                        ) {
+                            Text(
+                                text = "${state.amount} ${state.baseCurrencyCode}",
+                                style =
+                                    MaterialTheme.typography.titleLarge.copy(
+                                        fontSize = 64.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSecondary,
+                                        lineHeight = 64.sp,
+                                    ),
+                            )
+                            Text(
+                                text = "= ${state.result} ${state.quoteCurrencyCode}",
+                                style =
+                                    MaterialTheme.typography.titleLarge.copy(
+                                        fontSize = 24.sp,
+                                        color = MaterialTheme.colorScheme.onSecondary,
+                                    ),
                             )
                         }
-                        CurrencyPickerButton(
-                            imageUrl = state.quoteFlagUrl,
-                            text = state.quoteCurrencyCode,
-                            onClick = { onAction(ConverterAction.OnClickBaseButton) },
-                        )
-                    }
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .align(Alignment.BottomCenter),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            CurrencyPickerButton(
+                                imageUrl = state.baseFlagUrl,
+                                text = state.baseCurrencyCode,
+                                onClick = { onAction(ConverterAction.OnClickBaseButton) },
+                            )
+                            IconButton(onClick = { onAction(ConverterAction.OnClickSwapButton) }) {
+                                Icon(
+                                    imageVector = SwapIcon,
+                                    contentDescription = stringResource(R.string.error_icon),
+                                    tint = MaterialTheme.colorScheme.onSecondary,
+                                )
+                            }
+                            CurrencyPickerButton(
+                                imageUrl = state.quoteFlagUrl,
+                                text = state.quoteCurrencyCode,
+                                onClick = { onAction(ConverterAction.OnClickBaseButton) },
+                            )
+                        }
 
+                        androidx.compose.animation.AnimatedVisibility(
+                            modifier = Modifier.align(Alignment.Center),
+                            visible = state.isError,
+                        ) {
+                            Text(
+                                text = state.errorMessage?.asString() ?: "",
+                                style =
+                                    MaterialTheme.typography.bodySmall.copy(
+                                        color = MaterialTheme.colorScheme.onSecondary,
+                                        fontSize = 12.sp,
+                                    ),
+                            )
+                        }
+                    }
                     androidx.compose.animation.AnimatedVisibility(
-                        modifier = Modifier.align(Alignment.Center),
-                        visible = state.isError,
+                        visible = state.converting,
                     ) {
-                        Text(
-                            text = state.errorMessage?.asString() ?: "",
-                            style =
-                                MaterialTheme.typography.bodySmall.copy(
-                                    color = MaterialTheme.colorScheme.onSecondary,
-                                ),
+                        LiquidLoadingAnimation(
+                            modifier = Modifier.align(Alignment.Center),
+                            isPlaying = true,
                         )
                     }
                 }
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = state.converting,
-                ) {
-                    LiquidLoadingAnimation(
-                        modifier = Modifier.align(Alignment.Center),
-                        isPlaying = true,
-                    )
-                }
+                ConverterKeyboard(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClickInputKey = { onAction(ConverterAction.OnEnterInput(it)) },
+                    onClickConvert = { onAction(ConverterAction.OnClickConvert) },
+                    onClickDelete = { onAction(ConverterAction.OnDeleteInput) },
+                    onClickClear = { onAction(ConverterAction.OnClearInput) },
+                )
             }
-            ConverterKeyboard(
-                modifier = Modifier.fillMaxWidth(),
-                onClickInputKey = { onAction(ConverterAction.OnEnterInput(it)) },
-                onClickConvert = { onAction(ConverterAction.OnClickConvert) },
-                onClickDelete = { onAction(ConverterAction.OnDeleteInput) },
-                onClickClear = { onAction(ConverterAction.OnClearInput) },
-            )
         }
     }
 }
@@ -215,7 +224,10 @@ private fun ConverterScreenPreview() {
             WithSharedTransitionScope {
                 AnimatedVisibility(true) {
                     ConverterScreenContent(
-                        state = ConverterState(),
+                        state =
+                            ConverterState(
+                                isSyncing = true,
+                            ),
                         onAction = { },
                         animatedVisibilityScope = this,
                     )
