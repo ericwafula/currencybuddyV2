@@ -30,12 +30,26 @@ internal class DefaultLocalConverterDataSource(
     override val lastExchangeRateSyncTimestamp: Flow<Long?>
         get() = converterPreferences.lastExchangeRateSyncTimestamp
 
+    override val isMetadataSyncing: Flow<Boolean?>
+        get() = converterPreferences.isMetadataSyncing
+
+    override val isExchangeRateSyncing: Flow<Boolean?>
+        get() = converterPreferences.isExchangeRateSyncing
+
     override suspend fun setLastMetadataSyncTimestamp(value: Long) {
         converterPreferences.setLastMetadataSyncTimestamp(value)
     }
 
     override suspend fun setLastExchangeRateSyncTimestamp(value: Long) {
         converterPreferences.setLastExchangeRateSyncTimestamp(value)
+    }
+
+    override suspend fun setIsMetadataSyncing(value: Boolean) {
+        converterPreferences.setIsMetadataSyncing(value)
+    }
+
+    override suspend fun setIsExchangeRateSyncing(value: Boolean) {
+        converterPreferences.setIsExchangeRateSyncing(value)
     }
 
     override suspend fun retrieveSavedExchangeRates(): List<ExchangeRate> {
