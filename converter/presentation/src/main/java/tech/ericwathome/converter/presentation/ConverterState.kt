@@ -12,6 +12,7 @@ data class ConverterState(
     val quoteFlagUrl: String = "",
     val converting: Boolean = false,
     val isError: Boolean = false,
+    val isSyncing: Boolean = false,
     val errorMessage: UiText? = null,
     val showBottomSheet: Boolean = false,
     val currencyMetadataList: List<CurrencyMetadata> = emptyList(),
