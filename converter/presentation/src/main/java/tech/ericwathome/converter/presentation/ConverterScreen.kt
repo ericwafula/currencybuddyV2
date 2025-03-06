@@ -104,7 +104,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
     ) {
         PullToRefreshBox(
             isRefreshing = state.isSyncing,
-            onRefresh = { },
+            onRefresh = { onAction(ConverterAction.OnRefresh) },
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(32.dp),

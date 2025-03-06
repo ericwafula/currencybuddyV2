@@ -14,4 +14,6 @@ sealed interface ConverterAction {
     data object OnClickQuoteButton : ConverterAction
 
     data object OnClickSwapButton : ConverterAction
+
+    data object OnRefresh : ConverterAction
 }
