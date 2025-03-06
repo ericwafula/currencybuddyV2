@@ -106,6 +106,7 @@ class ConverterViewModel(
 
         viewModelScope.launch {
             converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchExchangeRates(30.minutes))
+            converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchCurrencyMetadata(30.minutes))
         }
     }
 
@@ -115,6 +116,7 @@ class ConverterViewModel(
             ConverterAction.OnClickConvert -> fetchExchangeRate()
             ConverterAction.OnDeleteInput -> onDeleteInput()
             ConverterAction.OnClearInput -> onClearInput()
+            ConverterAction.OnRefresh -> syncCurrencyMetadata()
             else -> Unit
         }
     }

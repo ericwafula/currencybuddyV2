@@ -1,23 +1,30 @@
 package tech.ericwathome.converter.data
 
 import android.content.Context
-import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.await
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
 import tech.ericwathome.converter.data.workers.SyncExchangeRatesWorker
+import tech.ericwathome.converter.data.workers.startOneTimeSyncCurrencyMetaDataWork
+import tech.ericwathome.converter.data.workers.startOneTimeSyncExchangeRatesWork
+import tech.ericwathome.converter.data.workers.startPeriodicSyncCurrencyMetaDataWork
+import tech.ericwathome.converter.data.workers.startPeriodicSyncExchangeRatesWork
 import tech.ericwathome.core.domain.ConverterScheduler
-import java.util.concurrent.TimeUnit
+import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.util.DispatcherProvider
 import kotlin.time.Duration
-import kotlin.time.toJavaDuration
 
 class ConverterWorkerScheduler(
-    context: Context,
+    private val context: Context,
+    private val dispatchers: DispatcherProvider,
+    private val converterRepository: ConverterRepository,
 ) : ConverterScheduler {
     private val workManager = WorkManager.getInstance(context)
 
@@ -33,73 +40,57 @@ class ConverterWorkerScheduler(
         }
     }
 
-    private suspend fun fetchCurrencyMetaData(duration: Duration) {
-        val isSyncing =
-            withContext(Dispatchers.IO) {
-                workManager
-                    .getWorkInfosByTag(SyncCurrencyMetaDataWorker.TAG)
-                    .get()
-                    .isNotEmpty()
+    private suspend fun fetchCurrencyMetaData(duration: Duration) =
+        coroutineScope {
+            val lastSyncTimestamp = converterRepository.lastMetadataSyncTimestampObservable.firstOrNull() ?: 0
+            val isSyncing =
+                withContext(dispatchers.io) {
+                    workManager
+                        .getWorkInfosByTag(SyncCurrencyMetaDataWorker.TAG)
+                        .get()
+                        .isNotEmpty()
+                }
+
+            if (isSyncing) {
+                return@coroutineScope
             }
 
-        if (isSyncing) {
-            return
+            context.startOneTimeSyncCurrencyMetaDataWork(withInitialDelay = true, lastSyncDurationMillis = lastSyncTimestamp)
+
+            launch(dispatchers.io) {
+                workManager
+                    .getWorkInfosByTagFlow(SyncCurrencyMetaDataWorker.TAG)
+                    .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
+                    .take(1)
+                    .collect { context.startPeriodicSyncCurrencyMetaDataWork(duration) }
+            }
         }
 
-        val workRequest =
-            PeriodicWorkRequestBuilder<SyncCurrencyMetaDataWorker>(
-                repeatInterval = duration.toJavaDuration(),
-            ).setConstraints(
-                Constraints(
-                    requiredNetworkType = NetworkType.CONNECTED,
-                ),
-            ).setBackoffCriteria(
-                backoffPolicy = BackoffPolicy.EXPONENTIAL,
-                backoffDelay = SyncCurrencyMetaDataWorker.backoffDelayMillis,
-                timeUnit = TimeUnit.MILLISECONDS,
-            ).addTag(SyncCurrencyMetaDataWorker.TAG)
-                .setInitialDelay(
-                    SyncCurrencyMetaDataWorker.initialDelayDurationMillis,
-                    TimeUnit.MINUTES,
-                )
-                .build()
+    private suspend fun fetchExchangeRates(duration: Duration) =
+        coroutineScope {
+            val lastSyncTimestamp = converterRepository.lastExchangeRateSyncTimestampObservable.firstOrNull() ?: 0
+            val isSyncing =
+                withContext(dispatchers.io) {
+                    workManager
+                        .getWorkInfosByTag(SyncExchangeRatesWorker.TAG)
+                        .get()
+                        .isNotEmpty()
+                }
 
-        workManager.enqueue(workRequest)
-    }
-
-    private suspend fun fetchExchangeRates(duration: Duration) {
-        val isSyncing =
-            withContext(Dispatchers.IO) {
-                workManager
-                    .getWorkInfosByTag(SyncExchangeRatesWorker.TAG)
-                    .get()
-                    .isNotEmpty()
+            if (isSyncing) {
+                return@coroutineScope
             }
 
-        if (isSyncing) {
-            return
+            context.startOneTimeSyncExchangeRatesWork(withInitialDelay = true, lastSyncDurationMillis = lastSyncTimestamp)
+
+            launch(dispatchers.io) {
+                workManager
+                    .getWorkInfosByTagFlow(SyncExchangeRatesWorker.TAG)
+                    .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
+                    .take(1)
+                    .collect { context.startPeriodicSyncExchangeRatesWork(duration) }
+            }
         }
-
-        val workRequest =
-            PeriodicWorkRequestBuilder<SyncExchangeRatesWorker>(
-                repeatInterval = duration.toJavaDuration(),
-            ).setConstraints(
-                Constraints(
-                    requiredNetworkType = NetworkType.CONNECTED,
-                ),
-            ).setBackoffCriteria(
-                backoffPolicy = BackoffPolicy.EXPONENTIAL,
-                backoffDelay = SyncExchangeRatesWorker.backoffDelayMillis,
-                timeUnit = TimeUnit.MILLISECONDS,
-            ).addTag(SyncExchangeRatesWorker.TAG)
-                .setInitialDelay(
-                    SyncExchangeRatesWorker.initialDelayDurationMillis,
-                    TimeUnit.MINUTES,
-                )
-                .build()
-
-        workManager.enqueue(workRequest)
-    }
 
     override suspend fun cancelAllWork() {
         workManager.cancelAllWork().await()
