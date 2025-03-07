@@ -19,11 +19,12 @@ import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyT
 fun CurrencyBuddySearchTextField(
     modifier: Modifier = Modifier,
     state: TextFieldState,
+    hint: String = ""
 ) {
     CurrencyBuddyTextField(
         modifier = modifier,
         state = state,
-        hint = stringResource(R.string.search_for_currency),
+        hint = hint,
         leadingIcon = SearchIcon,
     )
 }
@@ -39,6 +40,7 @@ private fun CurrencyBuddySearchTextFieldPreview() {
                 CurrencyBuddySearchTextField(
                     state = TextFieldState(),
                     modifier = Modifier.fillMaxWidth(),
+                    hint = stringResource(R.string.search_for_currency)
                 )
             }
         }
