@@ -1,6 +1,6 @@
 @file:Keep
 
-package tech.ericwathome.core.presentation.ui
+package tech.ericwathome.core.presentation.designsystem.utils
 
 import androidx.annotation.Keep
 import androidx.compose.animation.core.animateFloat
