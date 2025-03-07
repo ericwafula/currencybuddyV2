@@ -101,7 +101,23 @@ fun CurrencyBuddyTextField(
                         }
                     }
                     Box(
-                        modifier = Modifier.weight(1f),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .then(
+                                    if (leadingIcon == null) {
+                                        Modifier.padding(start = 10.dp)
+                                    } else {
+                                        Modifier
+                                    },
+                                )
+                                .then(
+                                    if (trailingIcon == null) {
+                                        Modifier.padding(end = 10.dp)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                         contentAlignment = Alignment.CenterStart,
                     ) {
                         if (state.text.isBlank() && !isFocused) {
