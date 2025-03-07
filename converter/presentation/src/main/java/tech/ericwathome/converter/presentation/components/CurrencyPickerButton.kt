@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,19 +17,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.SubcomposeAsyncImage
-import coil.decode.SvgDecoder
-import coil.request.ImageRequest
 import tech.ericwathome.converter.presentation.R
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.DownIconThin
-import tech.ericwathome.core.presentation.designsystem.assets.FrownIcon
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyImage
+import tech.ericwathome.core.presentation.designsystem.utils.ImageUtils
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
-import tech.ericwathome.core.presentation.ui.shimmerEffect
 
 @Composable
 fun CurrencyPickerButton(
@@ -47,41 +41,13 @@ fun CurrencyPickerButton(
                 .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SubcomposeAsyncImage(
-            modifier =
-                Modifier
-                    .size(32.dp)
-                    .clip(CircleShape),
+        CurrencyBuddyImage(
+            Modifier
+                .size(32.dp)
+                .clip(CircleShape),
+            imageUrl = imageUrl,
+            imageType = ImageUtils.ImageType.SVG,
             contentDescription = stringResource(id = R.string.flag_image),
-            model =
-                ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .decoderFactory(SvgDecoder.Factory())
-                    .build(),
-            contentScale = ContentScale.Crop,
-            loading = {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .shimmerEffect(),
-                )
-            },
-            error = {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.onSecondary),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = FrownIcon,
-                        contentDescription = stringResource(R.string.error_icon),
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                }
-            },
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(

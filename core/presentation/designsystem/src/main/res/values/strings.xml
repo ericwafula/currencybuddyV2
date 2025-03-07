@@ -8,4 +8,6 @@
     <string name="dismiss">Dismiss</string>
     <string name="currency_converter">Currency Converter</string>
     <string name="connect">Connect</string>
+    <string name="image">Image</string>
+    <string name="error_icon">Error icon</string>
 </resources>
