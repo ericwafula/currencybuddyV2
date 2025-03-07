@@ -1,11 +1,14 @@
 package tech.ericwathome.core.presentation.designsystem.utils
 
+import androidx.annotation.Keep
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 
+@Keep
 object ImageUtils {
+    @Keep
     enum class ImageType {
         PNG,
         JPG,
