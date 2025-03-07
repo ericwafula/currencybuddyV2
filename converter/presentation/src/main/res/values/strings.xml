@@ -7,4 +7,5 @@
     <string name="enter_value_greater_than_zero">Value should be greater than 0 inorder to convert</string>
     <string name="syncing_latest_rates">Syncing latest rates</string>
     <string name="currency_metadata_synced_successfully">Currency details synced successfully</string>
+    <string name="search_for_currency">Search for currency...</string>
 </resources>
