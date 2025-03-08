@@ -16,4 +16,16 @@ sealed interface ConverterAction {
     data object OnClickSwapButton : ConverterAction
 
     data object OnRefresh : ConverterAction
+
+    data object OnDismissSnackbar : ConverterAction
+
+    data object OnDismissBottomSheet : ConverterAction
+
+    data class OnSelectCurrency(val index: Int) : ConverterAction
+
+    data class OnSelectQuoteCurrency(val index: Int) : ConverterAction
+
+    data object OnClickContinue : ConverterAction
+
+    data class OnEnterSearchQuery(val query: String) : ConverterAction
 }

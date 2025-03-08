@@ -3,11 +3,14 @@
 package tech.ericwathome.converter.presentation.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -44,88 +46,107 @@ fun SelectCurrencyBottomSheet(
     onDismiss: () -> Unit,
     onSelectCurrency: (index: Int) -> Unit,
     onClickContinue: () -> Unit,
-    textFieldState: TextFieldState,
+    onClickRetry: () -> Unit,
+    searchQuery: String,
+    onEnterSearchQuery: (String) -> Unit,
     sheetState: SheetState,
     currencies: List<CurrencyMetadata>,
+    canContinue: Boolean = false,
+    isEmpty: Boolean = false,
 ) {
     ModalBottomSheet(
-        modifier = modifier,
+        modifier = modifier.fillMaxHeight(),
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
-        Column(
+        Box(
             modifier =
                 Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                    .padding(16.dp),
         ) {
-            Text(
-                text = stringResource(R.string.select_a_currency),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            if (currencies.isEmpty()) {
-                Spacer(modifier = Modifier.height(32.dp))
-                Image(
-                    imageVector = EmptyImage,
-                    contentDescription = stringResource(R.string.empty_image),
-                )
-                Spacer(modifier = Modifier.height(32.dp))
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 Text(
-                    text = stringResource(R.string.no_currencies_found),
-                    style =
-                        MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(0.7f),
-                        ),
+                    text = stringResource(R.string.select_a_currency),
+                    style = MaterialTheme.typography.bodyMedium,
                 )
-                Spacer(modifier = Modifier.height(32.dp))
-            }
-            if (currencies.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(32.dp))
-                CurrencyBuddySearchTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    hint = stringResource(id = R.string.search_for_currency),
-                    state = textFieldState,
-                )
-            }
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(26.dp),
-            ) {
-                itemsIndexed(items = currencies, key = { _, item -> item.code }) { index, currency ->
-                    SelectCurrencyItem(
+                if (isEmpty) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Image(
+                        imageVector = EmptyImage,
+                        contentDescription = stringResource(R.string.empty_image),
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Text(
+                        text = stringResource(R.string.no_currencies_found),
+                        style =
+                            MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(0.7f),
+                            ),
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+                if (!isEmpty) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    CurrencyBuddySearchTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        imageUrl = currency.flag.svg,
-                        text = "${currency.name}(${currency.code})",
-                        selected = currency.isSelected,
-                        onClick = { onSelectCurrency(index) },
+                        hint = stringResource(id = R.string.search_for_currency),
+                        searchQuery = searchQuery,
+                        onEnterSearchQuery = onEnterSearchQuery,
                     )
+                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 32.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    itemsIndexed(items = currencies, key = { _, item -> item.code }) { index, currency ->
+                        SelectCurrencyItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            imageUrl = currency.flag.svg,
+                            text = "${currency.name}(${currency.code})",
+                            selected = currency.isSelected,
+                            onClick = { onSelectCurrency(index) },
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(56.dp)) }
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                if (currencies.isEmpty()) {
-                    CurrencyBuddySecondaryButtonOutlined(
+            Column {
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    if (isEmpty) {
+                        CurrencyBuddySecondaryButtonOutlined(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(R.string.cancel),
+                            onClick = { onDismiss() },
+                        )
+                    }
+                    CurrencyBuddyPrimaryButton(
                         modifier = Modifier.weight(1f),
-                        text = stringResource(R.string.cancel),
-                        onClick = { onDismiss() },
+                        text =
+                            if (isEmpty) {
+                                stringResource(R.string.retry)
+                            } else {
+                                stringResource(R.string.continue_text)
+                            },
+                        onClick = { if (isEmpty) onClickRetry() else onClickContinue() },
+                        enabled = if (isEmpty) true else canContinue,
                     )
                 }
-                CurrencyBuddyPrimaryButton(
-                    modifier = Modifier.weight(1f),
-                    text =
-                        if (currencies.isEmpty()) {
-                            stringResource(R.string.retry)
-                        } else {
-                            stringResource(R.string.continue_text)
-                        },
-                    onClick = { if (currencies.isEmpty()) onDismiss() else onClickContinue() },
-                )
             }
         }
     }
@@ -141,11 +162,13 @@ private fun SelectCurrencyBottomSheetPreview() {
             SelectCurrencyBottomSheet(
                 modifier = Modifier,
                 onDismiss = { },
-                sheetState = sheetState,
-                textFieldState = TextFieldState(),
-                currencies = currenciesList,
+                searchQuery = "",
+                onEnterSearchQuery = { },
+                currencies = listOf(),
                 onSelectCurrency = { },
                 onClickContinue = { },
+                onClickRetry = { },
+                sheetState = sheetState,
             )
         }
     }

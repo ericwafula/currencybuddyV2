@@ -63,7 +63,7 @@ interface ConverterDao {
      *
      * @return A Flow emitting lists of [CurrencyMetadataEntity] objects.
      */
-    @Query("SELECT * FROM currencymetadataentity ORDER BY CODE ASC")
+    @Query("SELECT * FROM currencymetadataentity ORDER BY name ASC")
     fun observeCurrencyMetadata(): Flow<List<CurrencyMetadataEntity>>
 
     /**

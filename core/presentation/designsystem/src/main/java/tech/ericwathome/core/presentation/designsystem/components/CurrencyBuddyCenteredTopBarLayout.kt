@@ -10,6 +10,8 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
@@ -22,6 +24,7 @@ fun CurrencyBuddyCenteredTopBarLayout(
     modifier: Modifier = Modifier,
     toolbarTitle: String,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable () -> Unit,
 ) {
@@ -39,6 +42,14 @@ fun CurrencyBuddyCenteredTopBarLayout(
                 colors = colors,
                 actions = actions,
             )
+        },
+        snackbarHost = {
+            snackbarHostState.currentSnackbarData?.let { snackbarData ->
+                Snackbar(
+                    modifier = Modifier,
+                    snackbarData = snackbarData,
+                )
+            }
         },
     ) { paddingValues ->
         Box(
