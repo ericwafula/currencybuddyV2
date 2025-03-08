@@ -23,11 +23,13 @@ fun CurrencyBuddyPrimaryButton(
     onClick: () -> Unit,
     text: String,
     fontSize: TextUnit = MaterialTheme.typography.bodyLarge.fontSize,
+    enabled: Boolean = true,
 ) {
     Button(
         modifier = modifier.sizeIn(minHeight = 56.dp, minWidth = 168.dp),
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
+        enabled = enabled,
     ) {
         Text(
             text = text,
