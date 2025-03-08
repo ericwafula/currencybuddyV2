@@ -1,6 +1,7 @@
 package tech.ericwathome.converter.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -31,11 +32,13 @@ fun SelectCurrencyItem(
     imageUrl: String,
     text: String,
     selected: Boolean,
+    onClick: () -> Unit,
 ) {
     Box(
         modifier =
             modifier
                 .clip(RoundedCornerShape(12.dp))
+                .clickable { onClick() }
                 .background(color = MaterialTheme.colorScheme.onSurface.copy(0.1f))
                 .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
@@ -74,6 +77,7 @@ private fun SelectCurrencyItemPreview() {
                     imageUrl = "https://restcountries.com/data/afg.svg",
                     text = "Euro(EUR)",
                     selected = true,
+                    onClick = { },
                 )
             }
         }

@@ -14,7 +14,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import tech.ericwathome.core.presentation.designsystem.R
 
 @Composable
-fun LiquidLoadingAnimation(
+fun CurrencyBuddyLiquidLoadingAnimation(
     modifier: Modifier = Modifier,
     isPlaying: Boolean = true,
 ) {

@@ -9,7 +9,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
-import tech.ericwathome.core.presentation.designsystem.components.NetworkLayout
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyNetworkLayout
 import tech.ericwathome.core.presentation.ui.rememberOpenNetworkSettings
 import tech.ericwathome.currencybuddy.navigation.RootNav
 
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
             val openNetworkSettings = rememberOpenNetworkSettings()
 
             CurrencybuddyTheme {
-                NetworkLayout(
+                CurrencyBuddyNetworkLayout(
                     onClickConnect = openNetworkSettings,
                     showNetworkPopup = viewModel.state.showNetworkPopup,
                 ) {
