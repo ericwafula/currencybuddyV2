@@ -30,7 +30,7 @@ import tech.ericwathome.auth.presentation.R
 import tech.ericwathome.auth.presentation.assets.GetStartedCurrencyImage
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.LogoFull
-import tech.ericwathome.core.presentation.designsystem.components.PrimaryButton
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyPrimaryButton
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
 import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
@@ -121,7 +121,7 @@ fun SharedTransitionScope.GetStartedScreenContent(
                             ),
                     )
                 }
-                PrimaryButton(
+                CurrencyBuddyPrimaryButton(
                     modifier = Modifier,
                     onClick = onClickGetStarted,
                     text = stringResource(R.string.get_started),

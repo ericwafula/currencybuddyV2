@@ -8,4 +8,10 @@
     <string name="syncing_latest_rates">Syncing latest rates</string>
     <string name="currency_metadata_synced_successfully">Currency details synced successfully</string>
     <string name="search_for_currency">Search for currency...</string>
+    <string name="empty_image">Empty image</string>
+    <string name="select_a_currency">Select a currency</string>
+    <string name="no_currencies_found">No currencies found!</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
+    <string name="continue_text">Continue</string>
 </resources>

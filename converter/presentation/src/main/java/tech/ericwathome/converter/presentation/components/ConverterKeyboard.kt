@@ -11,11 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import tech.ericwathome.converter.presentation.R
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
-import tech.ericwathome.core.presentation.designsystem.components.ActionRowLayout
-import tech.ericwathome.core.presentation.designsystem.components.ControlColumnLayout
-import tech.ericwathome.core.presentation.designsystem.components.NumberGridLayout
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyActionRowLayout
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyControlColumnLayout
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyNumberGridLayout
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
@@ -40,17 +39,17 @@ fun ConverterKeyboard(
                     .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            NumberGridLayout(
+            CurrencyBuddyNumberGridLayout(
                 modifier = Modifier.weight(1f),
                 onClickNumber = { onClickInputKey(it) },
             )
-            ControlColumnLayout(
+            CurrencyBuddyControlColumnLayout(
                 modifier = Modifier,
                 onClickAC = onClickClear,
                 onClickDEL = onClickDelete,
             )
         }
-        ActionRowLayout(
+        CurrencyBuddyActionRowLayout(
             modifier = Modifier.fillMaxWidth(),
             onClickInputKey = onClickInputKey,
             ctaText = stringResource(tech.ericwathome.core.presentation.ui.R.string.convert),
