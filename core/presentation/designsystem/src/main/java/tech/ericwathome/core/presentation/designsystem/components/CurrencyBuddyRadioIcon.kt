@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.designsystem.components
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
