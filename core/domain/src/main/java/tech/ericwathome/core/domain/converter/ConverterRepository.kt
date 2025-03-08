@@ -24,6 +24,8 @@ interface ConverterRepository {
 
     suspend fun syncCurrencyMetadata(): EmptyResult<DataError>
 
+    suspend fun observeFilteredCurrencyMetaData(query: String): Flow<List<CurrencyMetadata>>
+
     suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate)
 
     suspend fun clearLocalExchangeRates()

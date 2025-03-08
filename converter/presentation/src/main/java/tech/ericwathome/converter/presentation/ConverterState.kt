@@ -1,5 +1,6 @@
 package tech.ericwathome.converter.presentation
 
+import androidx.compose.foundation.text.input.TextFieldState
 import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.presentation.ui.UiText
 
@@ -17,4 +18,5 @@ data class ConverterState(
     val showBottomSheet: Boolean = false,
     val currencyMetadataList: List<CurrencyMetadata> = emptyList(),
     val currencyMetadataMap: Map<String, CurrencyMetadata> = emptyMap(),
+    val searchQuery: TextFieldState = TextFieldState(),
 )

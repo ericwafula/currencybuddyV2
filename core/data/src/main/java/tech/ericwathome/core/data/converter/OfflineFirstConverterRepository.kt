@@ -94,6 +94,10 @@ internal class OfflineFirstConverterRepository(
         }
     }
 
+    override suspend fun observeFilteredCurrencyMetaData(query: String): Flow<List<CurrencyMetadata>> {
+        return localConverterDataSource.observeFilteredCurrencyMetaData(query)
+    }
+
     override suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate) {
         localConverterDataSource.deleteLocalExchangeRate(exchangeRate)
     }

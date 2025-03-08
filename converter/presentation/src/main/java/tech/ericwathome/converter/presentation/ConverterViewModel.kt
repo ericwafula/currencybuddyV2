@@ -7,6 +7,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
@@ -23,6 +24,7 @@ import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
+import tech.ericwathome.core.presentation.ui.textAsFlow
 import kotlin.time.Duration.Companion.minutes
 
 @Keep
@@ -48,6 +50,13 @@ class ConverterViewModel(
     private val maxFractionDigits = 2
 
     init {
+        state.value.searchQuery
+            .textAsFlow()
+            .debounce(500)
+            .onEach { query ->
+                onEnterSearchQuery(query.toString())
+            }.launchIn(viewModelScope)
+
         converterRepository
             .defaultExchangeRateObservable
             .onEach { exchangeRate ->
@@ -164,6 +173,12 @@ class ConverterViewModel(
         _state.update { it.copy(amount = "0") }
     }
 
+    private suspend fun onEnterSearchQuery(query: String) {
+        converterRepository.observeFilteredCurrencyMetaData(query).collectLatest { currencyMetadata ->
+            _state.update { it.copy(currencyMetadataList = currencyMetadata) }
+        }
+    }
+
     private fun fetchExchangeRate() {
         viewModelScope.launch {
             val rawAmount = state.value.amount
@@ -216,6 +231,7 @@ class ConverterViewModel(
                     _state.update { it.copy(isSyncing = false) }
                     _event.send(ConverterEvent.ShowToast(result.error.asUiText()))
                 }
+
                 is Result.Success -> {
                     _state.update { it.copy(isSyncing = false) }
                     fetchExchangeRate()
