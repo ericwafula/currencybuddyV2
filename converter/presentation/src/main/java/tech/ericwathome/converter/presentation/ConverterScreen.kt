@@ -1,5 +1,5 @@
 @file:Keep
-@file:OptIn(ExperimentalSharedTransitionApi::class)
+@file:OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 
 package tech.ericwathome.converter.presentation
 
@@ -23,13 +23,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import tech.ericwathome.converter.presentation.components.ConverterKeyboard
 import tech.ericwathome.converter.presentation.components.CurrencyPickerButton
+import tech.ericwathome.converter.presentation.components.SelectCurrencyBottomSheet
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.SwapIcon
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyCenteredTopBarLayout
@@ -59,10 +64,18 @@ fun ConverterScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     CollectOneTimeEvent(viewModel.event) { event ->
         when (event) {
             is ConverterEvent.ShowToast -> context.showToast(event.message.asString(context))
+            ConverterEvent.DismissSnackbar -> snackbarHostState.currentSnackbarData?.dismiss()
+            is ConverterEvent.ShowSnackbar ->
+                snackbarHostState.showSnackbar(
+                    message = event.message.asString(context),
+                    actionLabel = event.actionLabel.asString(context),
+                )
         }
     }
 
@@ -70,6 +83,8 @@ fun ConverterScreen(
         ConverterScreenContent(
             state = state,
             animatedVisibilityScope = animatedVisibilityScope,
+            snackbarHostState = snackbarHostState,
+            sheetState = sheetState,
             onAction = viewModel::onAction,
         )
     }
@@ -80,6 +95,8 @@ fun ConverterScreen(
 private fun SharedTransitionScope.ConverterScreenContent(
     state: ConverterState,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    snackbarHostState: SnackbarHostState,
+    sheetState: SheetState,
     onAction: (ConverterAction) -> Unit,
 ) {
     val errorColor by animateColorAsState(
@@ -102,6 +119,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                 titleContentColor = MaterialTheme.colorScheme.onSecondary,
                 actionIconContentColor = MaterialTheme.colorScheme.onSecondary,
             ),
+        snackbarHostState = snackbarHostState,
     ) {
         PullToRefreshBox(
             isRefreshing = state.isSyncing,
@@ -118,9 +136,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                             Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
-                                .background(
-                                    color = MaterialTheme.colorScheme.secondary,
-                                )
+                                .background(color = MaterialTheme.colorScheme.secondary)
                                 .border(
                                     width = 1.dp,
                                     color = errorColor,
@@ -178,7 +194,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                             CurrencyPickerButton(
                                 imageUrl = state.quoteFlagUrl,
                                 text = state.quoteCurrencyCode,
-                                onClick = { onAction(ConverterAction.OnClickBaseButton) },
+                                onClick = { onAction(ConverterAction.OnClickQuoteButton) },
                             )
                         }
 
@@ -228,6 +244,21 @@ private fun SharedTransitionScope.ConverterScreenContent(
             }
         }
     }
+
+    if (state.showCurrencyPickerBottomSheet) {
+        SelectCurrencyBottomSheet(
+            modifier = Modifier,
+            sheetState = sheetState,
+            onSelectCurrency = { onAction(ConverterAction.OnSelectCurrency(it)) },
+            onDismiss = { onAction(ConverterAction.OnDismissBottomSheet) },
+            onClickContinue = { onAction(ConverterAction.OnClickContinue) },
+            searchQuery = state.searchQuery,
+            onEnterSearchQuery = { onAction(ConverterAction.OnEnterSearchQuery(it)) },
+            currencies = state.currencyMetadataList,
+            onClickRetry = { onAction(ConverterAction.OnRefresh) },
+            canContinue = state.canContinue,
+        )
+    }
 }
 
 @PreviewLightDarkWithBackground
@@ -244,6 +275,8 @@ private fun ConverterScreenPreview() {
                             ),
                         onAction = { },
                         animatedVisibilityScope = this,
+                        snackbarHostState = SnackbarHostState(),
+                        sheetState = rememberModalBottomSheetState(),
                     )
                 }
             }

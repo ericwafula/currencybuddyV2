@@ -29,6 +29,22 @@ fun CurrencyBuddySearchTextField(
     )
 }
 
+@Composable
+fun CurrencyBuddySearchTextField(
+    modifier: Modifier = Modifier,
+    searchQuery: String,
+    onEnterSearchQuery: (String) -> Unit,
+    hint: String = "",
+) {
+    CurrencyBuddyTextField(
+        modifier = modifier,
+        value = searchQuery,
+        onValueChange = onEnterSearchQuery,
+        hint = hint,
+        leadingIcon = SearchIcon,
+    )
+}
+
 @PreviewLightDark
 @Composable
 private fun CurrencyBuddySearchTextFieldPreview() {

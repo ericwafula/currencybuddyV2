@@ -1,5 +1,8 @@
+@file:Keep
+
 package tech.ericwathome.core.presentation.designsystem.components
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -121,6 +124,121 @@ fun CurrencyBuddyTextField(
                         contentAlignment = Alignment.CenterStart,
                     ) {
                         if (state.text.isBlank() && !isFocused) {
+                            Text(
+                                text = hint,
+                                style =
+                                    MaterialTheme.typography.bodySmall.copy(
+                                        color =
+                                            if (isFocused) {
+                                                MaterialTheme.colorScheme.onSurface
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurface.copy(0.5f)
+                                            },
+                                    ),
+                            )
+                        }
+                        innerTextField()
+                    }
+                    trailingIcon?.let {
+                        IconButton(
+                            onClick = { onTrailingIconClick?.invoke() },
+                        ) {
+                            Icon(imageVector = trailingIcon, contentDescription = null)
+                        }
+                    }
+                }
+            }
+        },
+    )
+}
+
+@Composable
+fun CurrencyBuddyTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    hint: String = "",
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null,
+    onLeadingIconClick: (() -> Unit)? = null,
+    onTrailingIconClick: (() -> Unit)? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    BasicTextField(
+        modifier =
+            modifier
+                .onFocusEvent { event -> isFocused = event.isFocused }
+                .height(56.dp),
+        value = value,
+        onValueChange = onValueChange,
+        enabled = enabled,
+        singleLine = true,
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+        readOnly = readOnly,
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = keyboardType,
+            ),
+        textStyle =
+            LocalTextStyle.current.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 14.sp,
+            ),
+        decorationBox = { innerTextField ->
+            Box(
+                modifier =
+                    Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(
+                            width = 1.dp,
+                            color =
+                                if (isFocused) {
+                                    MaterialTheme.colorScheme.onSurface
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface.copy(0.1f)
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                        ),
+            ) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    leadingIcon?.let {
+                        IconButton(
+                            onClick = { onLeadingIconClick?.invoke() },
+                        ) {
+                            Icon(imageVector = leadingIcon, contentDescription = null)
+                        }
+                    }
+                    Box(
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .then(
+                                    if (leadingIcon == null) {
+                                        Modifier.padding(start = 10.dp)
+                                    } else {
+                                        Modifier
+                                    },
+                                )
+                                .then(
+                                    if (trailingIcon == null) {
+                                        Modifier.padding(end = 10.dp)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (value.isBlank() && !isFocused) {
                             Text(
                                 text = hint,
                                 style =
