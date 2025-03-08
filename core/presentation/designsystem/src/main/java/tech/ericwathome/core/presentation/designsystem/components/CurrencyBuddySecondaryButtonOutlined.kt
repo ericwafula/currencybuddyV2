@@ -18,7 +18,7 @@ import tech.ericwathome.core.presentation.designsystem.utils.LocalTextUtils
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
-fun SecondaryButtonOutlined(
+fun CurrencyBuddySecondaryButtonOutlined(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     text: String,
@@ -53,7 +53,7 @@ fun SecondaryButtonOutlined(
 private fun SecondaryButtonOutlinedPreview() {
     CurrencybuddyTheme {
         Surface {
-            SecondaryButtonOutlined(
+            CurrencyBuddySecondaryButtonOutlined(
                 modifier = Modifier,
                 onClick = { },
                 text = "AC",

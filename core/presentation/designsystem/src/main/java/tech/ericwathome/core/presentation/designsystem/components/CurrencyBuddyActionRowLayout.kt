@@ -17,7 +17,7 @@ import tech.ericwathome.core.presentation.designsystem.utils.LocalTextUtils
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
-fun ActionRowLayout(
+fun CurrencyBuddyActionRowLayout(
     modifier: Modifier = Modifier,
     onClickInputKey: (Char) -> Unit,
     ctaText: String,
@@ -29,17 +29,17 @@ fun ActionRowLayout(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        SecondaryButton(
+        CurrencyBuddySecondaryButton(
             modifier = Modifier.width(80.dp),
             text = "0",
             onClick = { onClickInputKey('0') },
         )
-        SecondaryButton(
+        CurrencyBuddySecondaryButton(
             modifier = Modifier.width(80.dp),
             text = ".",
             onClick = { onClickInputKey('.') },
         )
-        PrimaryButton(
+        CurrencyBuddyPrimaryButton(
             modifier = Modifier.weight(1f),
             text = ctaText,
             onClick = onClickCta,
@@ -53,7 +53,7 @@ fun ActionRowLayout(
 private fun ActionRowLayoutPreview() {
     CurrencybuddyTheme {
         Surface {
-            ActionRowLayout(
+            CurrencyBuddyActionRowLayout(
                 onClickInputKey = {},
                 ctaText = "Convert",
                 onClickCta = {},

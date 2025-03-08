@@ -16,7 +16,7 @@ import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
-fun ControlColumnLayout(
+fun CurrencyBuddyControlColumnLayout(
     modifier: Modifier = Modifier,
     onClickAC: () -> Unit,
     onClickDEL: () -> Unit,
@@ -25,12 +25,12 @@ fun ControlColumnLayout(
         modifier = modifier.width(80.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        SecondaryButtonOutlined(
+        CurrencyBuddySecondaryButtonOutlined(
             modifier = Modifier.fillMaxWidth(),
             text = "AC",
             onClick = onClickAC,
         )
-        SecondaryButtonOutlined(
+        CurrencyBuddySecondaryButtonOutlined(
             modifier = Modifier.fillMaxWidth().height(136.dp),
             text = "DEL",
             onClick = onClickDEL,
@@ -43,7 +43,7 @@ fun ControlColumnLayout(
 private fun ControlColumnLayoutPreview() {
     CurrencybuddyTheme {
         Surface {
-            ControlColumnLayout(
+            CurrencyBuddyControlColumnLayout(
                 modifier = Modifier,
                 onClickAC = {},
                 onClickDEL = {},

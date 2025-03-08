@@ -19,7 +19,7 @@ import tech.ericwathome.core.presentation.designsystem.R
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
-fun NetworkLayout(
+fun CurrencyBuddyNetworkLayout(
     modifier: Modifier = Modifier,
     onClickConnect: () -> Unit,
     showNetworkPopup: Boolean,
@@ -55,7 +55,7 @@ fun NetworkLayout(
 @Composable
 private fun NetworkLayoutPreview() {
     CurrencybuddyTheme {
-        NetworkLayout(
+        CurrencyBuddyNetworkLayout(
             onClickConnect = {},
             content = {},
             showNetworkPopup = true,

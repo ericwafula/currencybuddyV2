@@ -5,7 +5,7 @@ data class CurrencyMetadata(
     val name: String,
     val symbol: String,
     val flag: Flag,
-    val isToggled: Boolean = false,
+    val isSelected: Boolean = false,
 )
 
 data class Flag(

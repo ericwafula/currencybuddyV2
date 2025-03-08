@@ -45,7 +45,7 @@ import tech.ericwathome.converter.presentation.components.CurrencyPickerButton
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.SwapIcon
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyCenteredTopBarLayout
-import tech.ericwathome.core.presentation.designsystem.components.LiquidLoadingAnimation
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyLiquidLoadingAnimation
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
 import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
@@ -199,7 +199,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                     androidx.compose.animation.AnimatedVisibility(
                         visible = state.converting,
                     ) {
-                        LiquidLoadingAnimation(
+                        CurrencyBuddyLiquidLoadingAnimation(
                             modifier = Modifier.align(Alignment.Center),
                             isPlaying = true,
                         )

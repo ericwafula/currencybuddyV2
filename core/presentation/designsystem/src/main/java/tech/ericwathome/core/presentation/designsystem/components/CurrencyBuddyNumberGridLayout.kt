@@ -15,7 +15,7 @@ import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 
 @Composable
-fun NumberGridLayout(
+fun CurrencyBuddyNumberGridLayout(
     modifier: Modifier = Modifier,
     onClickNumber: (Char) -> Unit,
 ) {
@@ -27,7 +27,7 @@ fun NumberGridLayout(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         items((1..9).toList()) { digit ->
-            SecondaryButton(
+            CurrencyBuddySecondaryButton(
                 text = digit.toString(),
                 onClick = { digit.toString().firstOrNull()?.let { onClickNumber(it) } },
             )
@@ -40,7 +40,7 @@ fun NumberGridLayout(
 private fun NumberGridPreview() {
     CurrencybuddyTheme {
         Surface {
-            NumberGridLayout(onClickNumber = {})
+            CurrencyBuddyNumberGridLayout(onClickNumber = {})
         }
     }
 }
