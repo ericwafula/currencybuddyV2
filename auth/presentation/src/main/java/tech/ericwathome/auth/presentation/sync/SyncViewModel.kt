@@ -16,7 +16,6 @@ import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
-import tech.ericwathome.core.presentation.ui.asUiText
 import kotlin.time.Duration.Companion.minutes
 
 @Keep
@@ -40,6 +39,7 @@ class SyncViewModel(
 
     private fun handleSyncing() {
         _isSyncing.update { true }
+
         viewModelScope.launch {
             val lastSyncTimestamp = converterRepository.lastMetadataSyncTimestampObservable.firstOrNull() ?: 0
             val elapsedTime = System.currentTimeMillis() - lastSyncTimestamp
@@ -50,12 +50,7 @@ class SyncViewModel(
                 return@launch
             }
 
-            if (hasFinishedOnboarding) {
-                _event.send(SyncEvent.OnNavigateToHome(showToast = false))
-                return@launch
-            }
-
-            _event.send(SyncEvent.OnNavigateToGetStarted(showToast = false))
+            navigateAfterSync(hasFinishedOnboarding)
         }
     }
 
@@ -63,24 +58,21 @@ class SyncViewModel(
         val result = converterRepository.syncCurrencyMetadata()
         _isSyncing.update { false }
 
-        if (hasFinishedOnboarding) {
-            when (result) {
-                is Result.Error -> {
-                    startSyncWork()
-                    _event.send(SyncEvent.OnNavigateToHome(result.error.asUiText(), showToast = true))
-                }
-                is Result.Success -> _event.send(SyncEvent.OnNavigateToHome(showToast = false))
-            }
-            return
+        if (result is Result.Error) {
+            startSyncWork()
         }
 
-        when (result) {
-            is Result.Error -> {
-                startSyncWork()
-                _event.send(SyncEvent.OnNavigateToGetStarted(result.error.asUiText(), showToast = true))
+        navigateAfterSync(hasFinishedOnboarding)
+    }
+
+    private suspend fun navigateAfterSync(hasFinishedOnboarding: Boolean) {
+        val event =
+            if (hasFinishedOnboarding) {
+                SyncEvent.OnNavigateToHome(showToast = false)
+            } else {
+                SyncEvent.OnNavigateToGetStarted(showToast = false)
             }
-            is Result.Success -> _event.send(SyncEvent.OnNavigateToGetStarted(showToast = false))
-        }
+        _event.send(event)
     }
 
     private suspend fun startSyncWork() {
