@@ -12,9 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
 import tech.ericwathome.converter.data.workers.SyncExchangeRatesWorker
-import tech.ericwathome.converter.data.workers.startSyncCurrencyMetaDataWork
 import tech.ericwathome.converter.data.workers.startOneTimeSyncExchangeRatesWork
 import tech.ericwathome.converter.data.workers.startPeriodicSyncExchangeRatesWork
+import tech.ericwathome.converter.data.workers.startSyncCurrencyMetaDataWork
 import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.DispatcherProvider
