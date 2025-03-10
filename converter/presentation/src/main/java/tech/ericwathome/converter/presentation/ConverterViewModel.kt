@@ -8,7 +8,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
@@ -33,7 +31,6 @@ import kotlin.time.Duration.Companion.minutes
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
-    connectionObserver: ConnectionObserver,
     private val converterScheduler: ConverterScheduler,
 ) : ViewModel() {
     private val _event = Channel<ConverterEvent>()
@@ -78,12 +75,6 @@ class ConverterViewModel(
         )
 
     init {
-        searchResults
-            .onEach { currencyMetadata ->
-                _state.update { it.copy(currencyMetadataList = currencyMetadata) }
-            }
-            .launchIn(viewModelScope)
-
         converterRepository
             .defaultExchangeRateObservable
             .onEach { exchangeRate ->
@@ -91,7 +82,7 @@ class ConverterViewModel(
             }.launchIn(viewModelScope)
 
         searchResults
-            .combine(connectionObserver.hasNetworkConnection.debounce(500)) { currencyMetadata, hasNetworkConnection ->
+            .onEach { currencyMetadata ->
                 val currencyMetadataSortedByCode = currencyMetadata.sortedBy { it.code }
 
                 val baseIndex =
@@ -146,7 +137,6 @@ class ConverterViewModel(
 
         viewModelScope.launch {
             converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchExchangeRates(30.minutes))
-            converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchCurrencyMetadata(30.minutes))
         }
     }
 
