@@ -4,7 +4,7 @@ import kotlin.time.Duration
 
 interface ConverterScheduler {
     sealed interface SyncType {
-        data class FetchCurrencyMetadata(val duration: Duration) : SyncType
+        data object FetchCurrencyMetadata : SyncType
 
         data class FetchExchangeRates(val duration: Duration) : SyncType
     }

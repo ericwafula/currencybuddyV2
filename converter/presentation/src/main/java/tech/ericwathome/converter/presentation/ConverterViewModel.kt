@@ -33,7 +33,6 @@ import kotlin.time.Duration.Companion.minutes
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
-    connectionObserver: ConnectionObserver,
     private val converterScheduler: ConverterScheduler,
 ) : ViewModel() {
     private val _event = Channel<ConverterEvent>()
@@ -78,12 +77,6 @@ class ConverterViewModel(
         )
 
     init {
-        searchResults
-            .onEach { currencyMetadata ->
-                _state.update { it.copy(currencyMetadataList = currencyMetadata) }
-            }
-            .launchIn(viewModelScope)
-
         converterRepository
             .defaultExchangeRateObservable
             .onEach { exchangeRate ->
@@ -91,7 +84,7 @@ class ConverterViewModel(
             }.launchIn(viewModelScope)
 
         searchResults
-            .combine(connectionObserver.hasNetworkConnection.debounce(500)) { currencyMetadata, hasNetworkConnection ->
+            .onEach { currencyMetadata ->
                 val currencyMetadataSortedByCode = currencyMetadata.sortedBy { it.code }
 
                 val baseIndex =
@@ -146,7 +139,6 @@ class ConverterViewModel(
 
         viewModelScope.launch {
             converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchExchangeRates(30.minutes))
-            converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchCurrencyMetadata(30.minutes))
         }
     }
 

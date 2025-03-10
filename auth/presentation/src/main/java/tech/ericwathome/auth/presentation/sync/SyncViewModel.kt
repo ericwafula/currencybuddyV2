@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.auth.domain.AuthRepository
+import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.asUiText
@@ -22,6 +23,7 @@ import kotlin.time.Duration.Companion.minutes
 class SyncViewModel(
     private val converterRepository: ConverterRepository,
     private val authRepository: AuthRepository,
+    private val converterScheduler: ConverterScheduler,
 ) : ViewModel() {
     private val _event = Channel<SyncEvent>()
     val event = _event.receiveAsFlow()
@@ -63,15 +65,25 @@ class SyncViewModel(
 
         if (hasFinishedOnboarding) {
             when (result) {
-                is Result.Error -> _event.send(SyncEvent.OnNavigateToHome(result.error.asUiText(), showToast = true))
+                is Result.Error -> {
+                    startSyncWork()
+                    _event.send(SyncEvent.OnNavigateToHome(result.error.asUiText(), showToast = true))
+                }
                 is Result.Success -> _event.send(SyncEvent.OnNavigateToHome(showToast = false))
             }
             return
         }
 
         when (result) {
-            is Result.Error -> _event.send(SyncEvent.OnNavigateToGetStarted(result.error.asUiText(), showToast = true))
+            is Result.Error -> {
+                startSyncWork()
+                _event.send(SyncEvent.OnNavigateToGetStarted(result.error.asUiText(), showToast = true))
+            }
             is Result.Success -> _event.send(SyncEvent.OnNavigateToGetStarted(showToast = false))
         }
+    }
+
+    private suspend fun startSyncWork() {
+        converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchCurrencyMetadata)
     }
 }
