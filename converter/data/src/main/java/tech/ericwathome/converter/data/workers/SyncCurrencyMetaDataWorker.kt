@@ -9,18 +9,15 @@ import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import tech.ericwathome.core.data.util.toWorkerResult
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.toJavaDuration
 
-fun Context.startOneTimeSyncCurrencyMetaDataWork(
+fun Context.startSyncCurrencyMetaDataWork(
     withInitialDelay: Boolean = false,
     lastSyncDurationMillis: Long = 0,
 ) {
@@ -46,24 +43,6 @@ fun Context.startOneTimeSyncCurrencyMetaDataWork(
                 timeUnit = TimeUnit.MILLISECONDS,
             )
             .build()
-
-    WorkManager.getInstance(this).enqueue(workRequest)
-}
-
-fun Context.startPeriodicSyncCurrencyMetaDataWork(duration: Duration) {
-    val workRequest =
-        PeriodicWorkRequestBuilder<SyncCurrencyMetaDataWorker>(
-            repeatInterval = duration.toJavaDuration(),
-        ).addTag(SyncCurrencyMetaDataWorker.TAG)
-            .setConstraints(
-                Constraints(
-                    requiredNetworkType = NetworkType.CONNECTED,
-                ),
-            ).setBackoffCriteria(
-                backoffPolicy = BackoffPolicy.EXPONENTIAL,
-                backoffDelay = SyncCurrencyMetaDataWorker.backoffDelayDurationMillis,
-                timeUnit = TimeUnit.MILLISECONDS,
-            ).build()
 
     WorkManager.getInstance(this).enqueue(workRequest)
 }
@@ -96,7 +75,6 @@ class SyncCurrencyMetaDataWorker(
 
     companion object {
         const val TAG = "sync_currency_metadata_worker_tag"
-        val backoffDelayDurationMillis = 30.minutes.inWholeMilliseconds
         val initialDelayDurationMillis = 30.minutes.inWholeMilliseconds
     }
 }

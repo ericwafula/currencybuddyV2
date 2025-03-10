@@ -12,10 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
 import tech.ericwathome.converter.data.workers.SyncExchangeRatesWorker
-import tech.ericwathome.converter.data.workers.startOneTimeSyncCurrencyMetaDataWork
 import tech.ericwathome.converter.data.workers.startOneTimeSyncExchangeRatesWork
-import tech.ericwathome.converter.data.workers.startPeriodicSyncCurrencyMetaDataWork
 import tech.ericwathome.converter.data.workers.startPeriodicSyncExchangeRatesWork
+import tech.ericwathome.converter.data.workers.startSyncCurrencyMetaDataWork
 import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.DispatcherProvider
@@ -31,7 +30,7 @@ class ConverterWorkerScheduler(
     override suspend fun scheduleSync(syncType: ConverterScheduler.SyncType) {
         when (syncType) {
             is ConverterScheduler.SyncType.FetchCurrencyMetadata -> {
-                fetchCurrencyMetaData(syncType.duration)
+                fetchCurrencyMetaData()
             }
 
             is ConverterScheduler.SyncType.FetchExchangeRates -> {
@@ -40,31 +39,22 @@ class ConverterWorkerScheduler(
         }
     }
 
-    private suspend fun fetchCurrencyMetaData(duration: Duration) =
-        coroutineScope {
-            val lastSyncTimestamp = converterRepository.lastMetadataSyncTimestampObservable.firstOrNull() ?: 0
-            val isSyncing =
-                withContext(dispatchers.io) {
-                    workManager
-                        .getWorkInfosByTag(SyncCurrencyMetaDataWorker.TAG)
-                        .get()
-                        .isNotEmpty()
-                }
-
-            if (isSyncing) {
-                return@coroutineScope
-            }
-
-            context.startOneTimeSyncCurrencyMetaDataWork(withInitialDelay = true, lastSyncDurationMillis = lastSyncTimestamp)
-
-            launch(dispatchers.io) {
+    private suspend fun fetchCurrencyMetaData() {
+        val lastSyncTimestamp = converterRepository.lastMetadataSyncTimestampObservable.firstOrNull() ?: 0
+        val isSyncing =
+            withContext(dispatchers.io) {
                 workManager
-                    .getWorkInfosByTagFlow(SyncCurrencyMetaDataWorker.TAG)
-                    .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
-                    .take(1)
-                    .collect { context.startPeriodicSyncCurrencyMetaDataWork(duration) }
+                    .getWorkInfosByTag(SyncCurrencyMetaDataWorker.TAG)
+                    .get()
+                    .isNotEmpty()
             }
+
+        if (isSyncing) {
+            return
         }
+
+        context.startSyncCurrencyMetaDataWork(withInitialDelay = true, lastSyncDurationMillis = lastSyncTimestamp)
+    }
 
     private suspend fun fetchExchangeRates(duration: Duration) =
         coroutineScope {
