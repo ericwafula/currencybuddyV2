@@ -75,43 +75,53 @@ class ConverterViewModel(
 
     init {
         converterRepository
-            .defaultExchangeRateObservable
-            .onEach { exchangeRate ->
-                _state.update { it.copy(result = exchangeRate.conversionResult.toString()) }
-            }.launchIn(viewModelScope)
-
-        searchResults
-            .combine(converterRepository.currencyMetadataObservable) { filteredCurrencyMetadata, currencyMetadata ->
-                val currencyMetadataSortedByCode = currencyMetadata.sortedBy { it.code }
-
-                val baseIndex =
-                    currencyMetadataSortedByCode
-                        .binarySearch { it.code.uppercase().compareTo(state.value.baseCurrencyCode.uppercase()) }
-
-                val quoteIndex =
-                    currencyMetadataSortedByCode
-                        .binarySearch { it.code.uppercase().compareTo(state.value.quoteCurrencyCode.uppercase()) }
-
-                val initialBaseFlagUrl =
-                    currencyMetadataSortedByCode
-                        .getOrNull(baseIndex)
-                        ?.flag?.svg.orEmpty()
-
-                val initialQuoteFlagUrl =
-                    currencyMetadataSortedByCode
-                        .getOrNull(quoteIndex)
-                        ?.flag?.svg.orEmpty()
-
+            .exchangeRateObservable.onEach { exchangeRate ->
                 _state.update {
                     it.copy(
-                        currencyMetadataList = filteredCurrencyMetadata,
-                        baseFlagUrl = initialBaseFlagUrl,
-                        quoteFlagUrl = initialQuoteFlagUrl,
-                        isSearching = false,
+                        result = exchangeRate?.conversionResult?.toString() ?: "0.0",
+                        baseFlagUrl = exchangeRate?.baseFlag ?: "",
+                        quoteFlagUrl = exchangeRate?.targetFlag ?: "",
+                        baseCurrencyCode = exchangeRate?.baseCode?.uppercase() ?: "EUR",
+                        quoteCurrencyCode = exchangeRate?.targetCode?.uppercase() ?: "USD",
                     )
                 }
+            }.launchIn(viewModelScope)
+
+        combine(
+            searchResults,
+            converterRepository.currencyMetadataObservable,
+        ) { filteredCurrencyMetadata, currencyMetadata ->
+            val currencyMetadataSortedByCode = currencyMetadata.sortedBy { it.code }
+            val baseCode = state.value.baseCurrencyCode.uppercase()
+            val quoteCode = state.value.quoteCurrencyCode.uppercase()
+
+            val baseIndex =
+                currencyMetadataSortedByCode
+                    .binarySearch { it.code.uppercase().compareTo(baseCode) }
+
+            val quoteIndex =
+                currencyMetadataSortedByCode
+                    .binarySearch { it.code.uppercase().compareTo(quoteCode) }
+
+            val initialBaseFlagUrl =
+                currencyMetadataSortedByCode
+                    .getOrNull(baseIndex)
+                    ?.flag?.svg.orEmpty()
+
+            val initialQuoteFlagUrl =
+                currencyMetadataSortedByCode
+                    .getOrNull(quoteIndex)
+                    ?.flag?.svg.orEmpty()
+
+            _state.update {
+                it.copy(
+                    currencyMetadataList = filteredCurrencyMetadata,
+                    baseFlagUrl = initialBaseFlagUrl,
+                    quoteFlagUrl = initialQuoteFlagUrl,
+                    isSearching = false,
+                )
             }
-            .launchIn(viewModelScope)
+        }.launchIn(viewModelScope)
 
         converterRepository.isMetadataSyncingObservable
             .filterNotNull()
@@ -265,8 +275,7 @@ class ConverterViewModel(
             it.copy(
                 showCurrencyPickerBottomSheet = false,
                 currencyMetadataList =
-                    state.value.currencyMetadataList.map {
-                            currencyMetadata ->
+                    state.value.currencyMetadataList.map { currencyMetadata ->
                         currencyMetadata.copy(isSelected = false)
                     },
             )
@@ -291,7 +300,8 @@ class ConverterViewModel(
                         fromCurrencyCode = state.value.baseCurrencyCode.lowercase(),
                         toCurrencyCode = state.value.quoteCurrencyCode.lowercase(),
                         amount = processedAmount.toDoubleOrNull() ?: 0.0,
-                        isDefault = true,
+                        baseFlag = state.value.baseFlagUrl,
+                        quoteFlag = state.value.quoteFlagUrl,
                     )
             ) {
                 is Result.Error -> {

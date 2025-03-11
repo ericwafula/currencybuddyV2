@@ -1,11 +1,9 @@
-package tech.ericwathome.core.local.model.entity
+package tech.ericwathome.core.local.model.datastore
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
-@Entity
-data class ExchangeRateEntity(
-    @PrimaryKey
+@Serializable
+data class ExchangeRatePreferences(
     val baseCode: String = "",
     val baseFlag: String = "",
     val targetCode: String,
