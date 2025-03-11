@@ -11,20 +11,12 @@ import tech.ericwathome.core.local.model.entity.ExchangeRateEntity
 @Dao
 interface ConverterDao {
     /**
-     * Observes the locally saved exchange rate that is marked as selected.
-     *
-     * @return A Flow emitting the selected [ExchangeRateEntity] object.
-     */
-    @Query("SELECT * FROM exchangerateentity where isDefault = 1 LIMIT 1")
-    fun observeDefaultExchangeRate(): Flow<ExchangeRateEntity>
-
-    /**
      * Observes exchange rates that have not been marked as selected.
      *
      * @return A Flow emitting lists of non‑selected [ExchangeRateEntity] objects.
      */
-    @Query("SELECT * FROM exchangerateentity where isDefault != 1")
-    fun observeNonDefaultExchangeRates(): Flow<List<ExchangeRateEntity>>
+    @Query("SELECT * FROM exchangerateentity")
+    fun observeSavedExchangeRates(): Flow<List<ExchangeRateEntity>>
 
     /**
      * Retrieves a list of all locally saved exchange rates.

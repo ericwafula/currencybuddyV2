@@ -24,11 +24,8 @@ internal class OfflineFirstConverterRepository(
     private val dispatchers: DispatcherProvider,
     private val applicationScope: CoroutineScope,
 ) : ConverterRepository {
-    override val defaultExchangeRateObservable: Flow<ExchangeRate>
-        get() = localConverterDataSource.defaultExchangeRateObservable
-
     override val savedExchangeRatesObservable: Flow<List<ExchangeRate>>
-        get() = localConverterDataSource.nonDefaultExchangeRatesObservable
+        get() = localConverterDataSource.savedExchangeRatesObservable
 
     override val currencyMetadataObservable: Flow<List<CurrencyMetadata>>
         get() = localConverterDataSource.observeCurrencyMetadata()
@@ -45,11 +42,15 @@ internal class OfflineFirstConverterRepository(
     override val isExchangeRateSyncingObservable: Flow<Boolean?>
         get() = localConverterDataSource.isExchangeRateSyncingObservable
 
+    override val exchangeRateObservable: Flow<ExchangeRate?>
+        get() = localConverterDataSource.exchangeRateObservable
+
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
+        baseFlag: String?,
+        quoteFlag: String?,
         amount: Double,
-        isDefault: Boolean,
     ): EmptyResult<DataError> {
         if (amount == 0.0) {
             return Result.Success(Unit).asEmptyDataResult()
@@ -65,10 +66,11 @@ internal class OfflineFirstConverterRepository(
         ) {
             is Result.Success -> {
                 applicationScope.async {
-                    localConverterDataSource.upsertLocalExchangeRate(
+                    localConverterDataSource.setExchangeRate(
                         result.data.copy(
-                            isDefault = isDefault,
                             amount = amount,
+                            baseFlag = baseFlag ?: "",
+                            targetFlag = quoteFlag ?: "",
                         ),
                     )
                 }.await()
@@ -98,8 +100,8 @@ internal class OfflineFirstConverterRepository(
         return localConverterDataSource.observeFilteredCurrencyMetaData(query)
     }
 
-    override suspend fun deleteLocalExchangeRate(exchangeRate: ExchangeRate) {
-        localConverterDataSource.deleteLocalExchangeRate(exchangeRate)
+    override suspend fun deleteExchangeRate() {
+        localConverterDataSource.deleteExchangeRate()
     }
 
     override suspend fun clearLocalExchangeRates() {
@@ -123,7 +125,7 @@ internal class OfflineFirstConverterRepository(
                                 remoteConverterDataSource.getExchangeRate(
                                     base = exchangeRate.baseCode,
                                     quote = exchangeRate.targetCode,
-                                    amount = if (exchangeRate.isDefault) exchangeRate.amount else 1.0,
+                                    amount = 1.0,
                                 )
                         ) {
                             is Result.Error -> {
@@ -151,5 +153,9 @@ internal class OfflineFirstConverterRepository(
             localConverterDataSource.setLastExchangeRateSyncTimestamp(System.currentTimeMillis())
             Result.Success(Unit).asEmptyDataResult()
         }
+    }
+
+    override suspend fun setExchangeRate(value: ExchangeRate): EmptyResult<DataError.Local> {
+        return localConverterDataSource.setExchangeRate(value)
     }
 }
