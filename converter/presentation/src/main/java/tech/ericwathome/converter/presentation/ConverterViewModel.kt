@@ -8,6 +8,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -24,7 +25,6 @@ import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
-import timber.log.Timber
 import kotlin.time.Duration.Companion.minutes
 
 @Keep
@@ -52,7 +52,6 @@ class ConverterViewModel(
         state
             .debounce(500)
             .flatMapLatest { state ->
-                Timber.tag("ConverterViewModel").d("flatMapLatest searchResults: ${state.searchQuery}")
                 converterRepository.observeFilteredCurrencyMetaData(state.searchQuery)
             }
             .stateIn(
@@ -82,7 +81,7 @@ class ConverterViewModel(
             }.launchIn(viewModelScope)
 
         searchResults
-            .onEach { currencyMetadata ->
+            .combine(converterRepository.currencyMetadataObservable) { filteredCurrencyMetadata, currencyMetadata ->
                 val currencyMetadataSortedByCode = currencyMetadata.sortedBy { it.code }
 
                 val baseIndex =
@@ -105,9 +104,10 @@ class ConverterViewModel(
 
                 _state.update {
                     it.copy(
-                        currencyMetadataList = currencyMetadata,
+                        currencyMetadataList = filteredCurrencyMetadata,
                         baseFlagUrl = initialBaseFlagUrl,
                         quoteFlagUrl = initialQuoteFlagUrl,
+                        isSearching = false,
                     )
                 }
             }
@@ -203,7 +203,10 @@ class ConverterViewModel(
 
     private fun onEnterSearchQuery(query: String) {
         _state.update {
-            it.copy(searchQuery = query)
+            it.copy(
+                searchQuery = query,
+                isSearching = true,
+            )
         }
     }
 
