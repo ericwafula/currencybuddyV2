@@ -257,6 +257,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
             currencies = state.currencyMetadataList,
             onClickRetry = { onAction(ConverterAction.OnRefresh) },
             canContinue = state.canContinue,
+            isSearching = state.isSearching,
         )
     }
 }

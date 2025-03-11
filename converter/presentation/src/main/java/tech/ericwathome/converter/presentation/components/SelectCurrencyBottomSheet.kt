@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -53,6 +54,7 @@ fun SelectCurrencyBottomSheet(
     currencies: List<CurrencyMetadata>,
     canContinue: Boolean = false,
     isEmpty: Boolean = false,
+    isSearching: Boolean = false,
 ) {
     ModalBottomSheet(
         modifier = modifier.fillMaxHeight(),
@@ -101,22 +103,32 @@ fun SelectCurrencyBottomSheet(
                         onEnterSearchQuery = onEnterSearchQuery,
                     )
                 }
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(vertical = 32.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    itemsIndexed(items = currencies, key = { _, item -> item.code }) { index, currency ->
-                        SelectCurrencyItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            imageUrl = currency.flag.svg,
-                            text = "${currency.name}(${currency.code})",
-                            selected = currency.isSelected,
-                            onClick = { onSelectCurrency(index) },
-                        )
-                    }
 
-                    item { Spacer(modifier = Modifier.height(56.dp)) }
+                if (isSearching) {
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(vertical = 32.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        itemsIndexed(items = currencies, key = { _, item -> item.code }) { index, currency ->
+                            SelectCurrencyItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                imageUrl = currency.flag.svg,
+                                text = "${currency.name}(${currency.code})",
+                                selected = currency.isSelected,
+                                onClick = { onSelectCurrency(index) },
+                            )
+                        }
+
+                        item { Spacer(modifier = Modifier.height(56.dp)) }
+                    }
                 }
             }
             Column {
@@ -169,6 +181,7 @@ private fun SelectCurrencyBottomSheetPreview() {
                 onClickContinue = { },
                 onClickRetry = { },
                 sheetState = sheetState,
+                isSearching = true,
             )
         }
     }

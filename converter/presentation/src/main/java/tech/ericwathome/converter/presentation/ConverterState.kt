@@ -20,6 +20,7 @@ data class ConverterState(
     val currencyMetadataList: List<CurrencyMetadata> = emptyList(),
     val currencyMetadataMap: Map<String, CurrencyMetadata> = emptyMap(),
     val searchQuery: String = "",
+    val isSearching: Boolean = false,
     val isBaseCurrencyToggled: Boolean = true,
     val canContinue: Boolean = false,
 )
