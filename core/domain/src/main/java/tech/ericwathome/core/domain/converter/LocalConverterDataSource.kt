@@ -7,12 +7,12 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
 
 interface LocalConverterDataSource {
-    val defaultExchangeRateObservable: Flow<ExchangeRate>
-    val nonDefaultExchangeRatesObservable: Flow<List<ExchangeRate>>
+    val savedExchangeRatesObservable: Flow<List<ExchangeRate>>
     val lastMetadataSyncTimestamp: Flow<Long?>
     val lastExchangeRateSyncTimestamp: Flow<Long?>
     val isMetadataSyncingObservable: Flow<Boolean?>
     val isExchangeRateSyncingObservable: Flow<Boolean?>
+    val exchangeRateObservable: Flow<ExchangeRate?>
 
     suspend fun setLastMetadataSyncTimestamp(value: Long)
 
@@ -42,4 +42,8 @@ interface LocalConverterDataSource {
     suspend fun upsertLocalCurrencyMetaDataList(currencyMetadataList: List<CurrencyMetadata>): EmptyResult<DataError.Local>
 
     suspend fun clearLocalCurrencyMetadata()
+
+    suspend fun setExchangeRate(value: ExchangeRate): EmptyResult<DataError.Local>
+
+    suspend fun deleteExchangeRate()
 }
