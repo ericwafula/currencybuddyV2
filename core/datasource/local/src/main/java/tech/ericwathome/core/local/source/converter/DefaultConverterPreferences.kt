@@ -10,6 +10,7 @@ import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.EmptyResult
 import tech.ericwathome.core.local.model.datastore.ExchangeRatePreferences
 import tech.ericwathome.core.local.preference.LocalPreferenceSource
+import timber.log.Timber
 
 internal class DefaultConverterPreferences(
     private val localPreferenceSource: LocalPreferenceSource,
@@ -42,10 +43,14 @@ internal class DefaultConverterPreferences(
         get() = localPreferenceSource.getNullable(Keys.IS_EXCHANGE_RATE_SYNCING)
 
     override val exchangeRate: Flow<ExchangeRatePreferences?>
-        get() =
-            localPreferenceSource.getNullable(Keys.EXCHANGE_RATE).map { exchangeRateJson ->
-                exchangeRateJson?.let { json.decodeFromString<ExchangeRatePreferences>(it) }
-            }
+        get() {
+            val exchangeRate =
+                localPreferenceSource.getNullable(Keys.EXCHANGE_RATE).map { exchangeRateJson ->
+                    exchangeRateJson?.let { json.decodeFromString<ExchangeRatePreferences>(it) }
+                }
+            Timber.tag("ConverterViewModel").d("Exchange rate: $exchangeRate")
+            return exchangeRate
+        }
 
     override suspend fun setLastMetadataSyncTimestamp(value: Long) {
         localPreferenceSource.saveOrUpdate(Keys.LAST_METADATA_SYNC_TIMESTAMP, value)
@@ -65,6 +70,7 @@ internal class DefaultConverterPreferences(
 
     override suspend fun setExchangeRate(value: ExchangeRatePreferences): EmptyResult<DataError.Local> {
         val exchangeRateJson = json.encodeToString(ExchangeRatePreferences.serializer(), value)
+        Timber.tag("DefaultConverterPreferences").d("Exchange rate: $value")
         return localPreferenceSource.saveOrUpdate(Keys.EXCHANGE_RATE, exchangeRateJson)
     }
 

@@ -4,7 +4,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
@@ -45,6 +47,12 @@ internal class OfflineFirstConverterRepository(
     override val exchangeRateObservable: Flow<ExchangeRate?>
         get() = localConverterDataSource.exchangeRateObservable
 
+    override fun getSavedExchangeRate(): ExchangeRate? {
+        return runBlocking {
+            localConverterDataSource.exchangeRateObservable.firstOrNull()
+        }
+    }
+
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
@@ -53,6 +61,17 @@ internal class OfflineFirstConverterRepository(
         amount: Double,
     ): EmptyResult<DataError> {
         if (amount == 0.0) {
+            saveExchangeRate(
+                ExchangeRate(
+                    baseCode = fromCurrencyCode,
+                    targetCode = toCurrencyCode,
+                    amount = amount,
+                    baseFlag = baseFlag ?: "",
+                    targetFlag = quoteFlag ?: "",
+                    conversionRate = 0.0,
+                    conversionResult = 0.0,
+                ),
+            )
             return Result.Success(Unit).asEmptyDataResult()
         }
 
@@ -65,19 +84,23 @@ internal class OfflineFirstConverterRepository(
                 )
         ) {
             is Result.Success -> {
-                applicationScope.async {
-                    localConverterDataSource.setExchangeRate(
-                        result.data.copy(
-                            amount = amount,
-                            baseFlag = baseFlag ?: "",
-                            targetFlag = quoteFlag ?: "",
-                        ),
-                    )
-                }.await()
+                saveExchangeRate(
+                    result.data.copy(
+                        amount = amount,
+                        baseFlag = baseFlag ?: "",
+                        targetFlag = quoteFlag ?: "",
+                    ),
+                )
             }
 
             is Result.Error -> result.asEmptyDataResult()
         }
+    }
+
+    private suspend fun saveExchangeRate(exchangeRate: ExchangeRate): EmptyResult<DataError.Local> {
+        return applicationScope.async {
+            setExchangeRate(exchangeRate)
+        }.await()
     }
 
     override suspend fun syncCurrencyMetadata(): EmptyResult<DataError> {
