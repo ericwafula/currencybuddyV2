@@ -4,9 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
@@ -46,12 +44,6 @@ internal class OfflineFirstConverterRepository(
 
     override val exchangeRateObservable: Flow<ExchangeRate?>
         get() = localConverterDataSource.exchangeRateObservable
-
-    override fun getSavedExchangeRate(): ExchangeRate? {
-        return runBlocking {
-            localConverterDataSource.exchangeRateObservable.firstOrNull()
-        }
-    }
 
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
