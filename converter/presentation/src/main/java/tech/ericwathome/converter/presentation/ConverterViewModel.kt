@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -25,7 +26,6 @@ import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
-import timber.log.Timber
 import kotlin.time.Duration.Companion.minutes
 
 @Keep
@@ -39,25 +39,16 @@ class ConverterViewModel(
 
     private val maxIntegerDigits = 10
     private val maxFractionDigits = 2
-    private val defaultExchangeRate = converterRepository.getSavedExchangeRate()
 
-    private val defaultState =
-        ConverterState(
-            baseCurrencyCode = defaultExchangeRate?.baseCode?.uppercase() ?: "EUR",
-            quoteCurrencyCode = defaultExchangeRate?.targetCode?.uppercase() ?: "USD",
-            baseFlagUrl = defaultExchangeRate?.baseFlag ?: "",
-            quoteFlagUrl = defaultExchangeRate?.targetFlag ?: "",
-        )
-
-    private val _state = MutableStateFlow(defaultState)
+    private val _state = MutableStateFlow(ConverterState())
     val state =
         _state.onStart {
+            initializeDefaultCurrencyPair()
             initStateObservers()
-            fetchExchangeRate()
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = defaultState,
+            initialValue = ConverterState(),
         )
 
     private val searchResults =
@@ -277,7 +268,6 @@ class ConverterViewModel(
     private fun initStateObservers() {
         converterRepository
             .exchangeRateObservable.onEach { exchangeRate ->
-                Timber.tag("ConverterViewModel").d("Exchange rate: $exchangeRate")
                 _state.update { it.copy(result = exchangeRate?.conversionResult?.toString() ?: "0.0") }
             }.launchIn(viewModelScope)
 
@@ -341,6 +331,27 @@ class ConverterViewModel(
 
         viewModelScope.launch {
             converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchExchangeRates(30.minutes))
+        }
+    }
+
+    private fun initializeDefaultCurrencyPair() {
+        viewModelScope.launch {
+            val initialExchangeRateJob =
+                launch {
+                    val defaultExchangeRate = converterRepository.exchangeRateObservable.firstOrNull()
+
+                    _state.update {
+                        it.copy(
+                            baseCurrencyCode = defaultExchangeRate?.baseCode?.uppercase() ?: "EUR",
+                            baseFlagUrl = defaultExchangeRate?.baseFlag ?: "",
+                            quoteCurrencyCode = defaultExchangeRate?.targetCode?.uppercase() ?: "USD",
+                            quoteFlagUrl = defaultExchangeRate?.targetFlag ?: "",
+                        )
+                    }
+                }
+
+            initialExchangeRateJob.join()
+            fetchExchangeRate()
         }
     }
 }
