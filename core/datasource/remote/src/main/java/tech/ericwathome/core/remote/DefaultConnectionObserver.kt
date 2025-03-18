@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
@@ -65,7 +66,7 @@ class DefaultConnectionObserver(
                     connectivityManager?.unregisterNetworkCallback(networkCallback)
                     job?.cancel()
                 }
-            }
+            }.distinctUntilChanged()
 
     private fun ProducerScope<Boolean>.isNetworkAvailable() {
         job?.cancel()
