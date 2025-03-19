@@ -22,6 +22,7 @@ jobs:
   deploy_to_firebase:
     name: Deploy to Firebase
     needs: config_and_sign_bundle
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
@@ -54,3 +55,11 @@ jobs:
         with:
           name: signed-aab
           path: .
+
+      - name: upload artifact to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{secrets.FIREBASE_APP_ID}}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          groups: testers
+          file: app/build/outputs/bundle/release/app-release.aab
