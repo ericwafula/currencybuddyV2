@@ -15,6 +15,7 @@ jobs:
     secrets: inherit
     with:
       extract_secrets: true
+      extract_release_notes: true
       build_release_aab: true
       sign_release_aab: true
 
