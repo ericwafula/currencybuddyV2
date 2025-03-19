@@ -343,9 +343,7 @@ class ConverterViewModel(
                     _state.update {
                         it.copy(
                             baseCurrencyCode = defaultExchangeRate?.baseCode?.uppercase() ?: "EUR",
-                            baseFlagUrl = defaultExchangeRate?.baseFlag ?: "",
                             quoteCurrencyCode = defaultExchangeRate?.targetCode?.uppercase() ?: "USD",
-                            quoteFlagUrl = defaultExchangeRate?.targetFlag ?: "",
                         )
                     }
                 }
