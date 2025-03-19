@@ -16,6 +16,7 @@ jobs:
 
   quality_checks:
     needs: config
+    name: Run Quality Checks
     runs-on: ubuntu-latest
 
     steps:
