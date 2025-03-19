@@ -1,0 +1,123 @@
+name: Configure and Sign App Bundle
+
+on:
+  workflow_call:
+    inputs:
+      create_google_json:
+        description: 'Create google-services.json file'
+        type: boolean
+        required: false
+        default: false
+      extract_secrets:
+        description: 'Extract secrets'
+        type: boolean
+        required: false
+        default: false
+      extract_release_notes:
+        description: 'Extract release notes'
+        type: boolean
+        required: false
+        default: false
+      release-notes:
+        description: 'Release notes for this version'
+        type: string
+        required: false
+      build_with_gradle:
+        description: 'Build with Gradle'
+        type: boolean
+        required: false
+        default: false
+      build_release_aab:
+        description: 'Build Release AAB'
+        type: boolean
+        required: false
+        default: false
+      sign_release_aab:
+        description: 'Sign Release AAB'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  config_and_sign_bundle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Create google-services.json file
+        if: ${{ github.event.inputs.create_google_json == true }}
+        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
+
+      - name: Extract secrets
+        if: ${{ github.event.inputs.extract_secrets == true }}
+        run: |
+          gpg --quiet --batch --yes --decrypt --passphrase ${{ secrets.PASSPHRASE }} \
+          --output secrets.tar secrets.gpg 
+          tar xvf secrets.tar
+
+      - name: Inject API secrets
+        run: |
+          echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
+          echo "CONVERTER_BASE_URL=${{ secrets.CONVERTER_BASE_URL }}" >> local.properties
+          echo "CURRENCY_DETAILS_URL=${{ secrets.CURRENCY_DETAILS_URL }}" >> local.properties
+          
+      - name: Debug Local Properties
+        run: cat local.properties || echo "local.properties not found!"
+
+      - name: Upload Local Properties
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-properties
+          path: local.properties
+
+      - name: Extract release notes
+        if: ${{ github.event.inputs.extract_release_notes == true }}
+        run: |
+          if [ -s whatsnew/whatsnew-en-US.txt ]; then
+            echo -e "\n- ${{ github.event.inputs.release-notes }}" >> whatsnew/whatsnew-en-US.txt
+          else
+            echo "- ${{ github.event.inputs.release-notes }}" >> whatsnew/whatsnew-en-US.txt
+          fi
+
+      - name: Upload Release Notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: whatsnew/whatsnew-en-US.txt
+
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build with Gradle
+        if: ${{ github.event.inputs.build_with_gradle == true }}
+        run: ./gradlew build
+
+      - name: Build Release AAB
+        if: ${{ github.event.inputs.build_release_aab == true }}
+        run: ./gradlew bundleRelease
+
+      - name: Sign Release AAB
+        if: ${{ github.event.inputs.sign_release_aab == true }}
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
+
+      - name: Upload Signed AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-aab
+          path: app/build/outputs/bundle/release/app-release.aab
