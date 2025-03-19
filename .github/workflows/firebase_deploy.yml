@@ -22,6 +22,7 @@ jobs:
   deploy_to_firebase:
     name: Deploy to Firebase
     needs: config_and_sign_bundle
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
