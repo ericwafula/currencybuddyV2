@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     branches: [ master ]
     inputs:
-      release-notes:
+      release_notes:
         description: 'Release notes for this version'
         required: true
 
@@ -15,7 +15,6 @@ jobs:
     secrets: inherit
     with:
       extract_secrets: true
-      extract_release_notes: true
       build_release_aab: true
       sign_release_aab: true
 
@@ -61,5 +60,6 @@ jobs:
         with:
           appId: ${{secrets.FIREBASE_APP_ID}}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          groups: testers
+          groups: dev
           file: app/build/outputs/bundle/release/app-release.aab
+          releaseNotes: ${{ inputs.release_notes }}

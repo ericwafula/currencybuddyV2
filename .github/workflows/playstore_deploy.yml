@@ -16,6 +16,7 @@ jobs:
     with:
       extract_secrets: true
       extract_release_notes: true
+      release-notes: ${{ github.event.inputs.release_notes }}
       build_release_aab: true
       sign_release_aab: true
 
