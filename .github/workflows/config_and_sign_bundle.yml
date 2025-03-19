@@ -53,11 +53,11 @@ jobs:
           cache: 'gradle'
 
       - name: Create google-services.json file
-        if: ${{ github.event.inputs.create_google_json == true }}
+        if: ${{ inputs.create_google_json == true }}
         run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
 
       - name: Extract secrets
-        if: ${{ github.event.inputs.extract_secrets == true }}
+        if: ${{ inputs.extract_secrets == true }}
         run: |
           gpg --quiet --batch --yes --decrypt --passphrase ${{ secrets.PASSPHRASE }} \
           --output secrets.tar secrets.gpg 
@@ -68,7 +68,7 @@ jobs:
           echo "API_KEY=${{ secrets.API_KEY }}" >> local.properties
           echo "CONVERTER_BASE_URL=${{ secrets.CONVERTER_BASE_URL }}" >> local.properties
           echo "CURRENCY_DETAILS_URL=${{ secrets.CURRENCY_DETAILS_URL }}" >> local.properties
-          
+
       - name: Debug Local Properties
         run: cat local.properties || echo "local.properties not found!"
 
@@ -79,7 +79,7 @@ jobs:
           path: local.properties
 
       - name: Extract release notes
-        if: ${{ github.event.inputs.extract_release_notes == true }}
+        if: ${{ inputs.extract_release_notes == true }}
         run: |
           if [ -s whatsnew/whatsnew-en-US.txt ]; then
             echo -e "\n- ${{ github.event.inputs.release-notes }}" >> whatsnew/whatsnew-en-US.txt
@@ -88,6 +88,7 @@ jobs:
           fi
 
       - name: Upload Release Notes
+        if: ${{ inputs.extract_release_notes == true }}
         uses: actions/upload-artifact@v4
         with:
           name: release-notes
@@ -97,15 +98,15 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        if: ${{ github.event.inputs.build_with_gradle == true }}
+        if: ${{ inputs.build_with_gradle == true }}
         run: ./gradlew build
 
       - name: Build Release AAB
-        if: ${{ github.event.inputs.build_release_aab == true }}
+        if: ${{ inputs.build_release_aab == true }}
         run: ./gradlew bundleRelease
 
       - name: Sign Release AAB
-        if: ${{ github.event.inputs.sign_release_aab == true }}
+        if: ${{ inputs.sign_release_aab == true }}
         uses: r0adkll/sign-android-release@v1
         with:
           releaseDirectory: app/build/outputs/bundle/release
@@ -117,6 +118,7 @@ jobs:
           BUILD_TOOLS_VERSION: "34.0.0"
 
       - name: Upload Signed AAB
+        if: ${{ inputs.sign_release_aab == true }}
         uses: actions/upload-artifact@v4
         with:
           name: signed-aab
