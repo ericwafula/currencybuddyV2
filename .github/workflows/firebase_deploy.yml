@@ -15,7 +15,6 @@ jobs:
     secrets: inherit
     with:
       extract_secrets: true
-      extract_release_notes: true
       build_release_aab: true
       sign_release_aab: true
 
@@ -34,21 +33,11 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Download Release Notes
-        uses: actions/download-artifact@v4
-        with:
-          name: release-notes
-          path: .
-
       - name: Download Local Properties
         uses: actions/download-artifact@v4
         with:
           name: local-properties
           path: .
-
-      - name: Read Release Notes
-        id: read_notes
-        run: echo "RELEASE_NOTES=$(cat whatsnew/whatsnew-en-US.txt)" >> $GITHUB_ENV
 
       - name: Download Signed AAB
         uses: actions/download-artifact@v4
@@ -56,11 +45,14 @@ jobs:
           name: signed-aab
           path: .
 
+      - name: List Build Outputs
+        run: find app-release.aab
+
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{secrets.FIREBASE_APP_ID}}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: dev
-          file: app/build/outputs/bundle/release/app-release.aab
+          file: app-release.aab
           releaseNotes: ${{ inputs.release_notes }}
