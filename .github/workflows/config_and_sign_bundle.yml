@@ -18,6 +18,10 @@ on:
         type: boolean
         required: false
         default: false
+      release-notes:
+        description: 'Release notes for this version'
+        type: string
+        required: false
       build_with_gradle:
         description: 'Build with Gradle'
         type: boolean
