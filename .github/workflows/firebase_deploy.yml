@@ -39,6 +39,12 @@ jobs:
           name: local-properties
           path: .
 
+      - name: Download Google Services JSON
+        uses: actions/download-artifact@v4
+        with:
+          name: google-services
+          path: app
+
       - name: Download Signed AAB
         uses: actions/download-artifact@v4
         with:
