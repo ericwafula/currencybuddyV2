@@ -18,6 +18,7 @@ import kotlinx.serialization.SerializationException
 import tech.ericwathome.core.data.BuildConfig
 import tech.ericwathome.core.domain.util.DataError
 import tech.ericwathome.core.domain.util.Result
+import timber.log.Timber
 
 suspend inline fun <reified Response : Any> HttpClient.get(
     route: String,
@@ -65,12 +66,15 @@ suspend inline fun <reified T> safeCall(execute: () -> HttpResponse): Result<T, 
             execute()
         } catch (e: UnresolvedAddressException) {
             e.printStackTrace()
+            Timber.e(e)
             return Result.Error(DataError.Network.NO_INTERNET)
         } catch (e: SerializationException) {
+            Timber.e(e)
             e.printStackTrace()
             return Result.Error(DataError.Network.SERIALIZATION)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
+            Timber.e(e)
             e.printStackTrace()
             return Result.Error(DataError.Network.UNKNOWN)
         }
