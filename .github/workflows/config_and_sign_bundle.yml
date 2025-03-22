@@ -70,11 +70,11 @@ jobs:
           name: google-services
           path: app/google-services.json
 
-      - name: Upload Secrets
-        if: ${{ inputs.extract_secrets == true }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: secrets
+#      - name: Upload Secrets
+#        if: ${{ inputs.extract_secrets == true }}
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: secrets
 
       - name: Inject API secrets
         run: |
