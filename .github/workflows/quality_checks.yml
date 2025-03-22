@@ -28,6 +28,12 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      - name: Download Google Services JSON
+        uses: actions/download-artifact@v4
+        with:
+          name: google-services
+          path: app
+
       - name: Download Local Properties
         uses: actions/download-artifact@v4
         with:
