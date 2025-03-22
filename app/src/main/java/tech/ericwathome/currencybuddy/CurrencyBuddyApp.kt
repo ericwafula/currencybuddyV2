@@ -25,8 +25,12 @@ class CurrencyBuddyApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        initTimber()
         setupCrashHandler()
+        initKoin()
+    }
 
+    private fun initTimber() {
         if (BuildConfig.DEBUG) {
             Timber.plant(
                 object : Timber.DebugTree() {
@@ -38,7 +42,13 @@ class CurrencyBuddyApp : Application() {
         } else {
             Timber.plant(CrashlyticsTree())
         }
+    }
 
+    private fun setupCrashHandler() {
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler())
+    }
+
+    private fun initKoin() {
         startKoin {
             androidLogger()
             androidContext(this@CurrencyBuddyApp)
@@ -54,9 +64,5 @@ class CurrencyBuddyApp : Application() {
                 authDataModule,
             )
         }
-    }
-
-    private fun setupCrashHandler() {
-        Thread.setDefaultUncaughtExceptionHandler(CrashHandler())
     }
 }

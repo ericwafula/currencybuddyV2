@@ -2,8 +2,8 @@
 plugins {
     alias(libs.plugins.currencybuddy.android.application.compose)
     alias(libs.plugins.currencybuddy.jvm.ktor)
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -19,6 +19,11 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }

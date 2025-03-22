@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.compose.KoinContext
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyNetworkLayout
 import tech.ericwathome.core.presentation.ui.rememberOpenNetworkSettings
@@ -17,28 +18,30 @@ class MainActivity : ComponentActivity() {
     private val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         installSplashScreen().apply {
             setKeepOnScreenCondition {
                 viewModel.state.isCheckingOnBoardingStatus
             }
         }
+        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
-            val openNetworkSettings = rememberOpenNetworkSettings()
+            KoinContext {
+                val openNetworkSettings = rememberOpenNetworkSettings()
 
-            CurrencybuddyTheme {
-                CurrencyBuddyNetworkLayout(
-                    onClickConnect = openNetworkSettings,
-                    showNetworkPopup = viewModel.state.showNetworkPopup,
-                ) {
-                    if (!viewModel.state.isCheckingOnBoardingStatus) {
-                        val navController = rememberNavController()
-                        RootNav(
-                            modifier = Modifier,
-                            navController = navController,
-                        )
+                CurrencybuddyTheme {
+                    CurrencyBuddyNetworkLayout(
+                        onClickConnect = openNetworkSettings,
+                        showNetworkPopup = viewModel.state.showNetworkPopup,
+                    ) {
+                        if (!viewModel.state.isCheckingOnBoardingStatus) {
+                            val navController = rememberNavController()
+                            RootNav(
+                                modifier = Modifier,
+                                navController = navController,
+                            )
+                        }
                     }
                 }
             }
