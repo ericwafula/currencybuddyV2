@@ -20,6 +20,16 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class tech.ericwathome.core.data.di.CoreDataModuleKt { *; }
--keep class tech.ericwathome.core.local.di.LocalModuleKt { *; }
--keep class tech.ericwathome.core.presentation.designsystem.ThemeKt { *; }
+-keep @kotlinx.serialization.Serializable class * {*;}
+# Keep all built-in serializers and related top-level functions in the kotlinx.serialization.builtins package
+-keep class kotlinx.serialization.builtins.** { *; }
+-keep class timber.log.Timber { *; }
+# Keep Kotlinx Serialization metadata
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+
+# Keep all classes in the kotlinx.serialization package
+-keep class kotlinx.serialization.** { *; }
+
+# Keep generated serializer classes (they usually have a $$serializer suffix)
+-keepclassmembers class **$$serializer { *; }
