@@ -31,3 +31,7 @@ val FrownIcon: ImageVector
 val SearchIcon: ImageVector
     @Composable
     get() = ImageVector.vectorResource(id = R.drawable.ic_search)
+
+val BellIcon: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(id = R.drawable.ic_bell)
