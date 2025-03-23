@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,7 +52,7 @@ fun SelectCurrencyBottomSheet(
     sheetState: SheetState,
     currencies: List<CurrencyMetadata>,
     canContinue: Boolean = false,
-    isEmpty: Boolean = false,
+    isCurrencyMetadataListEmpty: Boolean = false,
     isSearching: Boolean = false,
 ) {
     ModalBottomSheet(
@@ -78,7 +77,7 @@ fun SelectCurrencyBottomSheet(
                     text = stringResource(R.string.select_a_currency),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                if (isEmpty) {
+                if (isCurrencyMetadataListEmpty) {
                     Spacer(modifier = Modifier.height(32.dp))
                     Image(
                         imageVector = EmptyImage,
@@ -94,7 +93,7 @@ fun SelectCurrencyBottomSheet(
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                 }
-                if (!isEmpty) {
+                if (!isCurrencyMetadataListEmpty) {
                     Spacer(modifier = Modifier.height(32.dp))
                     CurrencyBuddySearchTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -140,7 +139,7 @@ fun SelectCurrencyBottomSheet(
                             .background(MaterialTheme.colorScheme.surface),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    if (isEmpty) {
+                    if (isCurrencyMetadataListEmpty) {
                         CurrencyBuddySecondaryButtonOutlined(
                             modifier = Modifier.weight(1f),
                             text = stringResource(R.string.cancel),
@@ -150,13 +149,13 @@ fun SelectCurrencyBottomSheet(
                     CurrencyBuddyPrimaryButton(
                         modifier = Modifier.weight(1f),
                         text =
-                            if (isEmpty) {
+                            if (isCurrencyMetadataListEmpty) {
                                 stringResource(R.string.retry)
                             } else {
                                 stringResource(R.string.continue_text)
                             },
-                        onClick = { if (isEmpty) onClickRetry() else onClickContinue() },
-                        enabled = if (isEmpty) true else canContinue,
+                        onClick = { if (isCurrencyMetadataListEmpty) onClickRetry() else onClickContinue() },
+                        enabled = if (isCurrencyMetadataListEmpty) true else canContinue,
                     )
                 }
             }
