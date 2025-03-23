@@ -319,6 +319,7 @@ class ConverterViewModel(
             _state.update {
                 it.copy(
                     currencyMetadataList = filteredCurrencyMetadata,
+                    isCurrencyMetadataListEmpty = currencyMetadata.isEmpty(),
                     baseFlagUrl = initialBaseFlagUrl,
                     quoteFlagUrl = initialQuoteFlagUrl,
                     isSearching = false,
