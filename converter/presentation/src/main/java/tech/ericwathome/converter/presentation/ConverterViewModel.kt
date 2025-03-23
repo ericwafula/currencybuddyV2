@@ -90,6 +90,7 @@ class ConverterViewModel(
             is ConverterAction.OnSelectCurrency -> onSelectCurrency(action.index)
             is ConverterAction.OnSelectQuoteCurrency -> onSelectCurrency(action.index)
             is ConverterAction.OnEnterSearchQuery -> onEnterSearchQuery(action.query)
+            ConverterAction.OnClickSwapButton -> swapCurrencyPair()
             else -> Unit
         }
     }
@@ -206,6 +207,24 @@ class ConverterViewModel(
                     },
             )
         }
+    }
+
+    private fun swapCurrencyPair() {
+        val baseCode = state.value.baseCurrencyCode
+        val baseFlag = state.value.baseFlagUrl
+        val quoteCode = state.value.quoteCurrencyCode
+        val quoteFlag = state.value.quoteFlagUrl
+
+        _state.update {
+            it.copy(
+                baseCurrencyCode = quoteCode,
+                baseFlagUrl = quoteFlag,
+                quoteCurrencyCode = baseCode,
+                quoteFlagUrl = baseFlag,
+            )
+        }
+
+        fetchExchangeRate()
     }
 
     private fun fetchExchangeRate() {

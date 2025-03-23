@@ -187,7 +187,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                             IconButton(onClick = { onAction(ConverterAction.OnClickSwapButton) }) {
                                 Icon(
                                     imageVector = SwapIcon,
-                                    contentDescription = stringResource(R.string.error_icon),
+                                    contentDescription = stringResource(R.string.swap_icon),
                                     tint = MaterialTheme.colorScheme.onSecondary,
                                 )
                             }
