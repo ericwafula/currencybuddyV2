@@ -18,6 +18,7 @@ data class ConverterState(
     val errorMessage: UiText? = null,
     val showCurrencyPickerBottomSheet: Boolean = false,
     val currencyMetadataList: List<CurrencyMetadata> = emptyList(),
+    val isCurrencyMetadataListEmpty: Boolean = false,
     val currencyMetadataMap: Map<String, CurrencyMetadata> = emptyMap(),
     val searchQuery: String = "",
     val isSearching: Boolean = false,
