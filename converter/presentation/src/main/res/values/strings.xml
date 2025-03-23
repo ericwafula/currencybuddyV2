@@ -14,4 +14,5 @@
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
     <string name="continue_text">Continue</string>
+    <string name="swap_icon">Swap icon</string>
 </resources>
