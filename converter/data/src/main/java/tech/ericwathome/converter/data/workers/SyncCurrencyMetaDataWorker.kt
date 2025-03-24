@@ -12,6 +12,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import tech.ericwathome.core.data.util.toWorkerResult
+import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import java.util.concurrent.TimeUnit
@@ -52,6 +53,7 @@ class SyncCurrencyMetaDataWorker(
     params: WorkerParameters,
     private val repository: ConverterRepository,
     private val localConverterDataSource: LocalConverterDataSource,
+    private val syncEventManager: SyncEventManager,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         if (runAttemptCount >= 5) {
@@ -63,11 +65,13 @@ class SyncCurrencyMetaDataWorker(
         return when (val result = repository.syncCurrencyMetadata()) {
             is tech.ericwathome.core.domain.util.Result.Success -> {
                 localConverterDataSource.setIsMetadataSyncing(false)
+                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncMetadataSuccess)
                 Result.success()
             }
 
             is tech.ericwathome.core.domain.util.Result.Error -> {
                 localConverterDataSource.setIsMetadataSyncing(false)
+                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncMetadataError)
                 result.error.toWorkerResult()
             }
         }
