@@ -18,8 +18,10 @@ interface NotificationHandler {
 
     @Keep
     sealed class NotificationType(val channelId: String, val notificationId: Int) {
+        @Keep
         data object General : NotificationType("general", 1)
 
+        @Keep
         data object Sync : NotificationType("sync", 2)
 
         companion object {
