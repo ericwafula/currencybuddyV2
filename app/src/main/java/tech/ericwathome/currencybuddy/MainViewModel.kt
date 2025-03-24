@@ -5,13 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.notification.NotificationHandler
+import timber.log.Timber
 
 class MainViewModel(
     private val authRepository: AuthRepository,
@@ -21,11 +26,11 @@ class MainViewModel(
 ) : ViewModel() {
     var state by mutableStateOf(MainState())
         private set
+    private val hasGrantedNotificationPermission = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
             observeNetworkStatus()
-            handleSyncEvent()
 
             state = state.copy(isCheckingOnBoardingStatus = true)
             state =
@@ -34,6 +39,8 @@ class MainViewModel(
                 )
             state = state.copy(isCheckingOnBoardingStatus = false)
         }
+
+        handleSyncEvent()
     }
 
     fun submitNotificationPermissionInfo(
@@ -42,9 +49,9 @@ class MainViewModel(
     ) {
         state =
             state.copy(
-                hasGrantedNotificationPermission = hasGrantedNotificationPermission,
                 showNotificationPermissionRationale = showNotificationPermissionRationale,
             )
+        this.hasGrantedNotificationPermission.update { hasGrantedNotificationPermission }
     }
 
     private suspend fun observeNetworkStatus() {
@@ -53,33 +60,42 @@ class MainViewModel(
         }
     }
 
-    private suspend fun handleSyncEvent() {
-        syncEventManager.event.collectLatest { event ->
-            when (event) {
-                SyncEventManager.SyncEvent.SyncMetadataSuccess -> {
-                    showSyncNotification(
-                        title = "Sync Complete",
-                        message = "Currency sync completed successfully",
-                    )
+    private fun handleSyncEvent() {
+        syncEventManager
+            .event
+            .combine(hasGrantedNotificationPermission) { event, hasGrantedNotificationPermission ->
+                when (event) {
+                    SyncEventManager.SyncEvent.SyncMetadataSuccess -> {
+                        showSyncNotification(
+                            title = "Sync Complete",
+                            message = "Currency sync completed successfully",
+                            hasGrantedNotificationPermission = hasGrantedNotificationPermission,
+                        )
+                    }
+
+                    SyncEventManager.SyncEvent.SyncMetadataError -> {
+                        showSyncNotification(
+                            title = "Sync Failure",
+                            message = "Currency sync failed",
+                            hasGrantedNotificationPermission = hasGrantedNotificationPermission,
+                        )
+                    }
                 }
-                SyncEventManager.SyncEvent.SyncMetadataError -> {
-                    showSyncNotification(
-                        title = "Sync Failure",
-                        message = "Currency sync failed",
-                    )
-                }
-            }
-        }
+            }.launchIn(viewModelScope)
     }
 
     private fun showSyncNotification(
         title: String,
         message: String,
+        hasGrantedNotificationPermission: Boolean,
     ) {
-        notificationHandler.showSimpleNotification(
-            title = title,
-            message = message,
-            notificationType = NotificationHandler.NotificationType.Sync,
-        )
+        if (hasGrantedNotificationPermission) {
+            Timber.tag("MainViewModel").d("showSyncNotification: $title - $message")
+            notificationHandler.showSimpleNotification(
+                title = title,
+                message = message,
+                notificationType = NotificationHandler.NotificationType.Sync,
+            )
+        }
     }
 }

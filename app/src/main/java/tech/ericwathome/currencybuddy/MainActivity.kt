@@ -1,5 +1,7 @@
 package tech.ericwathome.currencybuddy
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,6 +40,15 @@ class MainActivity : ComponentActivity() {
         }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            viewModel.submitNotificationPermissionInfo(
+                hasGrantedNotificationPermission = true,
+                showNotificationPermissionRationale = false,
+            )
+        }
 
         setContent {
             KoinContext {
