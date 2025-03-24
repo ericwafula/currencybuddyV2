@@ -3,6 +3,7 @@ package tech.ericwathome.core.notification.impl
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import androidx.annotation.Keep
 import androidx.core.app.NotificationCompat
 import tech.ericwathome.core.notification.NotificationHandler
 

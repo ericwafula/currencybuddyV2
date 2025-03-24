@@ -1,4 +1,8 @@
+@file: Keep
+
 package tech.ericwathome.core.notification
+
+import androidx.annotation.Keep
 
 interface NotificationHandler {
     fun showSimpleNotification(

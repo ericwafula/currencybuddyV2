@@ -90,7 +90,6 @@ class MainViewModel(
         hasGrantedNotificationPermission: Boolean,
     ) {
         if (hasGrantedNotificationPermission) {
-            Timber.tag("MainViewModel").d("showSyncNotification: $title - $message")
             notificationHandler.showSimpleNotification(
                 title = title,
                 message = message,
