@@ -1,9 +1,8 @@
-@file:Keep
-
 package tech.ericwathome.core.notification
 
 import androidx.annotation.Keep
 
+@Keep
 interface NotificationHandler {
     fun showSimpleNotification(
         title: String,
@@ -17,6 +16,7 @@ interface NotificationHandler {
         channels: NotificationType,
     )
 
+    @Keep
     sealed class NotificationType(val channelId: String, val notificationId: Int) {
         data object General : NotificationType("general", 1)
 
