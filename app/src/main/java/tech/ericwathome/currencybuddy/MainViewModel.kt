@@ -16,7 +16,6 @@ import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.notification.NotificationHandler
-import timber.log.Timber
 
 class MainViewModel(
     private val authRepository: AuthRepository,

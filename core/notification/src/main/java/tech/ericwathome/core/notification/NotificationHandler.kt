@@ -1,4 +1,4 @@
-@file: Keep
+@file:Keep
 
 package tech.ericwathome.core.notification
 

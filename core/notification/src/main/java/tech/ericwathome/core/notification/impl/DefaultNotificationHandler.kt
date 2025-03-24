@@ -7,6 +7,7 @@ import androidx.annotation.Keep
 import androidx.core.app.NotificationCompat
 import tech.ericwathome.core.notification.NotificationHandler
 
+@Keep
 internal class DefaultNotificationHandler(
     private val context: Context,
 ) : NotificationHandler {
