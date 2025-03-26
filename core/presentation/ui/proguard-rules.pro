@@ -23,3 +23,4 @@
 -keeppackagenames
 
 -keep class tech.ericwathome.core.presentation.ui.PermissionUtilsKt { *; }
+-keep class tech.ericwathome.core.presentation.ui.FlowExtractorsKt { *; }
