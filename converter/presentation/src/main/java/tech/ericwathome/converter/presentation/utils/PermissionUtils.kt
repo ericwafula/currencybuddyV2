@@ -24,6 +24,5 @@ fun Context.hasNotificationPermission(): Boolean {
 }
 
 fun Context.hasLocationPermissions(): Boolean {
-    return hasGrantedPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
-        hasGrantedPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+    return hasGrantedPermission(Manifest.permission.ACCESS_FINE_LOCATION)
 }
