@@ -173,7 +173,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
             ),
         )
 
-        if (!hasNotificationPermission && !hasLocationPermissions) {
+        if (!hasNotificationPermission || !hasLocationPermissions) {
             permissionLauncher.requestMultiplePermissions(context)
         }
     }
