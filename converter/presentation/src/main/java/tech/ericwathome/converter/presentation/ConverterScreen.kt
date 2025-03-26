@@ -61,10 +61,10 @@ import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.SwapIcon
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyCenteredTopBarLayout
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyDialog
-import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyLiquidLoadingAnimation
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyPrimaryButton
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
+import tech.ericwathome.core.presentation.designsystem.utils.shimmerEffect
 import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
 import tech.ericwathome.core.presentation.ui.SharedContentKeys
 import tech.ericwathome.core.presentation.ui.showToast
@@ -111,12 +111,12 @@ private fun SharedTransitionScope.ConverterScreenContent(
     sheetState: SheetState,
     onAction: (ConverterAction) -> Unit,
 ) {
-    val errorColor by animateColorAsState(
+    val surfaceTextErrorColor by animateColorAsState(
         targetValue =
             if (state.isError) {
                 MaterialTheme.colorScheme.error
             } else {
-                MaterialTheme.colorScheme.onSurface
+                MaterialTheme.colorScheme.onSecondary
             },
     )
     val context = LocalContext.current
@@ -190,7 +190,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
         snackbarHostState = snackbarHostState,
     ) {
         PullToRefreshBox(
-            isRefreshing = state.isSyncing,
+            isRefreshing = state.isSyncingCurrencies,
             onRefresh = { onAction(ConverterAction.OnRefresh) },
         ) {
             Column(
@@ -225,11 +225,19 @@ private fun SharedTransitionScope.ConverterScreenContent(
                                     ),
                             )
                             Text(
+                                modifier = Modifier
+                                    .then(
+                                        if(state.isSyncingConversionRates) {
+                                            Modifier.shimmerEffect()
+                                        } else {
+                                            Modifier
+                                        }
+                                    ),
                                 text = "= ${state.result} ${state.quoteCurrencyCode}",
                                 style =
                                     MaterialTheme.typography.titleLarge.copy(
                                         fontSize = 24.sp,
-                                        color = MaterialTheme.colorScheme.onSecondary,
+                                        color = surfaceTextErrorColor,
                                     ),
                             )
                         }
@@ -274,14 +282,6 @@ private fun SharedTransitionScope.ConverterScreenContent(
                                     ),
                             )
                         }
-                    }
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = state.converting,
-                    ) {
-                        CurrencyBuddyLiquidLoadingAnimation(
-                            modifier = Modifier.align(Alignment.Center),
-                            isPlaying = true,
-                        )
                     }
 
                     androidx.compose.animation.AnimatedVisibility(
@@ -398,7 +398,7 @@ private fun ConverterScreenPreview() {
                     ConverterScreenContent(
                         state =
                             ConverterState(
-                                isSyncing = true,
+                                isSyncingCurrencies = true,
                             ),
                         onAction = { },
                         animatedVisibilityScope = this,

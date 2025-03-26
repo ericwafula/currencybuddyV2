@@ -299,7 +299,7 @@ class ConverterViewModel(
         val rawAmount = state.value.amount
         val processedAmount = if (rawAmount.endsWith(".")) "${rawAmount}0" else rawAmount
 
-        _state.update { it.copy(converting = true) }
+        _state.update { it.copy(isSyncingConversionRates = true) }
         when (
             val result =
                 converterRepository.fetchExchangeRate(
@@ -313,36 +313,50 @@ class ConverterViewModel(
             is Result.Error -> {
                 _state.update {
                     it.copy(
-                        converting = false,
+                        isSyncingConversionRates = false,
                         isError = true,
                         errorMessage = result.error.asUiText(),
                     )
                 }
+
+                converterScheduler.scheduleSync(
+                    ConverterScheduler.SyncType.FetchExchangeRate(
+                        duration = 30.minutes,
+                        withInitialDelay = false
+                    )
+                )
             }
 
             is Result.Success -> {
                 _state.update {
                     it.copy(
-                        converting = false,
+                        isSyncingConversionRates = false,
                         isError = false,
                         errorMessage = null,
                     )
                 }
+
+                converterScheduler.scheduleSync(
+                    ConverterScheduler.SyncType.FetchExchangeRate(
+                        duration = 30.minutes,
+                        withInitialDelay = true
+                    )
+                )
             }
         }
     }
 
     private fun syncCurrencyMetadata() {
-        _state.update { it.copy(isSyncing = true) }
+        _state.update { it.copy(isSyncingCurrencies = true) }
         viewModelScope.launch {
             when (val result = converterRepository.syncCurrencyMetadata()) {
                 is Result.Error -> {
-                    _state.update { it.copy(isSyncing = false) }
+                    _state.update { it.copy(isSyncingCurrencies = false) }
                     _event.send(ConverterEvent.ShowToast(result.error.asUiText()))
                 }
 
                 is Result.Success -> {
-                    _state.update { it.copy(isSyncing = false) }
+                    _state.update { it.copy(isSyncingCurrencies = false) }
                     fetchExchangeRate()
                     _event.send(ConverterEvent.ShowToast(UiText.StringResource(R.string.currency_metadata_synced_successfully)))
                 }
@@ -403,14 +417,14 @@ class ConverterViewModel(
         converterRepository.isMetadataSyncingObservable
             .filterNotNull()
             .onEach { isSyncing ->
-                _state.update { it.copy(isSyncing = isSyncing) }
+                _state.update { it.copy(isSyncingCurrencies = isSyncing) }
             }
             .launchIn(viewModelScope)
 
         converterRepository.isExchangeRateSyncingObservable
             .filterNotNull()
             .onEach { isSyncing ->
-                _state.update { it.copy(converting = isSyncing) }
+                _state.update { it.copy(isSyncingConversionRates = isSyncing) }
             }
             .launchIn(viewModelScope)
 
@@ -421,10 +435,6 @@ class ConverterViewModel(
                 )
             }
         }.launchIn(viewModelScope)
-
-        viewModelScope.launch {
-            converterScheduler.scheduleSync(ConverterScheduler.SyncType.FetchExchangeRates(30.minutes))
-        }
     }
 
     private fun initializeDefaultCurrencyPair() {
@@ -462,6 +472,22 @@ class ConverterViewModel(
                         showSyncNotification(
                             title = UiText.StringResource(R.string.sync_failure),
                             message = UiText.StringResource(R.string.currency_sync_failed),
+                        )
+                    }
+
+                    SyncEventManager.SyncEvent.SyncSelectedCurrencyPairError -> {
+                        showSyncNotification(
+                            title = UiText.StringResource(R.string.sync_failure),
+                            message = UiText.StringResource(R.string.exchange_rate_sync_failed),
+                        )
+                    }
+
+                    SyncEventManager.SyncEvent.SyncSelectedCurrencyPairSuccess -> {
+                        _state.update { it.copy(isError = false) }
+
+                        showSyncNotification(
+                            title = UiText.StringResource(R.string.sync_complete),
+                            message = UiText.StringResource(R.string.exchange_rate_sync_completed_successfully),
                         )
                     }
                 }

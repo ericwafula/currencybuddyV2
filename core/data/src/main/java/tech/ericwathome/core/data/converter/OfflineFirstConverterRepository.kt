@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.ericwathome.core.domain.converter.ConverterRepository
@@ -52,6 +53,8 @@ internal class OfflineFirstConverterRepository(
         quoteFlag: String?,
         amount: Double,
     ): EmptyResult<DataError> {
+        val exchangeRate = localConverterDataSource.exchangeRateObservable.firstOrNull()
+
         if (amount == 0.0) {
             saveExchangeRate(
                 ExchangeRate(
@@ -81,11 +84,26 @@ internal class OfflineFirstConverterRepository(
                         amount = amount,
                         baseFlag = baseFlag ?: "",
                         targetFlag = quoteFlag ?: "",
+                        conversionRate = result.data.conversionRate,
+                        conversionResult = result.data.conversionResult,
                     ),
                 )
             }
 
-            is Result.Error -> result.asEmptyDataResult()
+            is Result.Error -> {
+                saveExchangeRate(
+                    ExchangeRate(
+                        baseCode = fromCurrencyCode,
+                        targetCode = toCurrencyCode,
+                        amount = amount,
+                        baseFlag = baseFlag ?: "",
+                        targetFlag = quoteFlag ?: "",
+                        conversionRate = exchangeRate?.conversionRate ?: 0.0,
+                        conversionResult = exchangeRate?.conversionResult ?: 0.0,
+                    ),
+                )
+                result.asEmptyDataResult()
+            }
         }
     }
 
@@ -172,5 +190,19 @@ internal class OfflineFirstConverterRepository(
 
     override suspend fun setExchangeRate(value: ExchangeRate): EmptyResult<DataError.Local> {
         return localConverterDataSource.setExchangeRate(value)
+    }
+
+    override suspend fun syncSelectedCurrencyPair(): EmptyResult<DataError> {
+        val exchangeRate = localConverterDataSource.exchangeRateObservable.firstOrNull() ?: return Result.Error(
+            DataError.Local.DISK_FULL
+        ).asEmptyDataResult()
+
+        return fetchExchangeRate(
+            fromCurrencyCode = exchangeRate.baseCode,
+            toCurrencyCode = exchangeRate.targetCode,
+            baseFlag = exchangeRate.baseFlag,
+            quoteFlag = exchangeRate.targetFlag,
+            amount = exchangeRate.amount,
+        )
     }
 }
