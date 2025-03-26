@@ -2,6 +2,7 @@
 
 package tech.ericwathome.core.presentation.designsystem
 
+import android.app.Activity
 import androidx.annotation.Keep
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
@@ -9,6 +10,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import tech.ericwathome.core.presentation.designsystem.utils.LocalTextUtils
 import tech.ericwathome.core.presentation.designsystem.utils.TextUtils
 import tech.ericwathome.core.presentation.designsystem.utils.WithProviders
@@ -49,6 +53,14 @@ fun CurrencybuddyTheme(
     content: @Composable () -> Unit,
 ) {
     val colorScheme = if (isDarkTheme) DarkColorScheme else LightColorScheme
+    val context = LocalContext.current
+    val view = LocalView.current
+    val window = (context as? Activity)?.window
+
+    if (!view.isInEditMode) {
+        val insetsController = WindowCompat.getInsetsController(window!!, view)
+        insetsController.isAppearanceLightStatusBars = true
+    }
 
     SharedTransitionLayout {
         WithProviders(
