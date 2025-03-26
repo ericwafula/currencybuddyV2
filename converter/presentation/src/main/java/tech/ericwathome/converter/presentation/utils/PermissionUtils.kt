@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.annotation.Keep
 import tech.ericwathome.core.presentation.ui.hasGrantedPermission
 
 fun ComponentActivity.shouldShowNotificationPermissionRationale(): Boolean {
