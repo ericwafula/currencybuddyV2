@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import tech.ericwathome.converter.presentation.R
 import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
@@ -50,9 +52,9 @@ fun SelectCurrencyBottomSheet(
     searchQuery: String,
     onEnterSearchQuery: (String) -> Unit,
     sheetState: SheetState,
-    currencies: List<CurrencyMetadata>,
+    filteredCurrencyList: List<CurrencyMetadata>,
     canContinue: Boolean = false,
-    isCurrencyMetadataListEmpty: Boolean = false,
+    isOriginalCurrencyListEmpty: Boolean = false,
     isSearching: Boolean = false,
 ) {
     ModalBottomSheet(
@@ -77,7 +79,7 @@ fun SelectCurrencyBottomSheet(
                     text = stringResource(R.string.select_a_currency),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                if (isCurrencyMetadataListEmpty) {
+                if (isOriginalCurrencyListEmpty) {
                     Spacer(modifier = Modifier.height(32.dp))
                     Image(
                         imageVector = EmptyImage,
@@ -93,7 +95,7 @@ fun SelectCurrencyBottomSheet(
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                 }
-                if (!isCurrencyMetadataListEmpty) {
+                if (!isOriginalCurrencyListEmpty) {
                     Spacer(modifier = Modifier.height(32.dp))
                     CurrencyBuddySearchTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -102,7 +104,31 @@ fun SelectCurrencyBottomSheet(
                         onEnterSearchQuery = onEnterSearchQuery,
                     )
                 }
-
+                if (!isSearching && filteredCurrencyList.isEmpty()) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .wrapContentSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = "No results found for your search.",
+                            style =
+                                MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.Bold,
+                                ),
+                        )
+                        Text(
+                            text = "Try using a different name or currency code.",
+                            style =
+                                MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurface.copy(0.7f),
+                                ),
+                        )
+                    }
+                }
                 if (isSearching) {
                     Box(
                         modifier = Modifier.weight(1f),
@@ -116,7 +142,7 @@ fun SelectCurrencyBottomSheet(
                         contentPadding = PaddingValues(vertical = 32.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        itemsIndexed(items = currencies, key = { _, item -> item.code }) { index, currency ->
+                        itemsIndexed(items = filteredCurrencyList, key = { _, item -> item.code }) { index, currency ->
                             SelectCurrencyItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 imageUrl = currency.flag.svg,
@@ -139,7 +165,7 @@ fun SelectCurrencyBottomSheet(
                             .background(MaterialTheme.colorScheme.surface),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    if (isCurrencyMetadataListEmpty) {
+                    if (isOriginalCurrencyListEmpty) {
                         CurrencyBuddySecondaryButtonOutlined(
                             modifier = Modifier.weight(1f),
                             text = stringResource(R.string.cancel),
@@ -149,13 +175,13 @@ fun SelectCurrencyBottomSheet(
                     CurrencyBuddyPrimaryButton(
                         modifier = Modifier.weight(1f),
                         text =
-                            if (isCurrencyMetadataListEmpty) {
+                            if (isOriginalCurrencyListEmpty) {
                                 stringResource(R.string.retry)
                             } else {
                                 stringResource(R.string.continue_text)
                             },
-                        onClick = { if (isCurrencyMetadataListEmpty) onClickRetry() else onClickContinue() },
-                        enabled = if (isCurrencyMetadataListEmpty) true else canContinue,
+                        onClick = { if (isOriginalCurrencyListEmpty) onClickRetry() else onClickContinue() },
+                        enabled = if (isOriginalCurrencyListEmpty) true else canContinue,
                     )
                 }
             }
@@ -175,7 +201,7 @@ private fun SelectCurrencyBottomSheetPreview() {
                 onDismiss = { },
                 searchQuery = "",
                 onEnterSearchQuery = { },
-                currencies = listOf(),
+                filteredCurrencyList = listOf(),
                 onSelectCurrency = { },
                 onClickContinue = { },
                 onClickRetry = { },

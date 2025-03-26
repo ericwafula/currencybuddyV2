@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -65,10 +66,18 @@ class ConverterViewModel(
 
     private val searchResults =
         state
-            .extract { it.searchQuery }
+            .extract {
+                it.searchQuery
+            }
+            .onEach {
+                _state.update { it.copy(isSearching = true) }
+            }
             .debounce(500)
             .flatMapLatest { searchQuery ->
-                converterRepository.observeFilteredCurrencyMetaData(searchQuery)
+                converterRepository.observeFilteredCurrencyMetaData(searchQuery.trim())
+                    .onCompletion {
+                        _state.update { it.copy(isSearching = false) }
+                    }
             }
             .stateIn(
                 scope = viewModelScope,
@@ -202,7 +211,6 @@ class ConverterViewModel(
         _state.update {
             it.copy(
                 searchQuery = query,
-                isSearching = true,
             )
         }
     }
@@ -384,7 +392,7 @@ class ConverterViewModel(
             _state.update {
                 it.copy(
                     currencyMetadataList = filteredCurrencyMetadata,
-                    isCurrencyMetadataListEmpty = currencyMetadata.isEmpty(),
+                    isOriginalCurrencyListEmpty = currencyMetadata.isEmpty(),
                     baseFlagUrl = initialBaseFlagUrl,
                     quoteFlagUrl = initialQuoteFlagUrl,
                     isSearching = false,
