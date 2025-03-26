@@ -2,8 +2,8 @@ package tech.ericwathome.converter.data
 
 import androidx.annotation.Keep
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.SyncEventManager
 
@@ -11,10 +11,10 @@ import tech.ericwathome.core.domain.SyncEventManager
 internal class DefaultSyncEventManager(
     private val scope: CoroutineScope,
 ) : SyncEventManager {
-    private val _event = Channel<SyncEventManager.SyncEvent>()
-    override val event = _event.receiveAsFlow()
+    private val _event = MutableSharedFlow<SyncEventManager.SyncEvent>()
+    override val event = _event.asSharedFlow()
 
     override fun onEvent(event: SyncEventManager.SyncEvent) {
-        scope.launch { _event.send(event) }
+        scope.launch { _event.emit(event) }
     }
 }

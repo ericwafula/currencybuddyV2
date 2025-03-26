@@ -24,4 +24,6 @@ data class ConverterState(
     val isSearching: Boolean = false,
     val isBaseCurrencyToggled: Boolean = true,
     val canContinue: Boolean = false,
+    val showNotificationRationale: Boolean = false,
+    val showLocationRationale: Boolean = false,
 )

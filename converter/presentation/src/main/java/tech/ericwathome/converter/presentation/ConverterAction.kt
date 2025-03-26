@@ -28,4 +28,8 @@ sealed interface ConverterAction {
     data object OnClickContinue : ConverterAction
 
     data class OnEnterSearchQuery(val query: String) : ConverterAction
+
+    data class SubmitNotificationPermissionInfo(val permissionGranted: Boolean, val showNotificationRationale: Boolean) : ConverterAction
+
+    data class SubmitLocationPermissionInfo(val permissionGranted: Boolean, val showLocationRationale: Boolean) : ConverterAction
 }

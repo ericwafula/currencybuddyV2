@@ -10,4 +10,9 @@
     <string name="connect">Connect</string>
     <string name="image">Image</string>
     <string name="error_icon">Error icon</string>
+    <string name="location_and_notification_permissions_description"><![CDATA["\n                To personalize your widget and keep your rates fresh, Currency Buddy needs:\n                📍 Location access to automatically set your default currency based on your country.\n                🔔 Notification access so we can alert you when the conversion rates on your widget are updated.\n            "]]></string>
+    <string name="permission_required">Permission required</string>
+    <string name="okay">Okay</string>
+    <string name="location_permission_description">"\n                We use your location to detect your country’s currency and show it by default on your widget.\n                You can still change the currency pair anytime, but this helps you get started faster and more accurately.\n            "</string>
+    <string name="notification_permission_description">"\n                Currency Buddy can notify you when new rates are synced—especially useful for keeping your widget updated.\n                That way, you always have the latest conversion info at a glance, without opening the app.\n            "</string>
 </resources>
