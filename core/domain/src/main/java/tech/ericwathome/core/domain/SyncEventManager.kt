@@ -1,9 +1,9 @@
 package tech.ericwathome.core.domain
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 
 interface SyncEventManager {
-    val event: Flow<SyncEvent>
+    val event: SharedFlow<SyncEvent>
 
     fun onEvent(event: SyncEvent)
 

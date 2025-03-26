@@ -21,3 +21,5 @@
 #-renamesourcefileattribute SourceFile
 
 -keeppackagenames
+
+-keep class tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyDialogKt { *; }

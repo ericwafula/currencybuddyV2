@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import tech.ericwathome.core.notification.NotificationHandler
+import tech.ericwathome.core.presentation.ui.UiText
 
 internal class DefaultNotificationHandler(
     private val context: Context,
@@ -36,14 +37,14 @@ internal class DefaultNotificationHandler(
     }
 
     override fun showSimpleNotification(
-        title: String,
-        message: String,
+        title: UiText,
+        message: UiText,
         notificationType: NotificationHandler.NotificationType,
     ) {
         val notification =
             baseNotification
-                .setContentTitle(title)
-                .setContentText(message)
+                .setContentTitle(title.asString(context))
+                .setContentText(message.asString(context))
                 .setChannelId(notificationType.channelId)
                 .build()
 
@@ -51,14 +52,14 @@ internal class DefaultNotificationHandler(
     }
 
     override fun showSimpleUniqueNotification(
-        title: String,
-        message: String,
+        title: UiText,
+        message: UiText,
         channels: NotificationHandler.NotificationType,
     ) {
         val notification =
             baseNotification
-                .setContentTitle(title)
-                .setContentText(message)
+                .setContentTitle(title.asString(context))
+                .setContentText(message.asString(context))
                 .setChannelId(channels.channelId)
                 .build()
 
