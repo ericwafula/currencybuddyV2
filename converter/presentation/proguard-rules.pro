@@ -21,3 +21,5 @@
 #-renamesourcefileattribute SourceFile
 
 -keeppackagenames
+
+-keep class tech.ericwathome.converter.presentation.utils.PermissionUtilsKt { *; }
