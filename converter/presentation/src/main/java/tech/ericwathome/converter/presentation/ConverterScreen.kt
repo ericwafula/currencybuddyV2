@@ -317,11 +317,11 @@ private fun SharedTransitionScope.ConverterScreenContent(
             onClickContinue = { onAction(ConverterAction.OnClickContinue) },
             searchQuery = state.searchQuery,
             onEnterSearchQuery = { onAction(ConverterAction.OnEnterSearchQuery(it)) },
-            currencies = state.currencyMetadataList,
+            filteredCurrencyList = state.currencyMetadataList,
             onClickRetry = { onAction(ConverterAction.OnRefresh) },
-            canContinue = state.canContinue,
+            canContinue = state.canContinue && !state.isSearching,
             isSearching = state.isSearching,
-            isCurrencyMetadataListEmpty = state.isCurrencyMetadataListEmpty,
+            isOriginalCurrencyListEmpty = state.isOriginalCurrencyListEmpty,
         )
     }
 
