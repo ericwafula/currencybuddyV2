@@ -8,6 +8,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
@@ -29,6 +30,8 @@ import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.notification.NotificationHandler
 import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
+import tech.ericwathome.core.presentation.ui.extract
+import tech.ericwathome.core.presentation.ui.extractTriple
 import kotlin.time.Duration.Companion.minutes
 
 @Keep
@@ -48,6 +51,48 @@ class ConverterViewModel(
     private val hasAcceptedNotificationPermission = MutableStateFlow(false)
     private val hasAcceptedLocationPermission = MutableStateFlow(false)
 
+    private val _state = MutableStateFlow(ConverterState())
+    val state =
+        _state.onStart {
+            initializeDefaultCurrencyPair()
+            initStateObservers()
+            handleSyncEventNotifications()
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ConverterState(),
+        )
+
+    private val searchResults =
+        state
+            .extract { it.searchQuery }
+            .debounce(500)
+            .flatMapLatest { searchQuery ->
+                converterRepository.observeFilteredCurrencyMetaData(searchQuery)
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = emptyList(),
+            )
+
+    private val canSubmit =
+        state
+            .extractTriple {
+                Triple(
+                    it.isBaseCurrencyToggled,
+                    it.currentlySelectedBaseCurrencyMetadata,
+                    it.currentlySelectedQuoteCurrencyMetadata,
+                )
+            }
+            .map { (isBase, baseMeta, quoteMeta) ->
+                if (isBase) baseMeta != null else quoteMeta != null
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = false,
+            )
+
     private val syncEvent =
         hasAcceptedNotificationPermission
             .flatMapLatest { hasAcceptedNotificationPermission ->
@@ -63,47 +108,10 @@ class ConverterViewModel(
                 initialValue = null,
             )
 
-    private val _state = MutableStateFlow(ConverterState())
-    val state =
-        _state.onStart {
-            initializeDefaultCurrencyPair()
-            initStateObservers()
-            handleSyncEventNotifications()
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ConverterState(),
-        )
-
-    private val searchResults =
-        state
-            .debounce(500)
-            .flatMapLatest { state ->
-                converterRepository.observeFilteredCurrencyMetaData(state.searchQuery)
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = emptyList(),
-            )
-
-    private val canSubmit =
-        state.map { state ->
-            if (state.isBaseCurrencyToggled) {
-                state.currentlySelectedBaseCurrencyMetadata != null
-            } else {
-                state.currentlySelectedQuoteCurrencyMetadata != null
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = false,
-        )
-
     fun onAction(action: ConverterAction) {
         when (action) {
             is ConverterAction.OnEnterInput -> onEnterInput(action.input)
-            ConverterAction.OnClickConvert -> fetchExchangeRate()
+            ConverterAction.OnClickConvert -> viewModelScope.launch { fetchExchangeRate() }
             ConverterAction.OnDeleteInput -> onDeleteInput()
             ConverterAction.OnClearInput -> onClearInput()
             ConverterAction.OnRefresh -> syncCurrencyMetadata()
@@ -276,43 +284,41 @@ class ConverterViewModel(
             )
         }
 
-        fetchExchangeRate()
+        viewModelScope.launch { fetchExchangeRate() }
     }
 
-    private fun fetchExchangeRate() {
-        viewModelScope.launch {
-            val rawAmount = state.value.amount
-            val processedAmount = if (rawAmount.endsWith(".")) "${rawAmount}0" else rawAmount
+    private suspend fun fetchExchangeRate() {
+        val rawAmount = state.value.amount
+        val processedAmount = if (rawAmount.endsWith(".")) "${rawAmount}0" else rawAmount
 
-            _state.update { it.copy(converting = true) }
-            when (
-                val result =
-                    converterRepository.fetchExchangeRate(
-                        fromCurrencyCode = state.value.baseCurrencyCode.lowercase(),
-                        toCurrencyCode = state.value.quoteCurrencyCode.lowercase(),
-                        amount = processedAmount.toDoubleOrNull() ?: 0.0,
-                        baseFlag = state.value.baseFlagUrl,
-                        quoteFlag = state.value.quoteFlagUrl,
+        _state.update { it.copy(converting = true) }
+        when (
+            val result =
+                converterRepository.fetchExchangeRate(
+                    fromCurrencyCode = state.value.baseCurrencyCode.lowercase(),
+                    toCurrencyCode = state.value.quoteCurrencyCode.lowercase(),
+                    amount = processedAmount.toDoubleOrNull() ?: 0.0,
+                    baseFlag = state.value.baseFlagUrl,
+                    quoteFlag = state.value.quoteFlagUrl,
+                )
+        ) {
+            is Result.Error -> {
+                _state.update {
+                    it.copy(
+                        converting = false,
+                        isError = true,
+                        errorMessage = result.error.asUiText(),
                     )
-            ) {
-                is Result.Error -> {
-                    _state.update {
-                        it.copy(
-                            converting = false,
-                            isError = true,
-                            errorMessage = result.error.asUiText(),
-                        )
-                    }
                 }
+            }
 
-                is Result.Success -> {
-                    _state.update {
-                        it.copy(
-                            converting = false,
-                            isError = false,
-                            errorMessage = null,
-                        )
-                    }
+            is Result.Success -> {
+                _state.update {
+                    it.copy(
+                        converting = false,
+                        isError = false,
+                        errorMessage = null,
+                    )
                 }
             }
         }
@@ -341,6 +347,13 @@ class ConverterViewModel(
             .exchangeRateObservable.onEach { exchangeRate ->
                 _state.update { it.copy(result = exchangeRate?.conversionResult?.toString() ?: "0.0") }
             }.launchIn(viewModelScope)
+
+        viewModelScope.launch {
+            state
+                .extractTriple { Triple(it.amount, it.baseCurrencyCode, it.quoteCurrencyCode) }
+                .debounce(500)
+                .collectLatest { fetchExchangeRate() }
+        }
 
         combine(
             searchResults,
