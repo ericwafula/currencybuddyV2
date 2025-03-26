@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -22,8 +23,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.ConverterScheduler
+import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.Result
+import tech.ericwathome.core.notification.NotificationHandler
 import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
 import kotlin.time.Duration.Companion.minutes
@@ -33,6 +36,8 @@ import kotlin.time.Duration.Companion.minutes
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
     private val converterScheduler: ConverterScheduler,
+    private val syncEventManager: SyncEventManager,
+    private val notificationHandler: NotificationHandler,
 ) : ViewModel() {
     private val _event = Channel<ConverterEvent>()
     val event = _event.receiveAsFlow()
@@ -40,11 +45,30 @@ class ConverterViewModel(
     private val maxIntegerDigits = 10
     private val maxFractionDigits = 2
 
+    private val hasAcceptedNotificationPermission = MutableStateFlow(false)
+    private val hasAcceptedLocationPermission = MutableStateFlow(false)
+
+    private val syncEvent =
+        hasAcceptedNotificationPermission
+            .flatMapLatest { hasAcceptedNotificationPermission ->
+                if (hasAcceptedNotificationPermission) {
+                    syncEventManager.event
+                } else {
+                    emptyFlow()
+                }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = null,
+            )
+
     private val _state = MutableStateFlow(ConverterState())
     val state =
         _state.onStart {
             initializeDefaultCurrencyPair()
             initStateObservers()
+            handleSyncEventNotifications()
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -91,8 +115,36 @@ class ConverterViewModel(
             is ConverterAction.OnSelectQuoteCurrency -> onSelectCurrency(action.index)
             is ConverterAction.OnEnterSearchQuery -> onEnterSearchQuery(action.query)
             ConverterAction.OnClickSwapButton -> swapCurrencyPair()
+            is ConverterAction.SubmitNotificationPermissionInfo ->
+                handleNotificationPermissionInfo(
+                    permissionGranted = action.permissionGranted,
+                    showNotificationRationale = action.showNotificationRationale,
+                )
+
+            is ConverterAction.SubmitLocationPermissionInfo ->
+                handleLocationPermissionInfo(
+                    permissionGranted = action.permissionGranted,
+                    showLocationRationale = action.showLocationRationale,
+                )
+
             else -> Unit
         }
+    }
+
+    private fun handleLocationPermissionInfo(
+        permissionGranted: Boolean,
+        showLocationRationale: Boolean,
+    ) {
+        _state.update { it.copy(showLocationRationale = showLocationRationale) }
+        hasAcceptedLocationPermission.value = permissionGranted
+    }
+
+    private fun handleNotificationPermissionInfo(
+        permissionGranted: Boolean,
+        showNotificationRationale: Boolean,
+    ) {
+        _state.update { it.copy(showNotificationRationale = showNotificationRationale) }
+        hasAcceptedNotificationPermission.value = permissionGranted
     }
 
     private fun onEnterInput(input: Char) {
@@ -371,5 +423,38 @@ class ConverterViewModel(
             initialExchangeRateJob.join()
             fetchExchangeRate()
         }
+    }
+
+    private fun handleSyncEventNotifications() {
+        syncEvent
+            .filterNotNull()
+            .onEach { syncEvent ->
+                when (syncEvent) {
+                    SyncEventManager.SyncEvent.SyncMetadataSuccess -> {
+                        showSyncNotification(
+                            title = UiText.StringResource(R.string.sync_complete),
+                            message = UiText.StringResource(R.string.currency_sync_completed_successfully),
+                        )
+                    }
+
+                    SyncEventManager.SyncEvent.SyncMetadataError -> {
+                        showSyncNotification(
+                            title = UiText.StringResource(R.string.sync_failure),
+                            message = UiText.StringResource(R.string.currency_sync_failed),
+                        )
+                    }
+                }
+            }.launchIn(viewModelScope)
+    }
+
+    private fun showSyncNotification(
+        title: UiText,
+        message: UiText,
+    ) {
+        notificationHandler.showSimpleNotification(
+            title = title,
+            message = message,
+            notificationType = NotificationHandler.NotificationType.Sync,
+        )
     }
 }

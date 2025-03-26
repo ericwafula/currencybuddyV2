@@ -46,6 +46,7 @@ fun CurrencyBuddySecondaryButtonOutlined(
             style =
                 MaterialTheme.typography.bodyLarge.copy(
                     fontSize = with(textUtils) { MaterialTheme.typography.bodyLarge.fontSize.fixedSize },
+                    color = MaterialTheme.colorScheme.onSurface,
                 ),
         )
     }

@@ -15,4 +15,8 @@
     <string name="retry">Retry</string>
     <string name="continue_text">Continue</string>
     <string name="swap_icon">Swap icon</string>
+    <string name="sync_complete">Sync Complete</string>
+    <string name="currency_sync_completed_successfully">Currency sync completed successfully</string>
+    <string name="sync_failure">Sync Failure</string>
+    <string name="currency_sync_failed">Currency sync failed</string>
 </resources>

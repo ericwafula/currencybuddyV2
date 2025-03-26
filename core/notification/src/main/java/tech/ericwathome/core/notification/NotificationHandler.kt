@@ -1,15 +1,17 @@
 package tech.ericwathome.core.notification
 
+import tech.ericwathome.core.presentation.ui.UiText
+
 interface NotificationHandler {
     fun showSimpleNotification(
-        title: String,
-        message: String,
+        title: UiText,
+        message: UiText,
         notificationType: NotificationType,
     )
 
     fun showSimpleUniqueNotification(
-        title: String,
-        message: String,
+        title: UiText,
+        message: UiText,
         channels: NotificationType,
     )
 

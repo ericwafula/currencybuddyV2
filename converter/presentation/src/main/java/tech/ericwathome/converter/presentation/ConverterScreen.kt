@@ -3,6 +3,13 @@
 
 package tech.ericwathome.converter.presentation
 
+import android.Manifest
+import android.content.Context
+import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.Keep
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -10,7 +17,6 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,9 +35,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,10 +53,16 @@ import org.koin.androidx.compose.koinViewModel
 import tech.ericwathome.converter.presentation.components.ConverterKeyboard
 import tech.ericwathome.converter.presentation.components.CurrencyPickerButton
 import tech.ericwathome.converter.presentation.components.SelectCurrencyBottomSheet
+import tech.ericwathome.converter.presentation.utils.hasLocationPermissions
+import tech.ericwathome.converter.presentation.utils.hasNotificationPermission
+import tech.ericwathome.converter.presentation.utils.shouldShowLocationPermissionRationale
+import tech.ericwathome.converter.presentation.utils.shouldShowNotificationPermissionRationale
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.SwapIcon
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyCenteredTopBarLayout
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyDialog
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyLiquidLoadingAnimation
+import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyPrimaryButton
 import tech.ericwathome.core.presentation.designsystem.utils.PreviewLightDarkWithBackground
 import tech.ericwathome.core.presentation.designsystem.utils.WithSharedTransitionScope
 import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
@@ -104,11 +116,67 @@ private fun SharedTransitionScope.ConverterScreenContent(
             if (state.isError) {
                 MaterialTheme.colorScheme.error
             } else {
-                MaterialTheme.colorScheme.secondary
+                MaterialTheme.colorScheme.onSurface
             },
     )
+    val context = LocalContext.current
+    val activity = remember { context as? ComponentActivity }
 
-    val pullToRefreshState = rememberPullToRefreshState()
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+        ) { perms ->
+            val hasGrantedNotificationPermission =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    perms[Manifest.permission.POST_NOTIFICATIONS] == true
+                } else {
+                    true
+                }
+            val hasGrantedLocationPermissions = perms[Manifest.permission.ACCESS_FINE_LOCATION] == true
+
+            val showNotificationRationale = activity?.shouldShowNotificationPermissionRationale() ?: true
+            val showLocationRationale = activity?.shouldShowLocationPermissionRationale() ?: true
+
+            onAction(
+                ConverterAction.SubmitLocationPermissionInfo(
+                    permissionGranted = hasGrantedLocationPermissions,
+                    showLocationRationale = showLocationRationale,
+                ),
+            )
+
+            onAction(
+                ConverterAction.SubmitNotificationPermissionInfo(
+                    permissionGranted = hasGrantedNotificationPermission,
+                    showNotificationRationale = showNotificationRationale,
+                ),
+            )
+        }
+
+    LaunchedEffect(true) {
+        val showNotificationRationale = activity?.shouldShowNotificationPermissionRationale() ?: true
+        val showLocationRationale = activity?.shouldShowLocationPermissionRationale() ?: true
+
+        val hasNotificationPermission = context.hasNotificationPermission()
+        val hasLocationPermissions = context.hasLocationPermissions()
+
+        onAction(
+            ConverterAction.SubmitLocationPermissionInfo(
+                permissionGranted = hasNotificationPermission,
+                showLocationRationale = showLocationRationale,
+            ),
+        )
+
+        onAction(
+            ConverterAction.SubmitNotificationPermissionInfo(
+                permissionGranted = hasLocationPermissions,
+                showNotificationRationale = showNotificationRationale,
+            ),
+        )
+
+        if (!hasNotificationPermission && !hasLocationPermissions) {
+            permissionLauncher.requestMultiplePermissions(context)
+        }
+    }
 
     CurrencyBuddyCenteredTopBarLayout(
         modifier = Modifier.fillMaxSize(),
@@ -137,11 +205,6 @@ private fun SharedTransitionScope.ConverterScreenContent(
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
                                 .background(color = MaterialTheme.colorScheme.secondary)
-                                .border(
-                                    width = 1.dp,
-                                    color = errorColor,
-                                    shape = RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp),
-                                )
                                 .padding(16.dp)
                                 .sharedElement(
                                     state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
@@ -260,6 +323,68 @@ private fun SharedTransitionScope.ConverterScreenContent(
             isSearching = state.isSearching,
             isCurrencyMetadataListEmpty = state.isCurrencyMetadataListEmpty,
         )
+    }
+
+    if (state.showLocationRationale || state.showNotificationRationale) {
+        CurrencyBuddyDialog(
+            title = stringResource(tech.ericwathome.core.presentation.designsystem.R.string.permission_required),
+            description =
+                when {
+                    state.showNotificationRationale && state.showLocationRationale -> {
+                        stringResource(
+                            tech.ericwathome.core.presentation.designsystem.R.string.location_and_notification_permissions_description,
+                        ).trimIndent()
+                    }
+                    state.showNotificationRationale -> {
+                        stringResource(
+                            tech.ericwathome.core.presentation.designsystem.R.string.notification_permission_description,
+                        ).trimIndent()
+                    }
+                    else -> {
+                        stringResource(
+                            tech.ericwathome.core.presentation.designsystem.R.string.location_permission_description,
+                        ).trimIndent()
+                    }
+                },
+            actions = {
+                CurrencyBuddyPrimaryButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = { permissionLauncher.requestMultiplePermissions(context) },
+                    text = stringResource(tech.ericwathome.core.presentation.designsystem.R.string.okay),
+                )
+            },
+            onDismiss = { /* Do nothing */ },
+        )
+    }
+}
+
+fun ActivityResultLauncher<Array<String>>.requestMultiplePermissions(context: Context) {
+    val hasLocationPermissions = context.hasLocationPermissions()
+    val hasNotificationPermissions = context.hasNotificationPermission()
+
+    val locationPermissions =
+        arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        )
+
+    val notificationPermission =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            emptyArray()
+        }
+
+    when {
+        !hasLocationPermissions && !hasNotificationPermissions -> {
+            launch(locationPermissions + notificationPermission)
+        }
+        !hasLocationPermissions -> {
+            launch(locationPermissions)
+        }
+        !hasNotificationPermissions -> {
+            launch(notificationPermission)
+        }
     }
 }
 
