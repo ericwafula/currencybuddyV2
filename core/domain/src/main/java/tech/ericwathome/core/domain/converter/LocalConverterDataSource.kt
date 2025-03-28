@@ -20,7 +20,7 @@ interface LocalConverterDataSource {
 
     suspend fun setIsMetadataSyncing(value: Boolean)
 
-    suspend fun setIsExchangeRateSyncing(value: Boolean)
+    suspend fun setIsSelectedCurrencyPairSyncing(value: Boolean)
 
     suspend fun retrieveSavedExchangeRates(): List<ExchangeRate>
 

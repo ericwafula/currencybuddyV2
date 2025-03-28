@@ -6,7 +6,7 @@ interface ConverterScheduler {
     sealed interface SyncType {
         data object FetchCurrencyMetadata : SyncType
 
-        data class FetchExchangeRates(val duration: Duration) : SyncType
+        data class FetchExchangeRate(val duration: Duration, val withInitialDelay: Boolean) : SyncType
     }
 
     suspend fun scheduleSync(syncType: SyncType)

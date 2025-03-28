@@ -10,25 +10,30 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import tech.ericwathome.core.data.util.toWorkerResult
+import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
-fun Context.startOneTimeSyncExchangeRatesWork(
+fun Context.startOneTimeSyncSelectedCurrencyPairWork(
     withInitialDelay: Boolean = false,
     lastSyncDurationMillis: Long = 0,
 ) {
     val timeElapsed = System.currentTimeMillis() - lastSyncDurationMillis
     val remainingTime =
-        (SyncExchangeRatesWorker.initialDelayDurationMillis - timeElapsed)
+        (SyncSelectedCurrencyPairWorker.initialDelayDurationMillis - timeElapsed)
             .coerceAtLeast(0)
+    val initialDelay = if (withInitialDelay) remainingTime else 0
+
+    Timber.tag("SyncSelectedCurrencyPairWorker").d("remainingTime: $remainingTime, initialDelay: $initialDelay")
 
     val workRequest =
-        OneTimeWorkRequestBuilder<SyncExchangeRatesWorker>()
-            .addTag(SyncExchangeRatesWorker.TAG)
+        OneTimeWorkRequestBuilder<SyncSelectedCurrencyPairWorker>()
+            .addTag(SyncSelectedCurrencyPairWorker.TAG)
             .setInitialDelay(
                 duration = if (withInitialDelay) remainingTime else 0,
                 timeUnit = TimeUnit.MILLISECONDS,
@@ -40,7 +45,7 @@ fun Context.startOneTimeSyncExchangeRatesWork(
             )
             .setBackoffCriteria(
                 backoffPolicy = BackoffPolicy.EXPONENTIAL,
-                backoffDelay = SyncExchangeRatesWorker.backoffDelayMillis,
+                backoffDelay = SyncSelectedCurrencyPairWorker.backoffDelayMillis,
                 timeUnit = TimeUnit.MILLISECONDS,
             )
             .build()
@@ -48,44 +53,47 @@ fun Context.startOneTimeSyncExchangeRatesWork(
     WorkManager.getInstance(this).enqueue(workRequest)
 }
 
-fun Context.startPeriodicSyncExchangeRatesWork(duration: Duration) {
+fun Context.startPeriodicSyncSelectedCurrencyPairWork(duration: Duration) {
     val workRequest =
-        PeriodicWorkRequestBuilder<SyncExchangeRatesWorker>(
+        PeriodicWorkRequestBuilder<SyncSelectedCurrencyPairWorker>(
             repeatInterval = duration.toJavaDuration(),
-        ).addTag(SyncExchangeRatesWorker.TAG)
+        ).addTag(SyncSelectedCurrencyPairWorker.TAG)
             .setConstraints(
                 Constraints(
                     requiredNetworkType = NetworkType.CONNECTED,
                 ),
             ).setBackoffCriteria(
                 backoffPolicy = BackoffPolicy.EXPONENTIAL,
-                backoffDelay = SyncExchangeRatesWorker.backoffDelayMillis,
+                backoffDelay = SyncSelectedCurrencyPairWorker.backoffDelayMillis,
                 timeUnit = TimeUnit.MILLISECONDS,
             ).build()
 
     WorkManager.getInstance(this).enqueue(workRequest)
 }
 
-class SyncExchangeRatesWorker(
+class SyncSelectedCurrencyPairWorker(
     context: Context,
     params: WorkerParameters,
     private val converterRepository: ConverterRepository,
     private val localConverterDataSource: LocalConverterDataSource,
+    private val syncEventManager: SyncEventManager,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         if (runAttemptCount >= 5) {
             return Result.failure()
         }
 
-        localConverterDataSource.setIsExchangeRateSyncing(true)
+        localConverterDataSource.setIsSelectedCurrencyPairSyncing(true)
 
-        return when (val result = converterRepository.syncSavedExchangeRates()) {
+        return when (val result = converterRepository.syncSelectedCurrencyPair()) {
             is tech.ericwathome.core.domain.util.Result.Error -> {
-                localConverterDataSource.setIsExchangeRateSyncing(false)
+                localConverterDataSource.setIsSelectedCurrencyPairSyncing(false)
+                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncSelectedCurrencyPairError)
                 result.error.toWorkerResult()
             }
             is tech.ericwathome.core.domain.util.Result.Success -> {
-                localConverterDataSource.setIsExchangeRateSyncing(false)
+                localConverterDataSource.setIsSelectedCurrencyPairSyncing(false)
+                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncSelectedCurrencyPairSuccess)
                 Result.success()
             }
         }

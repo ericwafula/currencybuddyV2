@@ -11,5 +11,9 @@ interface SyncEventManager {
         data object SyncMetadataSuccess : SyncEvent
 
         data object SyncMetadataError : SyncEvent
+
+        data object SyncSelectedCurrencyPairSuccess : SyncEvent
+
+        data object SyncSelectedCurrencyPairError : SyncEvent
     }
 }
