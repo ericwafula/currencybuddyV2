@@ -69,8 +69,8 @@ class ConverterViewModel(
     private val shouldRetryFetchingExchangeRates =
         state
             .extract { it.isError }
-            .combine(connectionObserver.hasNetworkConnection) { isError, hasNetworkConnection ->
-                isError && hasNetworkConnection
+            .combine(connectionObserver.networkStatus) { isError, networkStatus ->
+                isError && networkStatus == ConnectionObserver.NetworkStatus.Available
             }
             .stateIn(
                 scope = viewModelScope,
@@ -195,6 +195,7 @@ class ConverterViewModel(
         _state.update {
             it.copy(
                 isBaseCurrencyToggled = isBaseCurrency,
+                isQuoteCurrencyToggled = !isBaseCurrency,
                 showCurrencyPickerBottomSheet = true,
             )
         }
@@ -204,6 +205,8 @@ class ConverterViewModel(
         _state.update {
             it.copy(
                 showCurrencyPickerBottomSheet = false,
+                isBaseCurrencyToggled = false,
+                isQuoteCurrencyToggled = false,
                 currentlySelectedBaseCurrencyMetadata = null,
                 currentlySelectedQuoteCurrencyMetadata = null,
                 filteredCurrencyMetadataList = state.value.filteredCurrencyMetadataList.map { metadata -> metadata.copy(isSelected = false) },
@@ -245,6 +248,8 @@ class ConverterViewModel(
         _state.update {
             it.copy(
                 showCurrencyPickerBottomSheet = false,
+                isBaseCurrencyToggled = false,
+                isQuoteCurrencyToggled = false,
                 filteredCurrencyMetadataList =
                     state.value.filteredCurrencyMetadataList.map { currencyMetadata ->
                         currencyMetadata.copy(isSelected = false)
@@ -267,8 +272,6 @@ class ConverterViewModel(
                 quoteFlagUrl = baseFlag,
             )
         }
-
-        viewModelScope.launch { fetchExchangeRate() }
     }
 
     private fun initStateObservers() {
@@ -363,6 +366,21 @@ class ConverterViewModel(
             .launchIn(viewModelScope)
     }
 
+    private fun getCurrencyFlagUrls(
+        baseCode: String,
+        quoteCode: String,
+        currencyList: List<CurrencyMetadata>,
+    ): Pair<String, String> {
+        val sorted = currencyList.sortedBy { it.code }
+        val baseIndex = sorted.binarySearch { it.code.uppercase().compareTo(baseCode.uppercase()) }
+        val quoteIndex = sorted.binarySearch { it.code.uppercase().compareTo(quoteCode.uppercase()) }
+
+        val baseFlag = sorted.getOrNull(baseIndex)?.flag?.svg.orEmpty()
+        val quoteFlag = sorted.getOrNull(quoteIndex)?.flag?.svg.orEmpty()
+
+        return baseFlag to quoteFlag
+    }
+
     private fun observeSyncStates() {
         converterRepository.isMetadataSyncingObservable
             .filterNotNull()
@@ -408,21 +426,6 @@ class ConverterViewModel(
                 }
             }
             .launchIn(viewModelScope)
-    }
-
-    private fun getCurrencyFlagUrls(
-        baseCode: String,
-        quoteCode: String,
-        currencyList: List<CurrencyMetadata>,
-    ): Pair<String, String> {
-        val sorted = currencyList.sortedBy { it.code }
-        val baseIndex = sorted.binarySearch { it.code.uppercase().compareTo(baseCode.uppercase()) }
-        val quoteIndex = sorted.binarySearch { it.code.uppercase().compareTo(quoteCode.uppercase()) }
-
-        val baseFlag = sorted.getOrNull(baseIndex)?.flag?.svg.orEmpty()
-        val quoteFlag = sorted.getOrNull(quoteIndex)?.flag?.svg.orEmpty()
-
-        return baseFlag to quoteFlag
     }
 
     private fun scheduleExchangeRatesSync() {

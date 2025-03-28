@@ -20,6 +20,10 @@ val DownIconThin: ImageVector
     @Composable
     get() = ImageVector.vectorResource(id = R.drawable.ic_down_thin)
 
+val UpIconThin: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(id = R.drawable.ic_up_thin)
+
 val SwapIcon: ImageVector
     @Composable
     get() = ImageVector.vectorResource(id = R.drawable.ic_swap)

@@ -25,10 +25,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -37,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -121,6 +125,20 @@ private fun SharedTransitionScope.ConverterScreenContent(
     )
     val context = LocalContext.current
     val activity = remember { context as? ComponentActivity }
+    val rippleColor = MaterialTheme.colorScheme.onSecondary
+    val rippleConfiguration =
+        remember {
+            RippleConfiguration(
+                color = rippleColor,
+                rippleAlpha =
+                    RippleAlpha(
+                        draggedAlpha = 0f,
+                        focusedAlpha = 0f,
+                        hoveredAlpha = 0f,
+                        pressedAlpha = 0.15f,
+                    ),
+            )
+        }
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -254,17 +272,25 @@ private fun SharedTransitionScope.ConverterScreenContent(
                             CurrencyPickerButton(
                                 imageUrl = state.baseFlagUrl,
                                 text = state.baseCurrencyCode,
+                                toggled = state.isBaseCurrencyToggled,
                                 onClick = { onAction(ConverterAction.OnClickBaseButton) },
                             )
-                            IconButton(onClick = { onAction(ConverterAction.OnClickSwapButton) }) {
-                                Icon(
-                                    imageVector = SwapIcon,
-                                    contentDescription = stringResource(R.string.swap_icon),
-                                    tint = MaterialTheme.colorScheme.onSecondary,
-                                )
+                            CompositionLocalProvider(
+                                value = LocalRippleConfiguration provides rippleConfiguration,
+                            ) {
+                                IconButton(
+                                    onClick = { onAction(ConverterAction.OnClickSwapButton) },
+                                ) {
+                                    Icon(
+                                        imageVector = SwapIcon,
+                                        contentDescription = stringResource(R.string.swap_icon),
+                                        tint = MaterialTheme.colorScheme.onSecondary,
+                                    )
+                                }
                             }
                             CurrencyPickerButton(
                                 imageUrl = state.quoteFlagUrl,
+                                toggled = state.isQuoteCurrencyToggled,
                                 text = state.quoteCurrencyCode,
                                 onClick = { onAction(ConverterAction.OnClickQuoteButton) },
                             )
