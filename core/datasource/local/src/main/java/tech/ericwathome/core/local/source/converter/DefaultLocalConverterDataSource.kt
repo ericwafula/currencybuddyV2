@@ -49,7 +49,7 @@ internal class DefaultLocalConverterDataSource(
         converterPreferences.setIsMetadataSyncing(value)
     }
 
-    override suspend fun setIsExchangeRateSyncing(value: Boolean) {
+    override suspend fun setIsSelectedCurrencyPairSyncing(value: Boolean) {
         converterPreferences.setIsExchangeRateSyncing(value)
     }
 

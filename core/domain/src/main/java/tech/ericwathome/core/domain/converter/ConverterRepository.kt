@@ -36,4 +36,6 @@ interface ConverterRepository {
     suspend fun syncSavedExchangeRates(): EmptyResult<DataError>
 
     suspend fun setExchangeRate(value: ExchangeRate): EmptyResult<DataError.Local>
+
+    suspend fun syncSelectedCurrencyPair(): EmptyResult<DataError>
 }

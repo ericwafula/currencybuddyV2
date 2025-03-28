@@ -11,13 +11,14 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
-import tech.ericwathome.converter.data.workers.SyncExchangeRatesWorker
-import tech.ericwathome.converter.data.workers.startOneTimeSyncExchangeRatesWork
-import tech.ericwathome.converter.data.workers.startPeriodicSyncExchangeRatesWork
+import tech.ericwathome.converter.data.workers.SyncSelectedCurrencyPairWorker
+import tech.ericwathome.converter.data.workers.startOneTimeSyncSelectedCurrencyPairWork
+import tech.ericwathome.converter.data.workers.startPeriodicSyncSelectedCurrencyPairWork
 import tech.ericwathome.converter.data.workers.startSyncCurrencyMetaDataWork
 import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.util.DispatcherProvider
+import timber.log.Timber
 import kotlin.time.Duration
 
 class ConverterWorkerScheduler(
@@ -33,8 +34,8 @@ class ConverterWorkerScheduler(
                 fetchCurrencyMetaData()
             }
 
-            is ConverterScheduler.SyncType.FetchExchangeRates -> {
-                fetchExchangeRates(syncType.duration)
+            is ConverterScheduler.SyncType.FetchExchangeRate -> {
+                fetchExchangeRates(syncType.duration, syncType.withInitialDelay)
             }
         }
     }
@@ -56,31 +57,37 @@ class ConverterWorkerScheduler(
         context.startSyncCurrencyMetaDataWork(withInitialDelay = true, lastSyncDurationMillis = lastSyncTimestamp)
     }
 
-    private suspend fun fetchExchangeRates(duration: Duration) =
-        coroutineScope {
-            val lastSyncTimestamp = converterRepository.lastExchangeRateSyncTimestampObservable.firstOrNull() ?: 0
-            val isSyncing =
-                withContext(dispatchers.io) {
-                    workManager
-                        .getWorkInfosByTag(SyncExchangeRatesWorker.TAG)
-                        .get()
-                        .isNotEmpty()
-                }
+    private suspend fun fetchExchangeRates(
+        duration: Duration,
+        withInitialDelay: Boolean,
+    ) = coroutineScope {
+        Timber.tag("ConverterWorkerScheduler").d("fetchExchangeRates: duration=$duration, withInitialDelay=$withInitialDelay")
 
-            if (isSyncing) {
-                return@coroutineScope
-            }
-
-            context.startOneTimeSyncExchangeRatesWork(withInitialDelay = true, lastSyncDurationMillis = lastSyncTimestamp)
-
-            launch(dispatchers.io) {
+        val lastSyncTimestamp = converterRepository.lastExchangeRateSyncTimestampObservable.firstOrNull() ?: 0
+        val isSyncing =
+            withContext(dispatchers.io) {
                 workManager
-                    .getWorkInfosByTagFlow(SyncExchangeRatesWorker.TAG)
-                    .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
-                    .take(1)
-                    .collect { context.startPeriodicSyncExchangeRatesWork(duration) }
+                    .getWorkInfosByTag(SyncSelectedCurrencyPairWorker.TAG)
+                    .get()
+                    .isNotEmpty()
             }
+
+        if (withInitialDelay && isSyncing) {
+            return@coroutineScope
         }
+
+        Timber.tag("ConverterWorkerScheduler").d("fetchExchangeRates, isSyncing = $isSyncing: duration=$duration, withInitialDelay=$withInitialDelay")
+
+        context.startOneTimeSyncSelectedCurrencyPairWork(withInitialDelay = withInitialDelay, lastSyncDurationMillis = lastSyncTimestamp)
+
+        launch(dispatchers.io) {
+            workManager
+                .getWorkInfosByTagFlow(SyncSelectedCurrencyPairWorker.TAG)
+                .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
+                .take(1)
+                .collect { context.startPeriodicSyncSelectedCurrencyPairWork(duration) }
+        }
+    }
 
     override suspend fun cancelAllWork() {
         workManager.cancelAllWork().await()
