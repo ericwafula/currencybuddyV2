@@ -69,8 +69,8 @@ class ConverterViewModel(
     private val shouldRetryFetchingExchangeRates =
         state
             .extract { it.isError }
-            .combine(connectionObserver.hasNetworkConnection) { isError, hasNetworkConnection ->
-                isError && hasNetworkConnection == ConnectionObserver.NetworkStatus.Available
+            .combine(connectionObserver.networkStatus) { isError, networkStatus ->
+                isError && networkStatus == ConnectionObserver.NetworkStatus.Available
             }
             .stateIn(
                 scope = viewModelScope,

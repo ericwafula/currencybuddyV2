@@ -37,7 +37,7 @@ class MainViewModel(
     private fun observeNetworkStatus() {
         viewModelScope.launch {
             connectionObserver
-                .hasNetworkConnection
+                .networkStatus
                 .collectLatest { networkStatus ->
                     state =
                         when (networkStatus) {

@@ -38,8 +38,8 @@ class DefaultConnectionObserver(
 
     private var job: Job? = null
 
-    private val _hasNetworkConnection = MutableStateFlow<ConnectionObserver.NetworkStatus>(ConnectionObserver.NetworkStatus.Checking)
-    override val hasNetworkConnection: StateFlow<ConnectionObserver.NetworkStatus> = _hasNetworkConnection
+    private val _networkStatus = MutableStateFlow<ConnectionObserver.NetworkStatus>(ConnectionObserver.NetworkStatus.Checking)
+    override val networkStatus: StateFlow<ConnectionObserver.NetworkStatus> = _networkStatus
 
     init {
         observeNetworkStatus()
@@ -66,7 +66,7 @@ class DefaultConnectionObserver(
                     job?.cancel()
                 }
             }.distinctUntilChanged().collect { isConnected ->
-                _hasNetworkConnection.value =
+                _networkStatus.value =
                     if (isConnected) {
                         ConnectionObserver.NetworkStatus.Available
                     } else {
