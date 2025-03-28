@@ -17,16 +17,17 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.notification.NotificationHandler
 import tech.ericwathome.core.presentation.ui.UiText
@@ -42,6 +43,7 @@ class ConverterViewModel(
     private val converterScheduler: ConverterScheduler,
     private val syncEventManager: SyncEventManager,
     private val notificationHandler: NotificationHandler,
+    connectionObserver: ConnectionObserver,
 ) : ViewModel() {
     private val _event = Channel<ConverterEvent>()
     val event = _event.receiveAsFlow()
@@ -55,48 +57,22 @@ class ConverterViewModel(
     private val _state = MutableStateFlow(ConverterState())
     val state =
         _state.onStart {
-            initializeDefaultCurrencyPair()
             initStateObservers()
             handleSyncEventNotifications()
+            scheduleExchangeRatesSync()
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ConverterState(),
         )
 
-    private val searchResults =
+    private val shouldRetryFetchingExchangeRates =
         state
-            .extract {
-                it.searchQuery
-            }
-            .onEach {
-                _state.update { it.copy(isSearching = true) }
-            }
-            .debounce(500)
-            .flatMapLatest { searchQuery ->
-                converterRepository.observeFilteredCurrencyMetaData(searchQuery.trim())
-                    .onCompletion {
-                        _state.update { it.copy(isSearching = false) }
-                    }
+            .extract { it.isError }
+            .combine(connectionObserver.hasNetworkConnection) { isError, hasNetworkConnection ->
+                isError && hasNetworkConnection
             }
             .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = emptyList(),
-            )
-
-    private val canSubmit =
-        state
-            .extractTriple {
-                Triple(
-                    it.isBaseCurrencyToggled,
-                    it.currentlySelectedBaseCurrencyMetadata,
-                    it.currentlySelectedQuoteCurrencyMetadata,
-                )
-            }
-            .map { (isBase, baseMeta, quoteMeta) ->
-                if (isBase) baseMeta != null else quoteMeta != null
-            }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Lazily,
                 initialValue = false,
@@ -230,23 +206,23 @@ class ConverterViewModel(
                 showCurrencyPickerBottomSheet = false,
                 currentlySelectedBaseCurrencyMetadata = null,
                 currentlySelectedQuoteCurrencyMetadata = null,
-                currencyMetadataList = state.value.currencyMetadataList.map { metadata -> metadata.copy(isSelected = false) },
+                filteredCurrencyMetadataList = state.value.filteredCurrencyMetadataList.map { metadata -> metadata.copy(isSelected = false) },
             )
         }
     }
 
     private fun onSelectCurrency(index: Int) {
         val updatedCurrencyDetailsList =
-            state.value.currencyMetadataList.mapIndexed { currencyMetadataIndex, currency ->
+            state.value.filteredCurrencyMetadataList.mapIndexed { currencyMetadataIndex, currency ->
                 currency.copy(isSelected = currencyMetadataIndex == index)
             }
-        val selectedCurrency = state.value.currencyMetadataList.getOrNull(index)
+        val selectedCurrency = state.value.filteredCurrencyMetadataList.getOrNull(index)
 
         _state.update {
             if (it.isBaseCurrencyToggled) {
-                it.copy(currentlySelectedBaseCurrencyMetadata = selectedCurrency, currencyMetadataList = updatedCurrencyDetailsList)
+                it.copy(currentlySelectedBaseCurrencyMetadata = selectedCurrency, filteredCurrencyMetadataList = updatedCurrencyDetailsList)
             } else {
-                it.copy(currentlySelectedQuoteCurrencyMetadata = selectedCurrency, currencyMetadataList = updatedCurrencyDetailsList)
+                it.copy(currentlySelectedQuoteCurrencyMetadata = selectedCurrency, filteredCurrencyMetadataList = updatedCurrencyDetailsList)
             }
         }
     }
@@ -269,8 +245,8 @@ class ConverterViewModel(
         _state.update {
             it.copy(
                 showCurrencyPickerBottomSheet = false,
-                currencyMetadataList =
-                    state.value.currencyMetadataList.map { currencyMetadata ->
+                filteredCurrencyMetadataList =
+                    state.value.filteredCurrencyMetadataList.map { currencyMetadata ->
                         currencyMetadata.copy(isSelected = false)
                     },
             )
@@ -295,146 +271,15 @@ class ConverterViewModel(
         viewModelScope.launch { fetchExchangeRate() }
     }
 
-    private suspend fun fetchExchangeRate() {
-        val rawAmount = state.value.amount
-        val processedAmount = if (rawAmount.endsWith(".")) "${rawAmount}0" else rawAmount
-
-        _state.update { it.copy(isSyncingConversionRates = true) }
-        when (
-            val result =
-                converterRepository.fetchExchangeRate(
-                    fromCurrencyCode = state.value.baseCurrencyCode.lowercase(),
-                    toCurrencyCode = state.value.quoteCurrencyCode.lowercase(),
-                    amount = processedAmount.toDoubleOrNull() ?: 0.0,
-                    baseFlag = state.value.baseFlagUrl,
-                    quoteFlag = state.value.quoteFlagUrl,
-                )
-        ) {
-            is Result.Error -> {
-                _state.update {
-                    it.copy(
-                        isSyncingConversionRates = false,
-                        isError = true,
-                        errorMessage = result.error.asUiText(),
-                    )
-                }
-
-                converterScheduler.scheduleSync(
-                    ConverterScheduler.SyncType.FetchExchangeRate(
-                        duration = 30.minutes,
-                        withInitialDelay = false
-                    )
-                )
-            }
-
-            is Result.Success -> {
-                _state.update {
-                    it.copy(
-                        isSyncingConversionRates = false,
-                        isError = false,
-                        errorMessage = null,
-                    )
-                }
-
-                converterScheduler.scheduleSync(
-                    ConverterScheduler.SyncType.FetchExchangeRate(
-                        duration = 30.minutes,
-                        withInitialDelay = true
-                    )
-                )
-            }
-        }
-    }
-
-    private fun syncCurrencyMetadata() {
-        _state.update { it.copy(isSyncingCurrencies = true) }
-        viewModelScope.launch {
-            when (val result = converterRepository.syncCurrencyMetadata()) {
-                is Result.Error -> {
-                    _state.update { it.copy(isSyncingCurrencies = false) }
-                    _event.send(ConverterEvent.ShowToast(result.error.asUiText()))
-                }
-
-                is Result.Success -> {
-                    _state.update { it.copy(isSyncingCurrencies = false) }
-                    fetchExchangeRate()
-                    _event.send(ConverterEvent.ShowToast(UiText.StringResource(R.string.currency_metadata_synced_successfully)))
-                }
-            }
-        }
-    }
-
     private fun initStateObservers() {
-        converterRepository
-            .exchangeRateObservable.onEach { exchangeRate ->
-                _state.update { it.copy(result = exchangeRate?.conversionResult?.toString() ?: "0.0") }
-            }.launchIn(viewModelScope)
-
-        viewModelScope.launch {
-            state
-                .extractTriple { Triple(it.amount, it.baseCurrencyCode, it.quoteCurrencyCode) }
-                .debounce(500)
-                .collectLatest { fetchExchangeRate() }
-        }
-
-        combine(
-            searchResults,
-            converterRepository.currencyMetadataObservable,
-        ) { filteredCurrencyMetadata, currencyMetadata ->
-            val currencyMetadataSortedByCode = currencyMetadata.sortedBy { it.code }
-            val baseCode = state.value.baseCurrencyCode.uppercase()
-            val quoteCode = state.value.quoteCurrencyCode.uppercase()
-
-            val baseIndex =
-                currencyMetadataSortedByCode
-                    .binarySearch { it.code.uppercase().compareTo(baseCode) }
-
-            val quoteIndex =
-                currencyMetadataSortedByCode
-                    .binarySearch { it.code.uppercase().compareTo(quoteCode) }
-
-            val initialBaseFlagUrl =
-                currencyMetadataSortedByCode
-                    .getOrNull(baseIndex)
-                    ?.flag?.svg.orEmpty()
-
-            val initialQuoteFlagUrl =
-                currencyMetadataSortedByCode
-                    .getOrNull(quoteIndex)
-                    ?.flag?.svg.orEmpty()
-
-            _state.update {
-                it.copy(
-                    currencyMetadataList = filteredCurrencyMetadata,
-                    isOriginalCurrencyListEmpty = currencyMetadata.isEmpty(),
-                    baseFlagUrl = initialBaseFlagUrl,
-                    quoteFlagUrl = initialQuoteFlagUrl,
-                    isSearching = false,
-                )
-            }
-        }.launchIn(viewModelScope)
-
-        converterRepository.isMetadataSyncingObservable
-            .filterNotNull()
-            .onEach { isSyncing ->
-                _state.update { it.copy(isSyncingCurrencies = isSyncing) }
-            }
-            .launchIn(viewModelScope)
-
-        converterRepository.isExchangeRateSyncingObservable
-            .filterNotNull()
-            .onEach { isSyncing ->
-                _state.update { it.copy(isSyncingConversionRates = isSyncing) }
-            }
-            .launchIn(viewModelScope)
-
-        canSubmit.onEach { canSubmit ->
-            _state.update {
-                it.copy(
-                    canContinue = canSubmit,
-                )
-            }
-        }.launchIn(viewModelScope)
+        initializeDefaultCurrencyPair()
+        observeExchangeRate()
+        observeExchangeRateTriggers()
+        observeSearchQuery()
+        observeCurrencyMetadataAndUpdateFlags()
+        observeSyncStates()
+        observeCanContinueState()
+        observeRetryOnConnection()
     }
 
     private fun initializeDefaultCurrencyPair() {
@@ -453,6 +298,141 @@ class ConverterViewModel(
 
             initialExchangeRateJob.join()
             fetchExchangeRate()
+        }
+    }
+
+    private fun observeExchangeRate() {
+        converterRepository
+            .exchangeRateObservable
+            .onEach { exchangeRate ->
+                _state.update { it.copy(result = exchangeRate?.conversionResult?.toString() ?: "0.0") }
+            }.launchIn(viewModelScope)
+    }
+
+    private fun observeExchangeRateTriggers() {
+        viewModelScope.launch {
+            state
+                .extractTriple { Triple(it.amount, it.baseCurrencyCode, it.quoteCurrencyCode) }
+                .debounce(500)
+                .collectLatest { fetchExchangeRate() }
+        }
+    }
+
+    private fun observeSearchQuery() {
+        viewModelScope.launch {
+            state
+                .extract {
+                    it.searchQuery
+                }
+                .onEach {
+                    _state.update { it.copy(isSearching = true) }
+                }
+                .debounce(500)
+                .flatMapLatest { searchQuery ->
+                    converterRepository.observeFilteredCurrencyMetaData(searchQuery.trim())
+                }
+                .collectLatest { filteredCurrencyMetadata ->
+                    _state.update {
+                        it.copy(
+                            filteredCurrencyMetadataList = filteredCurrencyMetadata,
+                            isSearching = false,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun observeCurrencyMetadataAndUpdateFlags() {
+        converterRepository.currencyMetadataObservable
+            .onEach { metadataList ->
+                val (baseFlag, quoteFlag) =
+                    getCurrencyFlagUrls(
+                        baseCode = state.value.baseCurrencyCode,
+                        quoteCode = state.value.quoteCurrencyCode,
+                        currencyList = metadataList,
+                    )
+
+                _state.update {
+                    it.copy(
+                        unfilteredCurrencyMetadataList = metadataList,
+                        baseFlagUrl = baseFlag,
+                        quoteFlagUrl = quoteFlag,
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun observeSyncStates() {
+        converterRepository.isMetadataSyncingObservable
+            .filterNotNull()
+            .onEach { isSyncing ->
+                _state.update { it.copy(isSyncingCurrencies = isSyncing) }
+            }
+            .launchIn(viewModelScope)
+
+        converterRepository.isExchangeRateSyncingObservable
+            .filterNotNull()
+            .onEach { isSyncing ->
+                _state.update { it.copy(isSyncingConversionRates = isSyncing) }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun observeCanContinueState() {
+        state
+            .extractTriple {
+                Triple(
+                    it.isBaseCurrencyToggled,
+                    it.currentlySelectedBaseCurrencyMetadata,
+                    it.currentlySelectedQuoteCurrencyMetadata,
+                )
+            }
+            .map { (isBase, baseMeta, quoteMeta) ->
+                if (isBase) baseMeta != null else quoteMeta != null
+            }
+            .onEach { canSubmit ->
+                _state.update {
+                    it.copy(
+                        canContinue = canSubmit,
+                    )
+                }
+            }.launchIn(viewModelScope)
+    }
+
+    private fun observeRetryOnConnection() {
+        shouldRetryFetchingExchangeRates
+            .onEach { shouldRetryFetchingExchangeRates ->
+                if (shouldRetryFetchingExchangeRates) {
+                    fetchExchangeRate()
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun getCurrencyFlagUrls(
+        baseCode: String,
+        quoteCode: String,
+        currencyList: List<CurrencyMetadata>,
+    ): Pair<String, String> {
+        val sorted = currencyList.sortedBy { it.code }
+        val baseIndex = sorted.binarySearch { it.code.uppercase().compareTo(baseCode.uppercase()) }
+        val quoteIndex = sorted.binarySearch { it.code.uppercase().compareTo(quoteCode.uppercase()) }
+
+        val baseFlag = sorted.getOrNull(baseIndex)?.flag?.svg.orEmpty()
+        val quoteFlag = sorted.getOrNull(quoteIndex)?.flag?.svg.orEmpty()
+
+        return baseFlag to quoteFlag
+    }
+
+    private fun scheduleExchangeRatesSync() {
+        viewModelScope.launch {
+            converterScheduler.scheduleSync(
+                ConverterScheduler.SyncType.FetchExchangeRate(
+                    duration = 30.minutes,
+                    withInitialDelay = true,
+                ),
+            )
         }
     }
 
@@ -503,5 +483,60 @@ class ConverterViewModel(
             message = message,
             notificationType = NotificationHandler.NotificationType.Sync,
         )
+    }
+
+    private suspend fun fetchExchangeRate() {
+        val rawAmount = state.value.amount
+        val processedAmount = if (rawAmount.endsWith(".")) "${rawAmount}0" else rawAmount
+
+        _state.update { it.copy(isSyncingConversionRates = true) }
+        when (
+            val result =
+                converterRepository.fetchExchangeRate(
+                    fromCurrencyCode = state.value.baseCurrencyCode.lowercase(),
+                    toCurrencyCode = state.value.quoteCurrencyCode.lowercase(),
+                    amount = processedAmount.toDoubleOrNull() ?: 0.0,
+                    baseFlag = state.value.baseFlagUrl,
+                    quoteFlag = state.value.quoteFlagUrl,
+                )
+        ) {
+            is Result.Error -> {
+                _state.update {
+                    it.copy(
+                        isSyncingConversionRates = false,
+                        isError = true,
+                        errorMessage = result.error.asUiText(),
+                    )
+                }
+            }
+
+            is Result.Success -> {
+                _state.update {
+                    it.copy(
+                        isSyncingConversionRates = false,
+                        isError = false,
+                        errorMessage = null,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun syncCurrencyMetadata() {
+        _state.update { it.copy(isSyncingCurrencies = true) }
+        viewModelScope.launch {
+            when (val result = converterRepository.syncCurrencyMetadata()) {
+                is Result.Error -> {
+                    _state.update { it.copy(isSyncingCurrencies = false) }
+                    _event.send(ConverterEvent.ShowToast(result.error.asUiText()))
+                }
+
+                is Result.Success -> {
+                    _state.update { it.copy(isSyncingCurrencies = false) }
+                    fetchExchangeRate()
+                    _event.send(ConverterEvent.ShowToast(UiText.StringResource(R.string.currency_metadata_synced_successfully)))
+                }
+            }
+        }
     }
 }

@@ -7,10 +7,12 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import androidx.core.content.getSystemService
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -18,10 +20,10 @@ import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.util.DispatcherProvider
-import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.URL
 
+@OptIn(FlowPreview::class)
 class DefaultConnectionObserver(
     context: Context,
     private val scope: CoroutineScope,
@@ -35,29 +37,28 @@ class DefaultConnectionObserver(
             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             .build()
+
     private var job: Job? = null
 
-    override val hasNetworkConnection: Flow<Boolean>
-        get() =
+    private val _hasNetworkConnection = MutableStateFlow(false)
+    override val hasNetworkConnection: StateFlow<Boolean> = _hasNetworkConnection
+
+    init {
+        observeNetworkStatus()
+    }
+
+    private fun observeNetworkStatus() {
+        scope.launch {
             callbackFlow {
-                isNetworkAvailable()
+                emitCurrentNetworkStatus()
 
                 val networkCallback =
                     object : ConnectivityManager.NetworkCallback() {
-                        override fun onUnavailable() {
-                            super.onUnavailable()
-                            isNetworkAvailable()
-                        }
+                        override fun onUnavailable() = emitCurrentNetworkStatus()
 
-                        override fun onLost(network: Network) {
-                            super.onLost(network)
-                            isNetworkAvailable()
-                        }
+                        override fun onLost(network: Network) = emitCurrentNetworkStatus()
 
-                        override fun onAvailable(network: Network) {
-                            super.onAvailable(network)
-                            isNetworkAvailable()
-                        }
+                        override fun onAvailable(network: Network) = emitCurrentNetworkStatus()
                     }
 
                 connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
@@ -66,9 +67,13 @@ class DefaultConnectionObserver(
                     connectivityManager?.unregisterNetworkCallback(networkCallback)
                     job?.cancel()
                 }
-            }.distinctUntilChanged()
+            }.distinctUntilChanged().collect { isConnected ->
+                _hasNetworkConnection.value = isConnected
+            }
+        }
+    }
 
-    private fun ProducerScope<Boolean>.isNetworkAvailable() {
+    private fun ProducerScope<Boolean>.emitCurrentNetworkStatus() {
         job?.cancel()
         job =
             scope.launch {
@@ -80,12 +85,9 @@ class DefaultConnectionObserver(
     private fun isConnected(): Boolean {
         val activeNetwork = connectivityManager?.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-        return when {
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            else -> false
-        }
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
 
     private suspend fun hasInternetAccess(): Boolean {
@@ -98,11 +100,8 @@ class DefaultConnectionObserver(
                 val responseCode = connection.responseCode
                 connection.disconnect()
 
-                Timber.tag("DefaultConnectionObserver").d("Internet access check response: $responseCode")
-
                 responseCode == 204
             } catch (e: IOException) {
-                Timber.tag("DefaultConnectionObserver").e("Internet access check failed: ${e.message}")
                 false
             }
         }

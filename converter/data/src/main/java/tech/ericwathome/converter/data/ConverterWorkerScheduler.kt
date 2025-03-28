@@ -57,35 +57,37 @@ class ConverterWorkerScheduler(
         context.startSyncCurrencyMetaDataWork(withInitialDelay = true, lastSyncDurationMillis = lastSyncTimestamp)
     }
 
-    private suspend fun fetchExchangeRates(duration: Duration, withInitialDelay: Boolean) =
-        coroutineScope {
-            Timber.tag("ConverterWorkerScheduler").d("fetchExchangeRates: duration=$duration, withInitialDelay=$withInitialDelay")
+    private suspend fun fetchExchangeRates(
+        duration: Duration,
+        withInitialDelay: Boolean,
+    ) = coroutineScope {
+        Timber.tag("ConverterWorkerScheduler").d("fetchExchangeRates: duration=$duration, withInitialDelay=$withInitialDelay")
 
-            val lastSyncTimestamp = converterRepository.lastExchangeRateSyncTimestampObservable.firstOrNull() ?: 0
-            val isSyncing =
-                withContext(dispatchers.io) {
-                    workManager
-                        .getWorkInfosByTag(SyncSelectedCurrencyPairWorker.TAG)
-                        .get()
-                        .isNotEmpty()
-                }
-
-            if (withInitialDelay && isSyncing) {
-                return@coroutineScope
-            }
-
-            Timber.tag("ConverterWorkerScheduler").d("fetchExchangeRates, isSyncing = $isSyncing: duration=$duration, withInitialDelay=$withInitialDelay")
-
-            context.startOneTimeSyncSelectedCurrencyPairWork(withInitialDelay = withInitialDelay, lastSyncDurationMillis = lastSyncTimestamp)
-
-            launch(dispatchers.io) {
+        val lastSyncTimestamp = converterRepository.lastExchangeRateSyncTimestampObservable.firstOrNull() ?: 0
+        val isSyncing =
+            withContext(dispatchers.io) {
                 workManager
-                    .getWorkInfosByTagFlow(SyncSelectedCurrencyPairWorker.TAG)
-                    .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
-                    .take(1)
-                    .collect { context.startPeriodicSyncSelectedCurrencyPairWork(duration) }
+                    .getWorkInfosByTag(SyncSelectedCurrencyPairWorker.TAG)
+                    .get()
+                    .isNotEmpty()
             }
+
+        if (withInitialDelay && isSyncing) {
+            return@coroutineScope
         }
+
+        Timber.tag("ConverterWorkerScheduler").d("fetchExchangeRates, isSyncing = $isSyncing: duration=$duration, withInitialDelay=$withInitialDelay")
+
+        context.startOneTimeSyncSelectedCurrencyPairWork(withInitialDelay = withInitialDelay, lastSyncDurationMillis = lastSyncTimestamp)
+
+        launch(dispatchers.io) {
+            workManager
+                .getWorkInfosByTagFlow(SyncSelectedCurrencyPairWorker.TAG)
+                .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
+                .take(1)
+                .collect { context.startPeriodicSyncSelectedCurrencyPairWork(duration) }
+        }
+    }
 
     override suspend fun cancelAllWork() {
         workManager.cancelAllWork().await()

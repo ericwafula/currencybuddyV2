@@ -76,7 +76,7 @@ class SyncSelectedCurrencyPairWorker(
     params: WorkerParameters,
     private val converterRepository: ConverterRepository,
     private val localConverterDataSource: LocalConverterDataSource,
-    private val syncEventManager: SyncEventManager
+    private val syncEventManager: SyncEventManager,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         if (runAttemptCount >= 5) {

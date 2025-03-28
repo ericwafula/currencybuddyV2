@@ -193,9 +193,10 @@ internal class OfflineFirstConverterRepository(
     }
 
     override suspend fun syncSelectedCurrencyPair(): EmptyResult<DataError> {
-        val exchangeRate = localConverterDataSource.exchangeRateObservable.firstOrNull() ?: return Result.Error(
-            DataError.Local.DISK_FULL
-        ).asEmptyDataResult()
+        val exchangeRate =
+            localConverterDataSource.exchangeRateObservable.firstOrNull() ?: return Result.Error(
+                DataError.Local.DISK_FULL,
+            ).asEmptyDataResult()
 
         return fetchExchangeRate(
             fromCurrencyCode = exchangeRate.baseCode,

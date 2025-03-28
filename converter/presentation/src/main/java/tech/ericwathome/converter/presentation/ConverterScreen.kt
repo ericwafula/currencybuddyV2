@@ -225,14 +225,15 @@ private fun SharedTransitionScope.ConverterScreenContent(
                                     ),
                             )
                             Text(
-                                modifier = Modifier
-                                    .then(
-                                        if(state.isSyncingConversionRates) {
-                                            Modifier.shimmerEffect()
-                                        } else {
-                                            Modifier
-                                        }
-                                    ),
+                                modifier =
+                                    Modifier
+                                        .then(
+                                            if (state.isSyncingConversionRates) {
+                                                Modifier.shimmerEffect()
+                                            } else {
+                                                Modifier
+                                            },
+                                        ),
                                 text = "= ${state.result} ${state.quoteCurrencyCode}",
                                 style =
                                     MaterialTheme.typography.titleLarge.copy(
@@ -317,11 +318,11 @@ private fun SharedTransitionScope.ConverterScreenContent(
             onClickContinue = { onAction(ConverterAction.OnClickContinue) },
             searchQuery = state.searchQuery,
             onEnterSearchQuery = { onAction(ConverterAction.OnEnterSearchQuery(it)) },
-            filteredCurrencyList = state.currencyMetadataList,
+            filteredCurrencyList = state.filteredCurrencyMetadataList,
             onClickRetry = { onAction(ConverterAction.OnRefresh) },
             canContinue = state.canContinue && !state.isSearching,
             isSearching = state.isSearching,
-            isOriginalCurrencyListEmpty = state.isOriginalCurrencyListEmpty,
+            isOriginalCurrencyListEmpty = state.unfilteredCurrencyMetadataList.isEmpty(),
         )
     }
 
