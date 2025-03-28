@@ -7,7 +7,6 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import androidx.core.content.getSystemService
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -23,7 +22,6 @@ import tech.ericwathome.core.domain.util.DispatcherProvider
 import java.net.HttpURLConnection
 import java.net.URL
 
-@OptIn(FlowPreview::class)
 class DefaultConnectionObserver(
     context: Context,
     private val scope: CoroutineScope,
@@ -40,8 +38,8 @@ class DefaultConnectionObserver(
 
     private var job: Job? = null
 
-    private val _hasNetworkConnection = MutableStateFlow(false)
-    override val hasNetworkConnection: StateFlow<Boolean> = _hasNetworkConnection
+    private val _hasNetworkConnection = MutableStateFlow<ConnectionObserver.NetworkStatus>(ConnectionObserver.NetworkStatus.Checking)
+    override val hasNetworkConnection: StateFlow<ConnectionObserver.NetworkStatus> = _hasNetworkConnection
 
     init {
         observeNetworkStatus()
@@ -68,7 +66,12 @@ class DefaultConnectionObserver(
                     job?.cancel()
                 }
             }.distinctUntilChanged().collect { isConnected ->
-                _hasNetworkConnection.value = isConnected
+                _hasNetworkConnection.value =
+                    if (isConnected) {
+                        ConnectionObserver.NetworkStatus.Available
+                    } else {
+                        ConnectionObserver.NetworkStatus.Unavailable
+                    }
             }
         }
     }

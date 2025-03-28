@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -37,17 +36,23 @@ class MainViewModel(
 
     private fun observeNetworkStatus() {
         viewModelScope.launch {
-            connectionObserver.hasNetworkConnection
-                .collectLatest { isAvailable ->
-                    if (isAvailable) {
-                        state = state.copy(showNetworkPopup = false)
-                    } else {
-                        delay(500) // Only show popup if disconnected for at least 500ms
-                        // Re-check in case network came back during delay
-                        if (!connectionObserver.hasNetworkConnection.value) {
-                            state = state.copy(showNetworkPopup = true)
+            connectionObserver
+                .hasNetworkConnection
+                .collectLatest { networkStatus ->
+                    state =
+                        when (networkStatus) {
+                            ConnectionObserver.NetworkStatus.Available -> {
+                                state.copy(showNetworkPopup = false)
+                            }
+
+                            ConnectionObserver.NetworkStatus.Checking -> {
+                                state.copy(showNetworkPopup = false)
+                            }
+
+                            ConnectionObserver.NetworkStatus.Unavailable -> {
+                                state.copy(showNetworkPopup = true)
+                            }
                         }
-                    }
                 }
         }
     }
