@@ -10,8 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -38,8 +39,8 @@ class DefaultConnectionObserver(
 
     private var job: Job? = null
 
-    private val _networkStatus = MutableStateFlow<ConnectionObserver.NetworkStatus>(ConnectionObserver.NetworkStatus.Checking)
-    override val networkStatus: StateFlow<ConnectionObserver.NetworkStatus> = _networkStatus
+    private val _networkStatus: MutableSharedFlow<ConnectionObserver.NetworkStatus> = MutableSharedFlow()
+    override val networkStatus: SharedFlow<ConnectionObserver.NetworkStatus> = _networkStatus.asSharedFlow()
 
     init {
         observeNetworkStatus()
@@ -66,12 +67,13 @@ class DefaultConnectionObserver(
                     job?.cancel()
                 }
             }.distinctUntilChanged().collect { isConnected ->
-                _networkStatus.value =
+                val status =
                     if (isConnected) {
                         ConnectionObserver.NetworkStatus.Available
                     } else {
                         ConnectionObserver.NetworkStatus.Unavailable
                     }
+                _networkStatus.emit(status)
             }
         }
     }

@@ -1,9 +1,9 @@
 package tech.ericwathome.core.domain
 
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 interface ConnectionObserver {
-    val networkStatus: StateFlow<NetworkStatus>
+    val networkStatus: SharedFlow<NetworkStatus>
 
     sealed interface NetworkStatus {
         data object Available : NetworkStatus
