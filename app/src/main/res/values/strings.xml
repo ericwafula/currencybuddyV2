@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">currencybuddy</string>
+    <string name="open_currency_buddy_to_activate_your_widget">👋 Open Currency Buddy to activate your widget</string>
 </resources>

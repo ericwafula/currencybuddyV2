@@ -24,9 +24,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.ConnectionObserver
-import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.converter.ConverterScheduler
 import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.util.Result
 import tech.ericwathome.core.notification.NotificationHandler
@@ -114,22 +114,10 @@ class ConverterViewModel(
                     showNotificationRationale = action.showNotificationRationale,
                 )
 
-            is ConverterAction.SubmitLocationPermissionInfo ->
-                handleLocationPermissionInfo(
-                    permissionGranted = action.permissionGranted,
-                    showLocationRationale = action.showLocationRationale,
-                )
+            is ConverterAction.SubmitLocationPermissionInfo -> Unit
 
             else -> Unit
         }
-    }
-
-    private fun handleLocationPermissionInfo(
-        permissionGranted: Boolean,
-        showLocationRationale: Boolean,
-    ) {
-        _state.update { it.copy(showLocationRationale = showLocationRationale) }
-        hasAcceptedLocationPermission.value = permissionGranted
     }
 
     private fun handleNotificationPermissionInfo(
@@ -233,15 +221,19 @@ class ConverterViewModel(
     private fun setSelectedBaseAndQuoteCurrencyCodesAndFlags() {
         val baseCurrencyCode = state.value.baseCurrencyCode
         val quoteCurrencyCode = state.value.quoteCurrencyCode
-        val baseFlagUrl = state.value.baseFlagUrl
-        val quoteFlagUrl = state.value.quoteFlagUrl
+        val baseFlagUrlSvg = state.value.baseFlagUrlSvg
+        val baseFlagUrlPng = state.value.baseFlagUrlSvg
+        val quoteFlagUrlSvg = state.value.quoteFlagUrlSvg
+        val quoteFlagUrlPng = state.value.quoteFlagUrlSvg
 
         _state.update {
             it.copy(
                 baseCurrencyCode = state.value.currentlySelectedBaseCurrencyMetadata?.code ?: baseCurrencyCode,
                 quoteCurrencyCode = state.value.currentlySelectedQuoteCurrencyMetadata?.code ?: quoteCurrencyCode,
-                baseFlagUrl = state.value.currentlySelectedBaseCurrencyMetadata?.flag?.svg ?: baseFlagUrl,
-                quoteFlagUrl = state.value.currentlySelectedQuoteCurrencyMetadata?.flag?.svg ?: quoteFlagUrl,
+                baseFlagUrlSvg = state.value.currentlySelectedBaseCurrencyMetadata?.flag?.svg ?: baseFlagUrlSvg,
+                baseFlagUrlPng = state.value.currentlySelectedBaseCurrencyMetadata?.flag?.png ?: baseFlagUrlPng,
+                quoteFlagUrlSvg = state.value.currentlySelectedQuoteCurrencyMetadata?.flag?.svg ?: quoteFlagUrlSvg,
+                quoteFlagUrlPng = state.value.currentlySelectedQuoteCurrencyMetadata?.flag?.png ?: quoteFlagUrlPng,
             )
         }
 
@@ -260,16 +252,20 @@ class ConverterViewModel(
 
     private fun swapCurrencyPair() {
         val baseCode = state.value.baseCurrencyCode
-        val baseFlag = state.value.baseFlagUrl
+        val baseFlagPng = state.value.baseFlagUrlPng
+        val baseFlagSvg = state.value.baseFlagUrlSvg
         val quoteCode = state.value.quoteCurrencyCode
-        val quoteFlag = state.value.quoteFlagUrl
+        val quoteFlagPng = state.value.quoteFlagUrlPng
+        val quoteFlagSvg = state.value.quoteFlagUrlSvg
 
         _state.update {
             it.copy(
                 baseCurrencyCode = quoteCode,
-                baseFlagUrl = quoteFlag,
+                baseFlagUrlPng = quoteFlagPng,
+                baseFlagUrlSvg = quoteFlagSvg,
                 quoteCurrencyCode = baseCode,
-                quoteFlagUrl = baseFlag,
+                quoteFlagUrlPng = baseFlagPng,
+                quoteFlagUrlSvg = baseFlagSvg,
             )
         }
     }
@@ -300,7 +296,7 @@ class ConverterViewModel(
                 }
 
             initialExchangeRateJob.join()
-            fetchExchangeRate()
+            scheduleExchangeRatesSync()
         }
     }
 
@@ -348,18 +344,23 @@ class ConverterViewModel(
     private fun observeCurrencyMetadataAndUpdateFlags() {
         converterRepository.currencyMetadataObservable
             .onEach { metadataList ->
-                val (baseFlag, quoteFlag) =
+                val (svgs, pngs) =
                     getCurrencyFlagUrls(
                         baseCode = state.value.baseCurrencyCode,
                         quoteCode = state.value.quoteCurrencyCode,
                         currencyList = metadataList,
                     )
 
+                val (baseFlagSvg, quoteFlagSvg) = svgs
+                val (baseFlagPng, quoteFlagPng) = pngs
+
                 _state.update {
                     it.copy(
                         unfilteredCurrencyMetadataList = metadataList,
-                        baseFlagUrl = baseFlag,
-                        quoteFlagUrl = quoteFlag,
+                        baseFlagUrlPng = baseFlagPng,
+                        quoteFlagUrlPng = quoteFlagPng,
+                        baseFlagUrlSvg = baseFlagSvg,
+                        quoteFlagUrlSvg = quoteFlagSvg,
                     )
                 }
             }
@@ -370,15 +371,17 @@ class ConverterViewModel(
         baseCode: String,
         quoteCode: String,
         currencyList: List<CurrencyMetadata>,
-    ): Pair<String, String> {
+    ): Pair<Pair<String, String>, Pair<String, String>> {
         val sorted = currencyList.sortedBy { it.code }
         val baseIndex = sorted.binarySearch { it.code.uppercase().compareTo(baseCode.uppercase()) }
         val quoteIndex = sorted.binarySearch { it.code.uppercase().compareTo(quoteCode.uppercase()) }
 
-        val baseFlag = sorted.getOrNull(baseIndex)?.flag?.svg.orEmpty()
-        val quoteFlag = sorted.getOrNull(quoteIndex)?.flag?.svg.orEmpty()
+        val baseFlagSvg = sorted.getOrNull(baseIndex)?.flag?.svg.orEmpty()
+        val baseFlagPng = sorted.getOrNull(baseIndex)?.flag?.png.orEmpty()
+        val quoteFlagSvg = sorted.getOrNull(quoteIndex)?.flag?.svg.orEmpty()
+        val quoteFlagPng = sorted.getOrNull(quoteIndex)?.flag?.png.orEmpty()
 
-        return baseFlag to quoteFlag
+        return (baseFlagSvg to quoteFlagSvg) to (baseFlagPng to quoteFlagPng)
     }
 
     private fun observeSyncStates() {
@@ -433,7 +436,7 @@ class ConverterViewModel(
             converterScheduler.scheduleSync(
                 ConverterScheduler.SyncType.FetchExchangeRate(
                     duration = 30.minutes,
-                    withInitialDelay = true,
+                    withInitialDelay = false,
                 ),
             )
         }
@@ -499,8 +502,10 @@ class ConverterViewModel(
                     fromCurrencyCode = state.value.baseCurrencyCode.lowercase(),
                     toCurrencyCode = state.value.quoteCurrencyCode.lowercase(),
                     amount = processedAmount.toDoubleOrNull() ?: 0.0,
-                    baseFlag = state.value.baseFlagUrl,
-                    quoteFlag = state.value.quoteFlagUrl,
+                    baseFlagPng = state.value.baseFlagUrlPng,
+                    baseFlagSvg = state.value.baseFlagUrlSvg,
+                    quoteFlagPng = state.value.quoteFlagUrlPng,
+                    quoteFlagSvg = state.value.quoteFlagUrlSvg,
                 )
         ) {
             is Result.Error -> {

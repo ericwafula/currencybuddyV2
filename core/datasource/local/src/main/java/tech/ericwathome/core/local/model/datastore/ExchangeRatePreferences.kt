@@ -5,9 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ExchangeRatePreferences(
     val baseCode: String = "",
-    val baseFlag: String = "",
+    val baseFlagSvg: String = "",
+    val baseFlagPng: String = "",
     val targetCode: String,
-    val targetFlag: String = "",
+    val targetFlagSvg: String = "",
+    val targetFlagPng: String = "",
     val conversionRate: Double,
     val conversionResult: Double,
     val amount: Double,

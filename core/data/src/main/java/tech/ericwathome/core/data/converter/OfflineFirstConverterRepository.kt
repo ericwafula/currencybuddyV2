@@ -49,8 +49,10 @@ internal class OfflineFirstConverterRepository(
     override suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
-        baseFlag: String?,
-        quoteFlag: String?,
+        baseFlagSvg: String?,
+        baseFlagPng: String?,
+        quoteFlagSvg: String?,
+        quoteFlagPng: String?,
         amount: Double,
     ): EmptyResult<DataError> {
         val exchangeRate = localConverterDataSource.exchangeRateObservable.firstOrNull()
@@ -61,8 +63,10 @@ internal class OfflineFirstConverterRepository(
                     baseCode = fromCurrencyCode,
                     targetCode = toCurrencyCode,
                     amount = amount,
-                    baseFlag = baseFlag ?: "",
-                    targetFlag = quoteFlag ?: "",
+                    baseFlagSvg = baseFlagSvg ?: "",
+                    baseFlagPng = baseFlagPng ?: "",
+                    targetFlagSvg = quoteFlagSvg ?: "",
+                    targetFlagPng = quoteFlagPng ?: "",
                     conversionRate = 0.0,
                     conversionResult = 0.0,
                 ),
@@ -82,8 +86,10 @@ internal class OfflineFirstConverterRepository(
                 saveExchangeRate(
                     result.data.copy(
                         amount = amount,
-                        baseFlag = baseFlag ?: "",
-                        targetFlag = quoteFlag ?: "",
+                        baseFlagSvg = baseFlagSvg ?: "",
+                        baseFlagPng = baseFlagPng ?: "",
+                        targetFlagSvg = quoteFlagSvg ?: "",
+                        targetFlagPng = quoteFlagPng ?: "",
                         conversionRate = result.data.conversionRate,
                         conversionResult = result.data.conversionResult,
                     ),
@@ -96,8 +102,10 @@ internal class OfflineFirstConverterRepository(
                         baseCode = fromCurrencyCode,
                         targetCode = toCurrencyCode,
                         amount = amount,
-                        baseFlag = baseFlag ?: "",
-                        targetFlag = quoteFlag ?: "",
+                        baseFlagSvg = baseFlagSvg ?: "",
+                        baseFlagPng = baseFlagPng ?: "",
+                        targetFlagSvg = quoteFlagSvg ?: "",
+                        targetFlagPng = quoteFlagPng ?: "",
                         conversionRate = exchangeRate?.conversionRate ?: 0.0,
                         conversionResult = exchangeRate?.conversionResult ?: 0.0,
                     ),
@@ -195,14 +203,16 @@ internal class OfflineFirstConverterRepository(
     override suspend fun syncSelectedCurrencyPair(): EmptyResult<DataError> {
         val exchangeRate =
             localConverterDataSource.exchangeRateObservable.firstOrNull() ?: return Result.Error(
-                DataError.Local.DISK_FULL,
+                DataError.Local.NOT_FOUND,
             ).asEmptyDataResult()
 
         return fetchExchangeRate(
             fromCurrencyCode = exchangeRate.baseCode,
             toCurrencyCode = exchangeRate.targetCode,
-            baseFlag = exchangeRate.baseFlag,
-            quoteFlag = exchangeRate.targetFlag,
+            baseFlagSvg = exchangeRate.baseFlagSvg,
+            baseFlagPng = exchangeRate.baseFlagPng,
+            quoteFlagSvg = exchangeRate.targetFlagSvg,
+            quoteFlagPng = exchangeRate.targetFlagPng,
             amount = exchangeRate.amount,
         )
     }

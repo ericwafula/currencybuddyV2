@@ -11,8 +11,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.KoinContext
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.components.CurrencyBuddyNetworkLayout
+import tech.ericwathome.core.presentation.ui.CollectOneTimeEvent
 import tech.ericwathome.core.presentation.ui.rememberOpenNetworkSettings
 import tech.ericwathome.currencybuddy.navigation.RootNav
+import tech.ericwathome.widget.presentation.updateCurrencyWidget
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModel<MainViewModel>()
@@ -29,6 +31,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             KoinContext {
                 val openNetworkSettings = rememberOpenNetworkSettings()
+
+                CollectOneTimeEvent(viewModel.event) { event ->
+                    when (event) {
+                        is MainEvent.UpdateCurrencyWidget -> updateCurrencyWidget(applicationContext, event.exchangeRate)
+                    }
+                }
 
                 CurrencybuddyTheme {
                     CurrencyBuddyNetworkLayout(

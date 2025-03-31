@@ -57,9 +57,7 @@ import org.koin.androidx.compose.koinViewModel
 import tech.ericwathome.converter.presentation.components.ConverterKeyboard
 import tech.ericwathome.converter.presentation.components.CurrencyPickerButton
 import tech.ericwathome.converter.presentation.components.SelectCurrencyBottomSheet
-import tech.ericwathome.converter.presentation.utils.hasLocationPermissions
 import tech.ericwathome.converter.presentation.utils.hasNotificationPermission
-import tech.ericwathome.converter.presentation.utils.shouldShowLocationPermissionRationale
 import tech.ericwathome.converter.presentation.utils.shouldShowNotificationPermissionRationale
 import tech.ericwathome.core.presentation.designsystem.CurrencybuddyTheme
 import tech.ericwathome.core.presentation.designsystem.assets.SwapIcon
@@ -150,17 +148,8 @@ private fun SharedTransitionScope.ConverterScreenContent(
                 } else {
                     true
                 }
-            val hasGrantedLocationPermissions = perms[Manifest.permission.ACCESS_FINE_LOCATION] == true
 
             val showNotificationRationale = activity?.shouldShowNotificationPermissionRationale() ?: true
-            val showLocationRationale = activity?.shouldShowLocationPermissionRationale() ?: true
-
-            onAction(
-                ConverterAction.SubmitLocationPermissionInfo(
-                    permissionGranted = hasGrantedLocationPermissions,
-                    showLocationRationale = showLocationRationale,
-                ),
-            )
 
             onAction(
                 ConverterAction.SubmitNotificationPermissionInfo(
@@ -172,26 +161,17 @@ private fun SharedTransitionScope.ConverterScreenContent(
 
     LaunchedEffect(true) {
         val showNotificationRationale = activity?.shouldShowNotificationPermissionRationale() ?: true
-        val showLocationRationale = activity?.shouldShowLocationPermissionRationale() ?: true
 
         val hasNotificationPermission = context.hasNotificationPermission()
-        val hasLocationPermissions = context.hasLocationPermissions()
-
-        onAction(
-            ConverterAction.SubmitLocationPermissionInfo(
-                permissionGranted = hasNotificationPermission,
-                showLocationRationale = showLocationRationale,
-            ),
-        )
 
         onAction(
             ConverterAction.SubmitNotificationPermissionInfo(
-                permissionGranted = hasLocationPermissions,
+                permissionGranted = hasNotificationPermission,
                 showNotificationRationale = showNotificationRationale,
             ),
         )
 
-        if (!hasNotificationPermission || !hasLocationPermissions) {
+        if (!hasNotificationPermission) {
             permissionLauncher.requestMultiplePermissions(context)
         }
     }
@@ -270,7 +250,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             CurrencyPickerButton(
-                                imageUrl = state.baseFlagUrl,
+                                imageUrl = state.baseFlagUrlSvg,
                                 text = state.baseCurrencyCode,
                                 toggled = state.isBaseCurrencyToggled,
                                 onClick = { onAction(ConverterAction.OnClickBaseButton) },
@@ -289,7 +269,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
                                 }
                             }
                             CurrencyPickerButton(
-                                imageUrl = state.quoteFlagUrl,
+                                imageUrl = state.quoteFlagUrlSvg,
                                 toggled = state.isQuoteCurrencyToggled,
                                 text = state.quoteCurrencyCode,
                                 onClick = { onAction(ConverterAction.OnClickQuoteButton) },
@@ -386,14 +366,7 @@ private fun SharedTransitionScope.ConverterScreenContent(
 }
 
 fun ActivityResultLauncher<Array<String>>.requestMultiplePermissions(context: Context) {
-    val hasLocationPermissions = context.hasLocationPermissions()
     val hasNotificationPermissions = context.hasNotificationPermission()
-
-    val locationPermissions =
-        arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        )
 
     val notificationPermission =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -403,12 +376,6 @@ fun ActivityResultLauncher<Array<String>>.requestMultiplePermissions(context: Co
         }
 
     when {
-        !hasLocationPermissions && !hasNotificationPermissions -> {
-            launch(locationPermissions + notificationPermission)
-        }
-        !hasLocationPermissions -> {
-            launch(locationPermissions)
-        }
         !hasNotificationPermissions -> {
             launch(notificationPermission)
         }
