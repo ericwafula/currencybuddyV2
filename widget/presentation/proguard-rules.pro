@@ -22,8 +22,8 @@
 
 -keeppackagenames
 
--keep class tech.ericwathome.widget.presentation.CurrencyWidget.** { *; }
--keep class tech.ericwathome.widget.presentation.CurrencyWidgetContentKt.** { *; }
--keep class tech.ericwathome.widget.presentation.CurrencyWidgetReceiver.** { *; }
--keep class tech.ericwathome.widget.presentation.FileUtilsKt.** { *; }
--keep class tech.ericwathome.widget.presentation.UpdateCurrencyWidgetKt.** { *; }
+-keep class tech.ericwathome.widget.presentation.CurrencyWidget { *; }
+-keep class tech.ericwathome.widget.presentation.CurrencyWidgetContentKt { *; }
+-keep class tech.ericwathome.widget.presentation.CurrencyWidgetReceiver { *; }
+-keep class tech.ericwathome.widget.presentation.FileUtilsKt { *; }
+-keep class tech.ericwathome.widget.presentation.UpdateCurrencyWidgetKt { *; }
