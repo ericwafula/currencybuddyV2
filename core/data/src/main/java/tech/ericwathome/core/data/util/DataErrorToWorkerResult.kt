@@ -18,5 +18,6 @@ fun DataError.toWorkerResult(): Result {
         DataError.Network.SERVER_ERROR -> Result.retry()
         DataError.Network.SERIALIZATION -> Result.failure()
         DataError.Network.UNKNOWN -> Result.failure()
+        DataError.Local.NOT_FOUND -> Result.retry()
     }
 }

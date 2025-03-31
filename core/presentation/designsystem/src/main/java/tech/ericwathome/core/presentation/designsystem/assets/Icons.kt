@@ -39,3 +39,11 @@ val SearchIcon: ImageVector
 val BellIcon: ImageVector
     @Composable
     get() = ImageVector.vectorResource(id = R.drawable.ic_bell)
+
+val BullIcon: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(id = R.drawable.ic_bull)
+
+val BearIcon: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(id = R.drawable.ic_bear)

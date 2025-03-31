@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <permission
+        android:name="tech.ericwathome.currencybuddy.permission.UPDATE_WIDGET"
+        android:protectionLevel="signature" />
 
     <application
         android:name=".CurrencyBuddyApp"
@@ -17,12 +20,22 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.App.Starting"
-            >
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="converter"
+                    android:scheme="currencybuddy" />
             </intent-filter>
         </activity>
 
@@ -36,6 +49,37 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <receiver
+            android:name="tech.ericwathome.widget.presentation.CurrencyWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/currency_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".broadcasts.UpdateCurrencyWidgetReceiver"
+            android:permission="tech.ericwathome.currencybuddy.permission.UPDATE_WIDGET"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="tech.ericwathome.currencybuddy.broadcasts.ACTION_UPDATE_WIDGET" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
