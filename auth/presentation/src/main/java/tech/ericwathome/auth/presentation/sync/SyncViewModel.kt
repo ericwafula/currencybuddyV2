@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.auth.domain.AuthRepository
-import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.converter.ConverterScheduler
 import tech.ericwathome.core.domain.util.Result
 import kotlin.time.Duration.Companion.minutes
 

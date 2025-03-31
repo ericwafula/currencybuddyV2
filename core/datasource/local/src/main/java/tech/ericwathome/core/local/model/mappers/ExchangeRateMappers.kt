@@ -17,9 +17,11 @@ fun ExchangeRate.toEntity(): ExchangeRateEntity {
 fun ExchangeRate.toPreferences(): ExchangeRatePreferences {
     return ExchangeRatePreferences(
         baseCode = baseCode,
-        baseFlag = baseFlag,
+        baseFlagSvg = baseFlagSvg,
+        baseFlagPng = baseFlagPng,
         targetCode = targetCode,
-        targetFlag = targetFlag,
+        targetFlagSvg = targetFlagSvg,
+        targetFlagPng = targetFlagPng,
         conversionRate = conversionRate,
         conversionResult = conversionResult,
         amount = amount,
@@ -39,9 +41,11 @@ fun ExchangeRateEntity.toDomain(): ExchangeRate {
 fun ExchangeRatePreferences.toDomain(): ExchangeRate {
     return ExchangeRate(
         baseCode = baseCode,
-        baseFlag = baseFlag,
+        baseFlagSvg = baseFlagSvg,
+        baseFlagPng = baseFlagPng,
         targetCode = targetCode,
-        targetFlag = targetFlag,
+        targetFlagSvg = targetFlagSvg,
+        targetFlagPng = targetFlagPng,
         amount = amount,
         conversionRate = conversionRate,
         conversionResult = conversionResult,

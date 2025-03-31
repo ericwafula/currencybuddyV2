@@ -1,22 +1,17 @@
 package tech.ericwathome.converter.data
 
 import android.content.Context
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.await
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
 import tech.ericwathome.converter.data.workers.SyncSelectedCurrencyPairWorker
-import tech.ericwathome.converter.data.workers.startOneTimeSyncSelectedCurrencyPairWork
 import tech.ericwathome.converter.data.workers.startPeriodicSyncSelectedCurrencyPairWork
 import tech.ericwathome.converter.data.workers.startSyncCurrencyMetaDataWork
-import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.converter.ConverterScheduler
 import tech.ericwathome.core.domain.util.DispatcherProvider
 import timber.log.Timber
 import kotlin.time.Duration
@@ -75,18 +70,7 @@ class ConverterWorkerScheduler(
         if (withInitialDelay && isSyncing) {
             return@coroutineScope
         }
-
-        Timber.tag("ConverterWorkerScheduler").d("fetchExchangeRates, isSyncing = $isSyncing: duration=$duration, withInitialDelay=$withInitialDelay")
-
-        context.startOneTimeSyncSelectedCurrencyPairWork(withInitialDelay = withInitialDelay, lastSyncDurationMillis = lastSyncTimestamp)
-
-        launch(dispatchers.io) {
-            workManager
-                .getWorkInfosByTagFlow(SyncSelectedCurrencyPairWorker.TAG)
-                .filter { workInfos -> workInfos.firstOrNull()?.state == WorkInfo.State.SUCCEEDED }
-                .take(1)
-                .collect { context.startPeriodicSyncSelectedCurrencyPairWork(duration) }
-        }
+        context.startPeriodicSyncSelectedCurrencyPairWork(duration)
     }
 
     override suspend fun cancelAllWork() {

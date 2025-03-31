@@ -11,8 +11,8 @@ import tech.ericwathome.converter.data.ConverterWorkerScheduler
 import tech.ericwathome.converter.data.DefaultSyncEventManager
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
 import tech.ericwathome.converter.data.workers.SyncSelectedCurrencyPairWorker
-import tech.ericwathome.core.domain.ConverterScheduler
 import tech.ericwathome.core.domain.SyncEventManager
+import tech.ericwathome.core.domain.converter.ConverterScheduler
 
 val converterDataModule =
     module {

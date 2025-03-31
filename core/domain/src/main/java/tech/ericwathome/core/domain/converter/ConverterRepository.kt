@@ -18,8 +18,10 @@ interface ConverterRepository {
     suspend fun fetchExchangeRate(
         fromCurrencyCode: String,
         toCurrencyCode: String,
-        baseFlag: String? = null,
-        quoteFlag: String? = null,
+        baseFlagSvg: String? = null,
+        baseFlagPng: String? = null,
+        quoteFlagSvg: String? = null,
+        quoteFlagPng: String? = null,
         amount: Double,
     ): EmptyResult<DataError>
 

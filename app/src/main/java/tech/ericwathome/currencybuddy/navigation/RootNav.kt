@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navDeepLink
 import tech.ericwathome.auth.presentation.getstarted.GetStartedScreen
 import tech.ericwathome.auth.presentation.sync.SyncScreen
 import tech.ericwathome.converter.presentation.ConverterScreen
@@ -70,7 +71,14 @@ fun NavGraphBuilder.homeGraph(navController: NavController) {
     navigation<Routes.Home.HomeGraph>(
         startDestination = Routes.Home.ConverterScreen,
     ) {
-        composable<Routes.Home.ConverterScreen> {
+        composable<Routes.Home.ConverterScreen>(
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern = "currencybuddy://converter"
+                    },
+                ),
+        ) {
             ConverterScreen(
                 animatedVisibilityScope = this,
             )
