@@ -9,11 +9,9 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import coil.ImageLoader
 import coil.decode.SvgDecoder
-import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -23,57 +21,88 @@ internal suspend fun loadImageAndSaveToFile(
     url: String,
     fileName: String,
 ): Uri? =
-    withContext(Dispatchers.IO) {
+    coroutineScope {
         try {
             Timber.tag("CurrencyWidget").d("Downloading image from: $url")
-            val imageLoader =
-                ImageLoader.Builder(context)
-                    .components {
-                        add(SvgDecoder.Factory())
-                    }
-                    .build()
+            val imageLoader = createSvgImageLoader(context)
 
-            val request =
-                ImageRequest.Builder(context)
-                    .data(url)
-                    .allowHardware(false)
-                    .build()
+            val request = createImageRequest(context, url)
 
-            val result =
-                (imageLoader.execute(request) as? SuccessResult)?.drawable
-                    as? BitmapDrawable ?: run {
-                    Timber.tag("CurrencyWidget").e("Failed to download image")
-                    return@withContext null
-                }
+            val result = downloadBitmapDrawable(imageLoader, request)
 
             val file = File(context.cacheDir, fileName)
-            FileOutputStream(file).use {
-                val success = result.bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-                if (!success) {
-                    Timber.tag("CurrencyWidget").e("Failed to compress bitmap for $fileName")
-                    return@withContext null
-                }
+            if (result != null) {
+                compressImage(file, result, fileName, 50)
             }
 
             if (!file.exists()) {
                 Timber.tag("CurrencyWidget").e("File was not created: $file")
-                return@withContext null
+                return@coroutineScope null
             }
 
-            val uri =
-                FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    file,
-                )
+            val uri = getFileUri(context, file)
 
             Timber.tag("CurrencyWidget").d("Saved image URI: $uri")
-            return@withContext uri
+            return@coroutineScope uri
         } catch (e: Exception) {
             Timber.tag("CurrencyWidget").e(e, "Exception while downloading/saving image")
-            return@withContext null
+            return@coroutineScope null
         }
     }
+
+private suspend fun downloadBitmapDrawable(
+    imageLoader: ImageLoader,
+    request: ImageRequest,
+) = coroutineScope {
+    (imageLoader.execute(request) as? SuccessResult)?.drawable
+        as? BitmapDrawable ?: run {
+        Timber.tag("CurrencyWidget").e("Failed to download image")
+        return@coroutineScope null
+    }
+}
+
+private fun createImageRequest(
+    context: Context,
+    url: String,
+) = ImageRequest.Builder(context)
+    .data(url)
+    .allowHardware(false)
+    .build()
+
+private fun createSvgImageLoader(context: Context) =
+    ImageLoader.Builder(context)
+        .components {
+            add(SvgDecoder.Factory())
+        }
+        .build()
+
+private fun getFileUri(
+    context: Context,
+    file: File,
+): Uri? {
+    val uri =
+        FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            file,
+        )
+    return uri
+}
+
+private fun compressImage(
+    file: File,
+    result: BitmapDrawable,
+    fileName: String,
+    quality: Int,
+) {
+    FileOutputStream(file).use {
+        val success = result.bitmap.compress(Bitmap.CompressFormat.PNG, quality, it)
+        if (!success) {
+            Timber.tag("CurrencyWidget").e("Failed to compress bitmap for $fileName")
+            return
+        }
+    }
+}
 
 internal fun clearOldFlagImages(context: Context) {
     context.cacheDir.listFiles { _, name ->
