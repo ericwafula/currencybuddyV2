@@ -1,7 +1,6 @@
 package tech.ericwathome.converter.data.workers
 
 import android.content.Context
-import android.content.Intent
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -10,10 +9,12 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.flow.firstOrNull
 import tech.ericwathome.core.data.util.toWorkerResult
 import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
+import tech.ericwathome.core.domain.widget.ConverterWidgetUpdater
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -42,11 +43,12 @@ fun Context.startPeriodicSyncSelectedCurrencyPairWork(duration: Duration) {
 }
 
 class SyncSelectedCurrencyPairWorker(
-    private val context: Context,
+    context: Context,
     params: WorkerParameters,
     private val converterRepository: ConverterRepository,
     private val localConverterDataSource: LocalConverterDataSource,
     private val syncEventManager: SyncEventManager,
+    private val converterWidgetUpdater: ConverterWidgetUpdater,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         if (runAttemptCount >= 5) {
@@ -65,18 +67,13 @@ class SyncSelectedCurrencyPairWorker(
             is tech.ericwathome.core.domain.util.Result.Success -> {
                 localConverterDataSource.setIsSelectedCurrencyPairSyncing(false)
                 syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncSelectedCurrencyPairSuccess)
-                sendUpdateWidgetBroadcast(context)
+                val exchangeRate = converterRepository.exchangeRateObservable.firstOrNull()
+                exchangeRate?.let {
+                    converterWidgetUpdater.update(it)
+                }
                 Result.success()
             }
         }
-    }
-
-    private fun sendUpdateWidgetBroadcast(context: Context) {
-        val intent = Intent("tech.ericwathome.currencybuddy.broadcasts.ACTION_UPDATE_WIDGET")
-        context.sendBroadcast(
-            intent,
-            "tech.ericwathome.currencybuddy.permission.UPDATE_WIDGET",
-        )
     }
 
     companion object {

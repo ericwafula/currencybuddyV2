@@ -18,6 +18,7 @@ import tech.ericwathome.core.remote.di.networkModule
 import tech.ericwathome.currencybuddy.di.appModule
 import tech.ericwathome.currencybuddy.error.CrashHandler
 import tech.ericwathome.currencybuddy.error.CrashlyticsTree
+import tech.ericwathome.widget.presentation.di.widgetModule
 import timber.log.Timber
 
 class CurrencyBuddyApp : Application() {
@@ -64,6 +65,7 @@ class CurrencyBuddyApp : Application() {
                 converterPresentationModule,
                 authDataModule,
                 notificationModule,
+                widgetModule,
             )
         }
     }
