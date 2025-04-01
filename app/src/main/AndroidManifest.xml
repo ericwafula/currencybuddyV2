@@ -3,9 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <permission
-        android:name="tech.ericwathome.currencybuddy.permission.UPDATE_WIDGET"
-        android:protectionLevel="signature" />
 
     <application
         android:name=".CurrencyBuddyApp"
@@ -70,15 +67,6 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/currency_widget_info" />
-        </receiver>
-
-        <receiver
-            android:name=".broadcasts.UpdateCurrencyWidgetReceiver"
-            android:permission="tech.ericwathome.currencybuddy.permission.UPDATE_WIDGET"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="tech.ericwathome.currencybuddy.broadcasts.ACTION_UPDATE_WIDGET" />
-            </intent-filter>
         </receiver>
     </application>
 

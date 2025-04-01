@@ -5,25 +5,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.widget.WidgetUpdater
 
 class MainViewModel(
     private val authRepository: AuthRepository,
     private val connectionObserver: ConnectionObserver,
     private val converterRepository: ConverterRepository,
+    private val widgetUpdater: WidgetUpdater,
 ) : ViewModel() {
     var state by mutableStateOf(MainState())
         private set
-    private val _event = Channel<MainEvent>()
-    val event = _event.receiveAsFlow()
 
     init {
         observeNetworkStatus()
@@ -71,7 +69,7 @@ class MainViewModel(
                 .exchangeRateObservable
                 .filterNotNull()
                 .collectLatest {
-                    _event.send(MainEvent.UpdateCurrencyWidget(it))
+                    widgetUpdater.updateConverterWidget(it)
                 }
         }
     }

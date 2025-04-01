@@ -14,7 +14,14 @@ import tech.ericwathome.core.domain.converter.model.ExchangeRate
 
 private typealias BaseAndQuoteUris = Pair<Uri?, Uri?>
 
-suspend fun updateCurrencyWidget(
+/**
+ * Updates the currency widget with the latest exchange rate and flag images.
+ *
+ * @param context The context to use for updating the widget.
+ * @param exchangeRate The latest exchange rate data to display in the widget.
+ */
+
+internal suspend fun updateConverterWidget(
     context: Context,
     exchangeRate: ExchangeRate,
 ) {
@@ -24,7 +31,7 @@ suspend fun updateCurrencyWidget(
 
         val widgetIds = manager.getGlanceIds(CurrencyWidget::class.java)
 
-        updateAppWidget(
+        updateConverterWidgetState(
             widgetIds = widgetIds,
             context = context,
             exchangeRate = exchangeRate,
@@ -34,7 +41,7 @@ suspend fun updateCurrencyWidget(
 
         val (baseUri, quoteUri) = getBaseAndQuoteUris(context, exchangeRate)
 
-        updateAppWidget(
+        updateConverterWidgetState(
             widgetIds = widgetIds,
             context = context,
             exchangeRate = exchangeRate,
@@ -75,7 +82,7 @@ private suspend fun getBaseAndQuoteUris(
     }
 }
 
-private suspend fun updateAppWidget(
+private suspend fun updateConverterWidgetState(
     widgetIds: List<GlanceId>,
     context: Context,
     exchangeRate: ExchangeRate,

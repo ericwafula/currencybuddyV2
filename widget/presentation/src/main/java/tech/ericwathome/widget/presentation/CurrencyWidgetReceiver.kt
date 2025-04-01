@@ -27,7 +27,7 @@ class CurrencyWidgetReceiver : GlanceAppWidgetReceiver(), KoinComponent {
         CoroutineScope(Dispatchers.IO).launch {
             val exchangeRate = converterRepository.exchangeRateObservable.firstOrNull()
             exchangeRate?.let {
-                updateCurrencyWidget(context, it)
+                updateConverterWidget(context, it)
             }
         }
     }
