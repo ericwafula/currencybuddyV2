@@ -59,7 +59,6 @@ class ConverterViewModel(
         _state.onStart {
             initStateObservers()
             handleSyncEventNotifications()
-            scheduleExchangeRatesSync()
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
