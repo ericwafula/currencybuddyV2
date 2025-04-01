@@ -9,9 +9,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.util.DispatcherProvider
 import tech.ericwathome.core.domain.widget.WidgetUpdater
 
 class MainViewModel(
@@ -19,6 +21,7 @@ class MainViewModel(
     private val connectionObserver: ConnectionObserver,
     private val converterRepository: ConverterRepository,
     private val widgetUpdater: WidgetUpdater,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     var state by mutableStateOf(MainState())
         private set
@@ -65,12 +68,14 @@ class MainViewModel(
 
     private fun observeExchangeRateUpdateEvents() {
         viewModelScope.launch {
-            converterRepository
-                .exchangeRateObservable
-                .filterNotNull()
-                .collectLatest {
-                    widgetUpdater.updateConverterWidget(it)
-                }
+            withContext(dispatchers.io) {
+                converterRepository
+                    .exchangeRateObservable
+                    .filterNotNull()
+                    .collectLatest {
+                        widgetUpdater.updateConverterWidget(it)
+                    }
+            }
         }
     }
 }

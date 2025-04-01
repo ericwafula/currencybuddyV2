@@ -11,9 +11,11 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.ericwathome.core.domain.converter.ConverterRepository
+import tech.ericwathome.core.domain.widget.ConverterWidgetUpdater
 
 class CurrencyWidgetReceiver : GlanceAppWidgetReceiver(), KoinComponent {
     private val converterRepository by inject<ConverterRepository>()
+    private val converterWidgetUpdater by inject<ConverterWidgetUpdater>()
 
     override val glanceAppWidget: GlanceAppWidget = CurrencyWidget()
 
@@ -27,7 +29,7 @@ class CurrencyWidgetReceiver : GlanceAppWidgetReceiver(), KoinComponent {
         CoroutineScope(Dispatchers.IO).launch {
             val exchangeRate = converterRepository.exchangeRateObservable.firstOrNull()
             exchangeRate?.let {
-                updateConverterWidget(context, it)
+                converterWidgetUpdater.update(exchangeRate)
             }
         }
     }

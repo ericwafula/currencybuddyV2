@@ -6,10 +6,8 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import tech.ericwathome.core.domain.converter.model.ExchangeRate
 
 private typealias BaseAndQuoteUris = Pair<Uri?, Uri?>
@@ -25,30 +23,28 @@ internal suspend fun updateConverterWidget(
     context: Context,
     exchangeRate: ExchangeRate,
 ) {
-    withContext(Dispatchers.IO) {
-        clearOldFlagImages(context)
-        val manager = GlanceAppWidgetManager(context)
+    clearOldFlagImages(context)
+    val manager = GlanceAppWidgetManager(context)
 
-        val widgetIds = manager.getGlanceIds(CurrencyWidget::class.java)
+    val widgetIds = manager.getGlanceIds(CurrencyWidget::class.java)
 
-        updateConverterWidgetState(
-            widgetIds = widgetIds,
-            context = context,
-            exchangeRate = exchangeRate,
-            baseUri = "placeholder",
-            quoteUri = "placeholder",
-        )
+    updateConverterWidgetState(
+        widgetIds = widgetIds,
+        context = context,
+        exchangeRate = exchangeRate,
+        baseUri = "placeholder",
+        quoteUri = "placeholder",
+    )
 
-        val (baseUri, quoteUri) = getBaseAndQuoteUris(context, exchangeRate)
+    val (baseUri, quoteUri) = getBaseAndQuoteUris(context, exchangeRate)
 
-        updateConverterWidgetState(
-            widgetIds = widgetIds,
-            context = context,
-            exchangeRate = exchangeRate,
-            baseUri = baseUri?.toString() ?: "",
-            quoteUri = quoteUri?.toString() ?: "",
-        )
-    }
+    updateConverterWidgetState(
+        widgetIds = widgetIds,
+        context = context,
+        exchangeRate = exchangeRate,
+        baseUri = baseUri?.toString() ?: "",
+        quoteUri = quoteUri?.toString() ?: "",
+    )
 }
 
 private suspend fun getBaseAndQuoteUris(
