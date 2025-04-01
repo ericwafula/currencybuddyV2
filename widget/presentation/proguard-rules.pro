@@ -27,3 +27,4 @@
 -keep class tech.ericwathome.widget.presentation.CurrencyWidgetReceiver { *; }
 -keep class tech.ericwathome.widget.presentation.FileUtilsKt { *; }
 -keep class tech.ericwathome.widget.presentation.UpdateCurrencyWidgetKt { *; }
+-keep class tech.ericwathome.widget.presentation.di.WidgetModuleKt { *; }
