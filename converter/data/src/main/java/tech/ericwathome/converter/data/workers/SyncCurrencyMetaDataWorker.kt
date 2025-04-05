@@ -11,10 +11,13 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.flow.firstOrNull
 import tech.ericwathome.core.data.util.toWorkerResult
-import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
+import tech.ericwathome.core.domain.notification.NotificationFactory
+import tech.ericwathome.core.domain.notification.strategy.NotificationStrategy
+import tech.ericwathome.core.domain.util.orFalse
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.minutes
 
@@ -53,7 +56,7 @@ class SyncCurrencyMetaDataWorker(
     params: WorkerParameters,
     private val repository: ConverterRepository,
     private val localConverterDataSource: LocalConverterDataSource,
-    private val syncEventManager: SyncEventManager,
+    private val notificationFactory: NotificationFactory,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         if (runAttemptCount >= 5) {
@@ -65,16 +68,34 @@ class SyncCurrencyMetaDataWorker(
         return when (val result = repository.syncCurrencyMetadata()) {
             is tech.ericwathome.core.domain.util.Result.Success -> {
                 localConverterDataSource.setIsMetadataSyncing(false)
-                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncMetadataSuccess)
+                showSyncNotification(true)
                 Result.success()
             }
 
             is tech.ericwathome.core.domain.util.Result.Error -> {
                 localConverterDataSource.setIsMetadataSyncing(false)
-                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncMetadataError)
+                showSyncNotification(false)
                 result.error.toWorkerResult()
             }
         }
+    }
+
+    private suspend fun showSyncNotification(isSuccess: Boolean) {
+        val hasNotificationPermission =
+            localConverterDataSource.hasNotificationPermission.firstOrNull().orFalse()
+        val notification =
+            notificationFactory.get(NotificationStrategy.Type.SYNC)
+
+        if (!hasNotificationPermission) return
+
+        val (title, message) =
+            if (isSuccess) {
+                "Sync Success" to "Currencies synced successfully"
+            } else {
+                "Sync Error" to "Unable to sync currencies"
+            }
+
+        notification.show(title, message)
     }
 
     companion object {

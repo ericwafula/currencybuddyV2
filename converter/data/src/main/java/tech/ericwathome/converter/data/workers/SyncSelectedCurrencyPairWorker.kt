@@ -11,9 +11,11 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.flow.firstOrNull
 import tech.ericwathome.core.data.util.toWorkerResult
-import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
+import tech.ericwathome.core.domain.notification.NotificationFactory
+import tech.ericwathome.core.domain.notification.strategy.NotificationStrategy
+import tech.ericwathome.core.domain.util.orFalse
 import tech.ericwathome.core.domain.widget.ConverterWidgetUpdater
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
@@ -47,7 +49,7 @@ class SyncSelectedCurrencyPairWorker(
     params: WorkerParameters,
     private val converterRepository: ConverterRepository,
     private val localConverterDataSource: LocalConverterDataSource,
-    private val syncEventManager: SyncEventManager,
+    private val notificationFactory: NotificationFactory,
     private val converterWidgetUpdater: ConverterWidgetUpdater,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
@@ -60,20 +62,38 @@ class SyncSelectedCurrencyPairWorker(
         return when (val result = converterRepository.syncSelectedCurrencyPair()) {
             is tech.ericwathome.core.domain.util.Result.Error -> {
                 localConverterDataSource.setIsSelectedCurrencyPairSyncing(false)
-                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncSelectedCurrencyPairError)
+                showSyncNotification(false)
                 result.error.toWorkerResult()
             }
 
             is tech.ericwathome.core.domain.util.Result.Success -> {
                 localConverterDataSource.setIsSelectedCurrencyPairSyncing(false)
-                syncEventManager.onEvent(SyncEventManager.SyncEvent.SyncSelectedCurrencyPairSuccess)
                 val exchangeRate = converterRepository.exchangeRateObservable.firstOrNull()
                 exchangeRate?.let {
                     converterWidgetUpdater.update(it)
                 }
+                showSyncNotification(true)
                 Result.success()
             }
         }
+    }
+
+    private suspend fun showSyncNotification(isSuccess: Boolean) {
+        val hasNotificationPermission =
+            localConverterDataSource.hasNotificationPermission.firstOrNull().orFalse()
+        val notification =
+            notificationFactory.get(NotificationStrategy.Type.SYNC)
+
+        if (!hasNotificationPermission) return
+
+        val (title, message) =
+            if (isSuccess) {
+                "Sync Success" to "Selected currency pair synced successfully"
+            } else {
+                "Sync Error" to "Unable to sync selected currency pair"
+            }
+
+        notification.show(title, message)
     }
 
     companion object {

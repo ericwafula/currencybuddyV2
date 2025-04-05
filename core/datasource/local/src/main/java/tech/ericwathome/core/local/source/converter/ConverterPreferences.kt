@@ -11,6 +11,7 @@ interface ConverterPreferences {
     val isMetadataSyncing: Flow<Boolean?>
     val isExchangeRateSyncing: Flow<Boolean?>
     val exchangeRate: Flow<ExchangeRatePreferences?>
+    val hasNotificationPermission: Flow<Boolean?>
 
     suspend fun setLastMetadataSyncTimestamp(value: Long)
 
@@ -21,6 +22,8 @@ interface ConverterPreferences {
     suspend fun setIsExchangeRateSyncing(value: Boolean)
 
     suspend fun setExchangeRate(value: ExchangeRatePreferences): EmptyResult<DataError.Local>
+
+    suspend fun setHasNotificationPermission(value: Boolean)
 
     suspend fun deleteExchangeRate()
 }

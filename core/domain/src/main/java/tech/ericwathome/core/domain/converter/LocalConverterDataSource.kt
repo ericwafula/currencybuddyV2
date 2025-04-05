@@ -13,6 +13,7 @@ interface LocalConverterDataSource {
     val isMetadataSyncingObservable: Flow<Boolean?>
     val isExchangeRateSyncingObservable: Flow<Boolean?>
     val exchangeRateObservable: Flow<ExchangeRate?>
+    val hasNotificationPermission: Flow<Boolean?>
 
     suspend fun setLastMetadataSyncTimestamp(value: Long)
 
@@ -44,6 +45,8 @@ interface LocalConverterDataSource {
     suspend fun clearLocalCurrencyMetadata()
 
     suspend fun setExchangeRate(value: ExchangeRate): EmptyResult<DataError.Local>
+
+    suspend fun setHasNotificationPermission(value: Boolean)
 
     suspend fun deleteExchangeRate()
 }

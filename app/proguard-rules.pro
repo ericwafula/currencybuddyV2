@@ -33,3 +33,5 @@
 
 # Keep generated serializer classes (they usually have a $$serializer suffix)
 -keepclassmembers class **$$serializer { *; }
+
+-keep class com.squareup.leakcanary.** { *; }

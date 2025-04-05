@@ -79,6 +79,9 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
 
+    // leak canary
+    debugImplementation(libs.leakcanary.android)
+
     implementation(projects.core.data)
     implementation(projects.core.domain)
     implementation(projects.core.presentation.designsystem)
