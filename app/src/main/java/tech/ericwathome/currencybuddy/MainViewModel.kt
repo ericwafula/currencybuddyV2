@@ -46,21 +46,8 @@ class MainViewModel(
         viewModelScope.launch {
             connectionObserver
                 .networkStatus
-                .collectLatest { networkStatus ->
-                    state =
-                        when (networkStatus) {
-                            ConnectionObserver.NetworkStatus.Available -> {
-                                state.copy(showNetworkPopup = false)
-                            }
-
-                            ConnectionObserver.NetworkStatus.Checking -> {
-                                state.copy(showNetworkPopup = false)
-                            }
-
-                            ConnectionObserver.NetworkStatus.Unavailable -> {
-                                state.copy(showNetworkPopup = true)
-                            }
-                        }
+                .collectLatest { isConnected ->
+                    state = state.copy(showNetworkPopup = isConnected.not())
                 }
         }
     }
