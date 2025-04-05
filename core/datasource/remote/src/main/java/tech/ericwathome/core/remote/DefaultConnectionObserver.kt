@@ -39,8 +39,8 @@ class DefaultConnectionObserver(
 
     private var job: Job? = null
 
-    private val _networkStatus: MutableSharedFlow<ConnectionObserver.NetworkStatus> = MutableSharedFlow()
-    override val networkStatus: SharedFlow<ConnectionObserver.NetworkStatus> = _networkStatus.asSharedFlow()
+    private val _networkStatus: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    override val networkStatus: SharedFlow<Boolean> = _networkStatus.asSharedFlow()
 
     init {
         observeNetworkStatus()
@@ -67,13 +67,7 @@ class DefaultConnectionObserver(
                     job?.cancel()
                 }
             }.distinctUntilChanged().collect { isConnected ->
-                val status =
-                    if (isConnected) {
-                        ConnectionObserver.NetworkStatus.Available
-                    } else {
-                        ConnectionObserver.NetworkStatus.Unavailable
-                    }
-                _networkStatus.emit(status)
+                _networkStatus.emit(isConnected)
             }
         }
     }
