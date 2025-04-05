@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -24,12 +23,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tech.ericwathome.core.domain.ConnectionObserver
-import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.ConverterScheduler
+import tech.ericwathome.core.domain.converter.LocalConverterDataSource
 import tech.ericwathome.core.domain.converter.model.CurrencyMetadata
 import tech.ericwathome.core.domain.util.Result
-import tech.ericwathome.core.notification.NotificationHandler
 import tech.ericwathome.core.presentation.ui.UiText
 import tech.ericwathome.core.presentation.ui.asUiText
 import tech.ericwathome.core.presentation.ui.extract
@@ -41,8 +39,7 @@ import kotlin.time.Duration.Companion.minutes
 class ConverterViewModel(
     private val converterRepository: ConverterRepository,
     private val converterScheduler: ConverterScheduler,
-    private val syncEventManager: SyncEventManager,
-    private val notificationHandler: NotificationHandler,
+    private val localConverterDataSource: LocalConverterDataSource,
     connectionObserver: ConnectionObserver,
 ) : ViewModel() {
     private val _event = Channel<ConverterEvent>()
@@ -58,7 +55,6 @@ class ConverterViewModel(
     val state =
         _state.onStart {
             initStateObservers()
-            handleSyncEventNotifications()
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -75,21 +71,6 @@ class ConverterViewModel(
                 scope = viewModelScope,
                 started = SharingStarted.Lazily,
                 initialValue = false,
-            )
-
-    private val syncEvent =
-        hasAcceptedNotificationPermission
-            .flatMapLatest { hasAcceptedNotificationPermission ->
-                if (hasAcceptedNotificationPermission) {
-                    syncEventManager.event
-                } else {
-                    emptyFlow()
-                }
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = null,
             )
 
     fun onAction(action: ConverterAction) {
@@ -270,6 +251,7 @@ class ConverterViewModel(
     }
 
     private fun initStateObservers() {
+        observeNotificationPermission()
         initializeDefaultCurrencyPair()
         observeExchangeRate()
         observeExchangeRateTriggers()
@@ -278,6 +260,13 @@ class ConverterViewModel(
         observeSyncStates()
         observeCanContinueState()
         observeRetryOnConnection()
+    }
+
+    private fun observeNotificationPermission() {
+        hasAcceptedNotificationPermission
+            .onEach { hasAcceptedNotificationPermission ->
+                localConverterDataSource.setHasNotificationPermission(hasAcceptedNotificationPermission)
+            }.launchIn(viewModelScope)
     }
 
     private fun initializeDefaultCurrencyPair() {
@@ -439,55 +428,6 @@ class ConverterViewModel(
                 ),
             )
         }
-    }
-
-    private fun handleSyncEventNotifications() {
-        syncEvent
-            .filterNotNull()
-            .onEach { syncEvent ->
-                when (syncEvent) {
-                    SyncEventManager.SyncEvent.SyncMetadataSuccess -> {
-                        showSyncNotification(
-                            title = UiText.StringResource(R.string.sync_complete),
-                            message = UiText.StringResource(R.string.currency_sync_completed_successfully),
-                        )
-                    }
-
-                    SyncEventManager.SyncEvent.SyncMetadataError -> {
-                        showSyncNotification(
-                            title = UiText.StringResource(R.string.sync_failure),
-                            message = UiText.StringResource(R.string.currency_sync_failed),
-                        )
-                    }
-
-                    SyncEventManager.SyncEvent.SyncSelectedCurrencyPairError -> {
-                        showSyncNotification(
-                            title = UiText.StringResource(R.string.sync_failure),
-                            message = UiText.StringResource(R.string.exchange_rate_sync_failed),
-                        )
-                    }
-
-                    SyncEventManager.SyncEvent.SyncSelectedCurrencyPairSuccess -> {
-                        _state.update { it.copy(isError = false) }
-
-                        showSyncNotification(
-                            title = UiText.StringResource(R.string.sync_complete),
-                            message = UiText.StringResource(R.string.exchange_rate_sync_completed_successfully),
-                        )
-                    }
-                }
-            }.launchIn(viewModelScope)
-    }
-
-    private fun showSyncNotification(
-        title: UiText,
-        message: UiText,
-    ) {
-        notificationHandler.showSimpleNotification(
-            title = title,
-            message = message,
-            notificationType = NotificationHandler.NotificationType.Sync,
-        )
     }
 
     private suspend fun fetchExchangeRate() {

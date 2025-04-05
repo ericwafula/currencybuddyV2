@@ -8,10 +8,8 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import tech.ericwathome.converter.data.ConverterWorkerScheduler
-import tech.ericwathome.converter.data.DefaultSyncEventManager
 import tech.ericwathome.converter.data.workers.SyncCurrencyMetaDataWorker
 import tech.ericwathome.converter.data.workers.SyncSelectedCurrencyPairWorker
-import tech.ericwathome.core.domain.SyncEventManager
 import tech.ericwathome.core.domain.converter.ConverterScheduler
 
 val converterDataModule =
@@ -19,5 +17,4 @@ val converterDataModule =
         workerOf(::SyncCurrencyMetaDataWorker)
         workerOf(::SyncSelectedCurrencyPairWorker)
         singleOf(::ConverterWorkerScheduler).bind<ConverterScheduler>()
-        singleOf(::DefaultSyncEventManager).bind<SyncEventManager>()
     }
