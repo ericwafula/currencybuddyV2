@@ -1,8 +1,5 @@
-@file:Keep
-
 package tech.ericwathome.core.notification.di
 
-import androidx.annotation.Keep
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
