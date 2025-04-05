@@ -28,6 +28,7 @@ internal class DefaultConverterPreferences(
         val IS_METADATA_SYNCING = booleanPreferencesKey("is_metadata_syncing")
         val IS_EXCHANGE_RATE_SYNCING = booleanPreferencesKey("is_exchange_rate_syncing")
         val EXCHANGE_RATE = stringPreferencesKey("exchange_rate")
+        val HAS_NOTIFICATION_PERMISSION = booleanPreferencesKey("has_notification_permission")
     }
 
     override val lastMetadataSyncTimestamp: Flow<Long?>
@@ -51,6 +52,8 @@ internal class DefaultConverterPreferences(
             Timber.tag("ConverterViewModel").d("Exchange rate: $exchangeRate")
             return exchangeRate
         }
+    override val hasNotificationPermission: Flow<Boolean?>
+        get() = localPreferenceSource.getNullable(Keys.HAS_NOTIFICATION_PERMISSION)
 
     override suspend fun setLastMetadataSyncTimestamp(value: Long) {
         localPreferenceSource.saveOrUpdate(Keys.LAST_METADATA_SYNC_TIMESTAMP, value)
@@ -72,6 +75,10 @@ internal class DefaultConverterPreferences(
         val exchangeRateJson = json.encodeToString(ExchangeRatePreferences.serializer(), value)
         Timber.tag("DefaultConverterPreferences").d("Exchange rate: $value")
         return localPreferenceSource.saveOrUpdate(Keys.EXCHANGE_RATE, exchangeRateJson)
+    }
+
+    override suspend fun setHasNotificationPermission(value: Boolean) {
+        localPreferenceSource.saveOrUpdate(Keys.HAS_NOTIFICATION_PERMISSION, value)
     }
 
     override suspend fun deleteExchangeRate() {

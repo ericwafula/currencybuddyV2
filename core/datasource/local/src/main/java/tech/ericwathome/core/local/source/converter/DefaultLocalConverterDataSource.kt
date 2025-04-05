@@ -36,6 +36,8 @@ internal class DefaultLocalConverterDataSource(
 
     override val exchangeRateObservable: Flow<ExchangeRate?>
         get() = converterPreferences.exchangeRate.map { it?.toDomain() }
+    override val hasNotificationPermission: Flow<Boolean?>
+        get() = converterPreferences.hasNotificationPermission
 
     override suspend fun setLastMetadataSyncTimestamp(value: Long) {
         converterPreferences.setLastMetadataSyncTimestamp(value)
@@ -104,6 +106,10 @@ internal class DefaultLocalConverterDataSource(
 
     override suspend fun setExchangeRate(value: ExchangeRate): EmptyResult<DataError.Local> {
         return converterPreferences.setExchangeRate(value.toPreferences())
+    }
+
+    override suspend fun setHasNotificationPermission(value: Boolean) {
+        converterPreferences.setHasNotificationPermission(value)
     }
 
     override suspend fun deleteExchangeRate() {

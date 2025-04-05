@@ -26,32 +26,11 @@
 -keepattributes KotlinMetadata
 
 # Keep the NotificationHandler interface and all its methods
--keep interface tech.ericwathome.core.notification.NotificationHandler {
+-keep interface tech.ericwathome.core.notification.impl.SyncNotification {
     *;
 }
 
-# Keep the sealed class NotificationType (nested inside NotificationHandler)
--keep class tech.ericwathome.core.notification.NotificationHandler$NotificationType {
-    *;
-}
+-keep class tech.ericwathome.core.notification.di.NotificationModuleKt { *; }
 
-# Keep the General and Sync data objects (nested inside NotificationType)
--keep class tech.ericwathome.core.notification.NotificationHandler$NotificationType$General {
-    *;
-}
--keep class tech.ericwathome.core.notification.NotificationHandler$NotificationType$Sync {
-    *;
-}
-
-# Optionally, keep the companion object if used at runtime
--keep class tech.ericwathome.core.notification.NotificationHandler$NotificationType$Companion {
-    *;
-}
-
-# Keep Kotlin metadata (recommended for Kotlin projects)
--keepattributes KotlinMetadata
-
-# Keep the DefaultNotificationHandler class and all its members
--keep class tech.ericwathome.core.notification.impl.DefaultNotificationHandler {
-    *;
-}
+-keep class tech.ericwathome.core.domain.notification.strategy.NotificationStrategy { *; }
+-keep class tech.ericwathome.core.domain.notification.NotificationFactory { *; }

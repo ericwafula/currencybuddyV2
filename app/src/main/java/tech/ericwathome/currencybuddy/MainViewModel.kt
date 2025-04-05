@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import tech.ericwathome.auth.domain.AuthRepository
 import tech.ericwathome.core.domain.ConnectionObserver
 import tech.ericwathome.core.domain.converter.ConverterRepository
@@ -67,15 +66,13 @@ class MainViewModel(
     }
 
     private fun observeExchangeRateUpdateEvents() {
-        viewModelScope.launch {
-            withContext(dispatchers.io) {
-                converterRepository
-                    .exchangeRateObservable
-                    .filterNotNull()
-                    .collectLatest {
-                        widgetUpdater.updateConverterWidget(it)
-                    }
-            }
+        viewModelScope.launch(dispatchers.io) {
+            converterRepository
+                .exchangeRateObservable
+                .filterNotNull()
+                .collectLatest {
+                    widgetUpdater.updateConverterWidget(it)
+                }
         }
     }
 }
