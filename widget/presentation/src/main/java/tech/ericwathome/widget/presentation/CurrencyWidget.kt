@@ -6,9 +6,11 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
+import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import org.koin.core.component.KoinComponent
+import tech.ericwathome.widget.presentation.theme.CurrencyBuddyWidgetColorScheme
 
 class CurrencyWidget : GlanceAppWidget(), KoinComponent {
     override suspend fun provideGlance(
@@ -16,9 +18,13 @@ class CurrencyWidget : GlanceAppWidget(), KoinComponent {
         id: GlanceId,
     ) {
         provideContent {
-            CurrencyWidgetContent(
-                isMiui = isMiui(),
-            )
+            GlanceTheme(
+                colors = CurrencyBuddyWidgetColorScheme.colors,
+            ) {
+                CurrencyWidgetContent(
+                    isMiui = isMiui(),
+                )
+            }
         }
     }
 

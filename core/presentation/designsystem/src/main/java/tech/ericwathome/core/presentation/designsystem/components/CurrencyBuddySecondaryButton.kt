@@ -28,6 +28,7 @@ fun CurrencyBuddySecondaryButton(
     ) {
         Text(
             text = text,
+            color = MaterialTheme.colorScheme.onSurface,
             style =
                 MaterialTheme.typography.bodyLarge.copy(
                     fontSize = with(textUtils) { MaterialTheme.typography.bodyLarge.fontSize.fixedSize },

@@ -38,7 +38,7 @@ fun CurrencyBuddyTinyPopup(
             modifier =
                 modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(MaterialTheme.colorScheme.background),
         ) {
             Column(
                 modifier =
@@ -51,7 +51,7 @@ fun CurrencyBuddyTinyPopup(
                     text = text,
                     style =
                         MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onBackground,
                         ),
                 )
                 Row(
@@ -71,7 +71,7 @@ fun CurrencyBuddyTinyPopup(
                                 text = dismissText,
                                 style =
                                     MaterialTheme.typography.bodyMedium.copy(
-                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                     ),
                             )
                         }
@@ -84,7 +84,7 @@ fun CurrencyBuddyTinyPopup(
                             text = acceptText,
                             style =
                                 MaterialTheme.typography.bodyMedium.copy(
-                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold,
                                 ),
                         )
