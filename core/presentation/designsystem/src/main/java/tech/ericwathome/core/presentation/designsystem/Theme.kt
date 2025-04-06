@@ -18,7 +18,7 @@ import tech.ericwathome.core.presentation.designsystem.utils.TextUtils
 import tech.ericwathome.core.presentation.designsystem.utils.WithProviders
 import tech.ericwathome.core.presentation.designsystem.utils.previewSupported
 
-private val LightColorScheme =
+val LightColorScheme =
     lightColorScheme(
         primary = md_theme_light_primary,
         onPrimary = md_theme_light_on_primary,
@@ -32,7 +32,7 @@ private val LightColorScheme =
         onError = md_theme_light_on_error,
     )
 
-private val DarkColorScheme =
+val DarkColorScheme =
     lightColorScheme(
         primary = md_theme_dark_primary,
         onPrimary = md_theme_dark_on_primary,
@@ -59,7 +59,6 @@ fun CurrencybuddyTheme(
 
     if (!view.isInEditMode) {
         val insetsController = WindowCompat.getInsetsController(window!!, view)
-        insetsController.isAppearanceLightStatusBars = true
     }
 
     SharedTransitionLayout {

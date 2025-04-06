@@ -8,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -75,7 +76,9 @@ private fun SharedTransitionScope.SyncScreenContent(
     isSyncing: Boolean,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    Surface {
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+    ) {
         Box(
             modifier =
                 Modifier
@@ -104,7 +107,7 @@ private fun SharedTransitionScope.SyncScreenContent(
                                     state = rememberSharedContentState(key = SharedContentKeys.GET_STARTED_SECONDARY_COLOR),
                                     animatedVisibilityScope = animatedVisibilityScope,
                                 ),
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
                     )
                     Spacer(modifier = Modifier.height(8.dp))

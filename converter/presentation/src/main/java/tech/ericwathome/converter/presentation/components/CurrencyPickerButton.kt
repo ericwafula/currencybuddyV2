@@ -43,7 +43,7 @@ fun CurrencyPickerButton(
     toggled: Boolean = false,
     onClick: () -> Unit,
 ) {
-    val rippleColor = MaterialTheme.colorScheme.onSecondary
+    val rippleColor = MaterialTheme.colorScheme.onPrimary
     val rippleConfiguration =
         remember {
             RippleConfiguration(
@@ -81,14 +81,14 @@ fun CurrencyPickerButton(
                 text = text,
                 style =
                     MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSecondary,
+                        color = MaterialTheme.colorScheme.onBackground,
                     ),
             )
             Spacer(modifier = Modifier.width(4.dp))
             Icon(
                 imageVector = if (toggled) UpIconThin else DownIconThin,
                 contentDescription = stringResource(R.string.drop_down_icon),
-                tint = MaterialTheme.colorScheme.onSecondary,
+                tint = MaterialTheme.colorScheme.onBackground,
             )
         }
     }
@@ -98,7 +98,7 @@ fun CurrencyPickerButton(
 @Composable
 private fun CurrencyPickerButtonPreview() {
     CurrencybuddyTheme {
-        Box(modifier = Modifier.background(MaterialTheme.colorScheme.secondary)) {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
             CurrencyPickerButton(
                 modifier = Modifier,
                 imageUrl = "",

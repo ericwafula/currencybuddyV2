@@ -38,7 +38,7 @@ fun CurrencyBuddyNetworkLayout(
                 visible = showNetworkPopup,
             ) {
                 CurrencyBuddyTinyPopup(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     onAccept = onClickConnect,
                     onDecline = { },
                     isVisible = true,

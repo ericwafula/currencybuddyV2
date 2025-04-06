@@ -8,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -63,7 +64,10 @@ fun SharedTransitionScope.GetStartedScreenContent(
 ) {
     Scaffold { paddingValues ->
         Surface(
-            modifier = Modifier.padding(paddingValues),
+            modifier =
+                Modifier
+                    .padding(paddingValues),
+            color = MaterialTheme.colorScheme.background,
         ) {
             Column(
                 modifier =

@@ -12,9 +12,9 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.LocalContext
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.ImageProvider
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.appwidget.components.CircleIconButton
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.currentState
@@ -24,11 +24,12 @@ import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.layout.wrapContentHeight
+import androidx.glance.layout.wrapContentWidth
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -49,209 +50,122 @@ fun CurrencyWidgetContent(isMiui: Boolean) {
     val quoteUri = prefs[CurrencyWidget.targetImageUriKey]?.takeIf { it != "placeholder" }?.toUri()
     val rate = prefs[CurrencyWidget.rateKey] ?: 0.0f
 
-    GlanceTheme {
-        Box(
+    Box(
+        modifier =
+            GlanceModifier
+                .cornerRadius(12.dp)
+                .wrapContentWidth()
+                .wrapContentHeight()
+                .background(colorProvider = GlanceTheme.colors.surface)
+                .clickable(actionStartActivity(intent)),
+    ) {
+        Row(
             modifier =
                 GlanceModifier
-                    .cornerRadius(12.dp)
-                    .background(
-                        colorProvider = GlanceTheme.colors.background,
-                    ),
+                    .wrapContentWidth()
+                    .wrapContentHeight()
+                    .padding(16.dp),
+            verticalAlignment = Alignment.Vertical.CenterVertically,
         ) {
-            Column(
-                modifier =
-                    GlanceModifier
-                        .padding(24.dp),
-            ) {
-                Box(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.Start,
-                    ) {
-                        Text(
-                            text = "Currency Buddy",
-                            style =
-                                TextStyle(
-                                    color = GlanceTheme.colors.onBackground,
-                                    fontSize = 24.sp,
-                                ),
-                        )
-                    }
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth().height(24.dp),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.End,
-                    ) {
-                        CircleIconButton(
-                            imageProvider = androidx.glance.ImageProvider(tech.ericwathome.core.presentation.designsystem.R.drawable.ic_right),
-                            contentDescription = null,
-                            modifier =
-                                GlanceModifier
-                                    .size(42.dp)
-                                    .cornerRadius(100.dp),
-                            onClick = actionStartActivity(intent),
-                        )
-                    }
-                }
-                Spacer(modifier = GlanceModifier.height(12.dp))
-                Box(
-                    modifier =
-                        GlanceModifier
-                            .fillMaxWidth()
-                            .background(
-                                colorProvider =
-                                    ColorProvider(
-                                        color =
-                                            GlanceTheme
-                                                .colors
-                                                .onBackground
-                                                .getColor(context)
-                                                .copy(0.1f),
-                                    ),
-                            )
-                            .height(1.dp),
-                ) {}
-                Spacer(modifier = GlanceModifier.height(12.dp))
-                Box(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.Start,
-                    ) {
-                        if (baseUri != null && baseUri != Uri.EMPTY) {
-                            Image(
-                                provider = ImageProvider(baseUri),
-                                contentDescription = null,
-                                modifier =
-                                    GlanceModifier
-                                        .size(42.dp)
-                                        .cornerRadius(100.dp),
-                                contentScale = ContentScale.Crop,
-                            )
-                        } else {
-                            Box(
-                                modifier =
-                                    GlanceModifier
-                                        .size(42.dp)
-                                        .cornerRadius(100.dp)
-                                        .background(
-                                            colorProvider =
-                                                ColorProvider(
-                                                    GlanceTheme.colors.onBackground.getColor(context).copy(0.4f),
-                                                ),
-                                        ),
-                            ) {}
-                        }
-                        Spacer(modifier = GlanceModifier.width(12.dp))
-                        Text(
-                            text = baseCode.uppercase(),
-                            style =
-                                TextStyle(
-                                    color = GlanceTheme.colors.onBackground,
-                                    fontSize = 24.sp,
-                                ),
-                        )
-                    }
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth().height(42.dp),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = "VS",
-                            style =
-                                TextStyle(
-                                    color =
-                                        ColorProvider(
-                                            GlanceTheme.colors.onBackground.getColor(context).copy(0.5f),
-                                        ),
-                                    fontSize = 14.sp,
-                                ),
-                        )
-                    }
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.End,
-                    ) {
-                        if (quoteUri != null && quoteUri != Uri.EMPTY) {
-                            Image(
-                                provider = ImageProvider(quoteUri),
-                                contentDescription = null,
-                                modifier =
-                                    GlanceModifier
-                                        .size(42.dp)
-                                        .cornerRadius(100.dp),
-                                contentScale = ContentScale.Crop,
-                            )
-                        } else {
-                            Box(
-                                modifier =
-                                    GlanceModifier
-                                        .size(42.dp)
-                                        .cornerRadius(100.dp)
-                                        .background(
-                                            colorProvider =
-                                                ColorProvider(
-                                                    GlanceTheme.colors.onBackground.getColor(context).copy(0.4f),
-                                                ),
-                                        ),
-                            ) {}
-                        }
-                        Spacer(modifier = GlanceModifier.width(12.dp))
-                        Text(
-                            text = targetCode.uppercase(),
-                            style =
-                                TextStyle(
-                                    color = GlanceTheme.colors.onBackground,
-                                    fontSize = 24.sp,
-                                ),
-                        )
-                    }
-                }
-                Spacer(modifier = GlanceModifier.height(12.dp))
-                Box(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.Start,
-                    ) {
-                        Image(
-                            provider = androidx.glance.ImageProvider(tech.ericwathome.core.presentation.designsystem.R.drawable.ic_bull),
-                            contentDescription = null,
-                        )
-                    }
+            Column {
+                Text(
+                    text = "From",
+                    style =
+                        TextStyle(
+                            color = ColorProvider(GlanceTheme.colors.onPrimary.getColor(context).copy(0.5f)),
+                            fontSize = 10.sp,
+                        ),
+                )
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                if (baseUri != null && baseUri != Uri.EMPTY) {
+                    Image(
+                        provider = ImageProvider(baseUri),
+                        contentDescription = null,
+                        modifier =
+                            GlanceModifier
+                                .size(32.dp)
+                                .cornerRadius(100.dp),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
                     Box(
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = rate.toString(),
-                            style =
-                                TextStyle(
-                                    color = GlanceTheme.colors.onBackground,
-                                    fontSize = 24.sp,
+                        modifier =
+                            GlanceModifier
+                                .size(32.dp)
+                                .cornerRadius(100.dp)
+                                .background(
+                                    colorProvider =
+                                        ColorProvider(
+                                            GlanceTheme.colors.onBackground.getColor(context).copy(0.4f),
+                                        ),
                                 ),
-                        )
-                    }
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.End,
-                    ) {
-                        Image(
-                            provider = androidx.glance.ImageProvider(tech.ericwathome.core.presentation.designsystem.R.drawable.ic_bear),
-                            contentDescription = null,
-                        )
-                    }
+                    ) {}
                 }
+                Spacer(modifier = GlanceModifier.height(8.dp))
+                Text(
+                    text = baseCode.uppercase(),
+                    style =
+                        TextStyle(
+                            color = GlanceTheme.colors.onBackground,
+                            fontSize = 14.sp,
+                        ),
+                )
+            }
+            Spacer(modifier = GlanceModifier.width(14.dp))
+            Text(
+                modifier = GlanceModifier,
+                text = "=",
+                style =
+                    TextStyle(
+                        color = GlanceTheme.colors.onBackground,
+                        fontSize = 20.sp,
+                    ),
+            )
+            Spacer(modifier = GlanceModifier.width(14.dp))
+            Column {
+                Text(
+                    text = "To",
+                    style =
+                        TextStyle(
+                            color = ColorProvider(GlanceTheme.colors.onPrimary.getColor(context).copy(0.5f)),
+                            fontSize = 10.sp,
+                        ),
+                )
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                if (quoteUri != null && quoteUri != Uri.EMPTY) {
+                    Image(
+                        provider = ImageProvider(quoteUri),
+                        contentDescription = null,
+                        modifier =
+                            GlanceModifier
+                                .size(32.dp)
+                                .cornerRadius(100.dp),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Box(
+                        modifier =
+                            GlanceModifier
+                                .size(32.dp)
+                                .cornerRadius(100.dp)
+                                .background(
+                                    colorProvider =
+                                        ColorProvider(
+                                            GlanceTheme.colors.onBackground.getColor(context).copy(0.4f),
+                                        ),
+                                ),
+                    ) {}
+                }
+                Spacer(modifier = GlanceModifier.height(8.dp))
+                Text(
+                    modifier = GlanceModifier,
+                    text = "$rate ${targetCode.uppercase()}",
+                    style =
+                        TextStyle(
+                            color = GlanceTheme.colors.primary,
+                            fontSize = 14.sp,
+                        ),
+                )
             }
         }
     }
