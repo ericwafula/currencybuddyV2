@@ -1,5 +1,5 @@
 [versions]
-agp = "8.8.2"
+agp = "8.9.1"
 androidTools = "31.9.1"
 playFeatureDelivery = "2.1.0"
 coreSplashscreen = "1.0.1"

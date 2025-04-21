@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
+import tech.ericwathome.core.domain.ImageUri
 import tech.ericwathome.core.domain.notification.strategy.NotificationStrategy
 
 class SyncNotification(
@@ -18,9 +19,10 @@ class SyncNotification(
         createNotificationChannel()
     }
 
-    override fun show(
+    override suspend fun show(
         title: String,
         description: String,
+        imageUri: ImageUri?,
     ) {
         val notification =
             NotificationCompat.Builder(context, notificationChannel)
