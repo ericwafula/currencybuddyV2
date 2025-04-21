@@ -18,10 +18,7 @@ class SyncNotification(
         createNotificationChannel()
     }
 
-    override fun show(
-        title: String,
-        description: String,
-    ) {
+    override fun show(title: String, description: String, icon: Int?) {
         val notification =
             NotificationCompat.Builder(context, notificationChannel)
                 .setSmallIcon(tech.ericwathome.core.presentation.designsystem.R.drawable.ic_bell)

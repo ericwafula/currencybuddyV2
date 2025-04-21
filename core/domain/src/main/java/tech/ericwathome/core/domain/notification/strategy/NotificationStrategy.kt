@@ -4,6 +4,7 @@ interface NotificationStrategy {
     fun show(
         title: String,
         description: String,
+        icon: Int? = null
     )
 
     enum class Type {
