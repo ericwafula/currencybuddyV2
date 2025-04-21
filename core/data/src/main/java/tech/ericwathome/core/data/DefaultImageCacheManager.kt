@@ -15,20 +15,24 @@ import java.time.format.DateTimeFormatter
 
 class DefaultImageCacheManager(
     private val context: Context,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) : ImageCacheManager {
-    override suspend fun cacheImage(url: String, imageType: ImageCacheManager.ImageType): Result<ImageUri, DataError.Network> {
+    override suspend fun cacheImage(
+        url: String,
+        imageType: ImageCacheManager.ImageType,
+    ): Result<ImageUri, DataError.Network> {
         val result = httpClient.get<ByteArray>(url)
 
         if (result is Result.Success) {
             val file = File(context.cacheDir, createFileName(imageType))
             file.outputStream().use { it.write(result.data) }
 
-            val imageUri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                file
-            )
+            val imageUri =
+                FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    file,
+                )
 
             return Result.Success(imageUri.toString())
         }
