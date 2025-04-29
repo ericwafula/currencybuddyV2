@@ -55,7 +55,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: signed-aab
-          path: .
+          path: release/app-release.aab
 
       - name: Download mapping file
         uses: actions/download-artifact@v4
@@ -73,7 +73,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: tech.ericwathome.currencybuddy
-          releaseFiles: app-release.aab
+          releaseFiles: release/app-release.aab
           track: production
           status: inProgress
           inAppUpdatePriority: 2
