@@ -64,7 +64,6 @@ jobs:
           path: mapping/mapping.txt
 
       - name: Download Debug Symbols (conditionally)
-        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: debug-symbols
