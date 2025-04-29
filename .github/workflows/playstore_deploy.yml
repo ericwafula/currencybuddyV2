@@ -55,13 +55,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: signed-aab
-          path: release/app-release.aab
+          path: release
 
       - name: Download mapping file
         uses: actions/download-artifact@v4
         with:
           name: mapping-file
-          path: mapping/mapping.txt
+          path: mapping
 
       - name: Download Debug Symbols (conditionally)
         uses: actions/download-artifact@v4
