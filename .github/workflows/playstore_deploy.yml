@@ -63,11 +63,7 @@ jobs:
           name: mapping-file
           path: mapping/mapping.txt
 
-      - name: Ensure debug-symbols folder exists
-        run: mkdir -p debug-symbols
-
       - name: Download Debug Symbols (conditionally)
-        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: debug-symbols
