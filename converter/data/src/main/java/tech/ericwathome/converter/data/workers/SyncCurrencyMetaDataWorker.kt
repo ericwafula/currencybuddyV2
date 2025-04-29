@@ -99,7 +99,6 @@ class SyncCurrencyMetaDataWorker(
         if (BuildConfig.DEBUG) {
             notification.show(title, message)
         }
-
     }
 
     companion object {

@@ -97,7 +97,6 @@ class SyncSelectedCurrencyPairWorker(
         if (BuildConfig.DEBUG) {
             notification.show(title, message)
         }
-
     }
 
     companion object {
