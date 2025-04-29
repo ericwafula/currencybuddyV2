@@ -12,6 +12,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.flow.firstOrNull
+import tech.ericwathome.converter.data.BuildConfig
 import tech.ericwathome.core.data.util.toWorkerResult
 import tech.ericwathome.core.domain.converter.ConverterRepository
 import tech.ericwathome.core.domain.converter.LocalConverterDataSource
@@ -95,7 +96,9 @@ class SyncCurrencyMetaDataWorker(
                 "Sync Error" to "Unable to sync currencies"
             }
 
-        notification.show(title, message)
+        if (BuildConfig.DEBUG) {
+            notification.show(title, message)
+        }
     }
 
     companion object {
