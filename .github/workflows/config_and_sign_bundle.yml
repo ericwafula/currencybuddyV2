@@ -37,6 +37,11 @@ on:
         type: boolean
         required: false
         default: false
+      upload_mapping_file:
+        description: 'Upload mapping file'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   config_and_sign_bundle:
@@ -136,3 +141,17 @@ jobs:
         with:
           name: signed-aab
           path: app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload mapping.txt
+        if: ${{ inputs.upload_mapping_file == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mapping-file
+          path: app/build/outputs/mapping/release/mapping.txt
+
+      - name: Upload debug symbols
+        if: ${{ inputs.upload_mapping_file == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-symbols
+          path: app/build/intermediates/merged_native_libs/release/out/lib

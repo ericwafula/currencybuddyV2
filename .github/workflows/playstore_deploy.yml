@@ -19,6 +19,7 @@ jobs:
       release-notes: ${{ github.event.inputs.release_notes }}
       build_release_aab: true
       sign_release_aab: true
+      upload_mapping_file: true
 
   deploy_to_google_play:
     needs: config_and_sign_bundle
@@ -56,6 +57,18 @@ jobs:
           name: signed-aab
           path: .
 
+      - name: Download mapping file
+        uses: actions/download-artifact@v4
+        with:
+          name: mapping-file
+          path: mapping/mapping.txt
+
+      - name: Download debug symbols
+        uses: actions/download-artifact@v4
+        with:
+          name: debug-symbols
+          path: debugSymbols
+
       - uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
@@ -66,5 +79,5 @@ jobs:
           inAppUpdatePriority: 2
           userFraction: 0.9
           whatsNewDirectory: whatsnew/
-          mappingFile: app/build/outputs/mapping/release/mapping.txt
-          debugSymbols: app/build/intermediates/merged_native_libs/release/out/lib
+          mappingFile: mapping/mapping.txt
+          debugSymbols: debugSymbols
