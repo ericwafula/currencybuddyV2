@@ -34,6 +34,9 @@ import tech.ericwathome.core.presentation.ui.extract
 import tech.ericwathome.core.presentation.ui.extractTriple
 import kotlin.time.Duration.Companion.minutes
 
+private typealias BaseAndQuoteFlagsSvgs = Pair<String, String>
+private typealias BaseAndQuoteFlagsPngs = Pair<String, String>
+
 @Keep
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class ConverterViewModel(
@@ -49,7 +52,6 @@ class ConverterViewModel(
     private val maxFractionDigits = 2
 
     private val hasAcceptedNotificationPermission = MutableStateFlow(false)
-    private val hasAcceptedLocationPermission = MutableStateFlow(false)
 
     private val _state = MutableStateFlow(ConverterState())
     val state =
@@ -359,7 +361,7 @@ class ConverterViewModel(
         baseCode: String,
         quoteCode: String,
         currencyList: List<CurrencyMetadata>,
-    ): Pair<Pair<String, String>, Pair<String, String>> {
+    ): Pair<BaseAndQuoteFlagsSvgs, BaseAndQuoteFlagsPngs> {
         val sorted = currencyList.sortedBy { it.code }
         val baseIndex = sorted.binarySearch { it.code.uppercase().compareTo(baseCode.uppercase()) }
         val quoteIndex = sorted.binarySearch { it.code.uppercase().compareTo(quoteCode.uppercase()) }
@@ -369,7 +371,7 @@ class ConverterViewModel(
         val quoteFlagSvg = sorted.getOrNull(quoteIndex)?.flag?.svg.orEmpty()
         val quoteFlagPng = sorted.getOrNull(quoteIndex)?.flag?.png.orEmpty()
 
-        return (baseFlagSvg to quoteFlagSvg) to (baseFlagPng to quoteFlagPng)
+        return BaseAndQuoteFlagsSvgs(baseFlagSvg, quoteFlagSvg) to BaseAndQuoteFlagsPngs(baseFlagPng, quoteFlagPng)
     }
 
     private fun observeSyncStates() {
