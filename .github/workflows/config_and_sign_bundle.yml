@@ -165,4 +165,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debug-symbols
-          path: app/build/intermediates/merged_native_libs/release/out/lib
+          path: app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib
