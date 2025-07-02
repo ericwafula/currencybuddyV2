@@ -40,7 +40,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
                     applicationId = libs.findVersion("projectApplicationId").get().toString()
+                    minSdk = libs.findVersion("projectMinSdkVersion").get().toString().toInt()
                     targetSdk = libs.findVersion("projectTargetSdkVersion").get().toString().toInt()
+                    compileSdk = libs.findVersion("projectCompileSdkVersion").get().toString().toInt()
 
                     versionCode = appVersionCode
                     versionName = appVersionName
